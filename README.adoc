@@ -1,0 +1,3 @@
+= Cruding
+
+Universal CRUD, relation, object-meta, and capability-resolution bundle for Symfony host applications.

@@ -1,0 +1,73 @@
+app_object_relation_list_slug:
+    path: /{resourcePath}/{relationKind}/{slug}/
+    controller: App\Cruding\Controller\Relation\ObjectRelationListController
+    methods: [GET]
+    defaults:
+        _relation_operation: list
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'
+
+app_object_relation_list_id:
+    path: /{resourcePath}/{relationKind}/{id}/
+    controller: App\Cruding\Controller\Relation\ObjectRelationListController
+    methods: [GET]
+    defaults:
+        _relation_operation: list
+        _crud_surface: admin
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        id: '\d+'
+        relationKind: '%app.object_relations_requirement%'
+
+app_object_relation_attach_slug:
+    path: /{resourcePath}/{relationKind}/attach/{slug}
+    controller: App\Cruding\Controller\Relation\ObjectRelationAttachController
+    methods: [POST]
+    defaults:
+        _relation_operation: attach
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'
+
+app_object_relation_attach_id:
+    path: /{resourcePath}/{relationKind}/attach/{id}
+    controller: App\Cruding\Controller\Relation\ObjectRelationAttachController
+    methods: [POST]
+    defaults:
+        _relation_operation: attach
+        _crud_surface: admin
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        id: '\d+'
+        relationKind: '%app.object_relations_requirement%'
+
+app_object_relation_detach_slug:
+    path: /{resourcePath}/{relationKind}/detach/{relatedSlug}/{slug}
+    controller: App\Cruding\Controller\Relation\ObjectRelationDetachController
+    methods: [POST]
+    defaults:
+        _relation_operation: detach
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relatedSlug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'
+
+app_object_relation_detach_id:
+    path: /{resourcePath}/{relationKind}/detach/{relatedSlug}/{id}
+    controller: App\Cruding\Controller\Relation\ObjectRelationDetachController
+    methods: [POST]
+    defaults:
+        _relation_operation: detach
+        _crud_surface: admin
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        id: '\d+'
+        relatedSlug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'

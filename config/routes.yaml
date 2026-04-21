@@ -1,0 +1,17 @@
+cruding_app_crud:
+    resource: 'routes/app_crud.yaml'
+
+cruding_app_api_crud:
+    resource: 'routes/app_api_crud.yaml'
+
+cruding_app_object_relations:
+    resource: 'routes/app_object_relations.yaml'
+
+cruding_app_api_object_relations:
+    resource: 'routes/app_api_object_relations.yaml'
+
+cruding_app_object_meta:
+    resource: 'routes/app_object_meta.yaml'
+
+cruding_app_api_object_meta:
+    resource: 'routes/app_api_object_meta.yaml'

@@ -1,0 +1,20 @@
+app_api_object_audit:
+    path: /api/{resourcePath}/audit/{slug}
+    controller: App\Cruding\Controller\Api\ObjectMeta\ObjectAuditApiController
+    methods: [GET]
+    defaults:
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+
+app_api_object_visibility:
+    path: /api/{resourcePath}/visibility/{transition}/{slug}
+    controller: App\Cruding\Controller\Api\ObjectMeta\ObjectVisibilityApiController
+    methods: [POST]
+    defaults:
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        transition: '%app.object_meta.visibility_transitions_requirement%'

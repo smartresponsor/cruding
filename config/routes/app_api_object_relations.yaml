@@ -1,0 +1,36 @@
+app_api_object_relation_list:
+    path: /api/{resourcePath}/{relationKind}/{slug}/
+    controller: App\Cruding\Controller\Api\Relation\ObjectRelationApiListController
+    methods: [GET]
+    defaults:
+        _relation_operation: list
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'
+
+app_api_object_relation_attach:
+    path: /api/{resourcePath}/{relationKind}/attach/{slug}
+    controller: App\Cruding\Controller\Api\Relation\ObjectRelationApiAttachController
+    methods: [POST]
+    defaults:
+        _relation_operation: attach
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'
+
+app_api_object_relation_detach:
+    path: /api/{resourcePath}/{relationKind}/detach/{relatedSlug}/{slug}
+    controller: App\Cruding\Controller\Api\Relation\ObjectRelationApiDetachController
+    methods: [DELETE]
+    defaults:
+        _relation_operation: detach
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relatedSlug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        relationKind: '%app.object_relations_requirement%'

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>{{ crud.resourcePath }} index</h1>
+
+    <ul>
+        {% for object in objects %}
+            <li>{{ object|default('object') }}</li>
+        {% else %}
+            <li>No objects found.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

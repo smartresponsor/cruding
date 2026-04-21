@@ -1,0 +1,41 @@
+app_object_audit_slug:
+    path: /{resourcePath}/audit/{slug}
+    controller: App\Cruding\Controller\ObjectMeta\ObjectAuditController
+    methods: [GET]
+    defaults:
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+
+app_object_audit_id:
+    path: /{resourcePath}/audit/{id}
+    controller: App\Cruding\Controller\ObjectMeta\ObjectAuditController
+    methods: [GET]
+    defaults:
+        _crud_surface: admin
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        id: '\d+'
+
+app_object_visibility_slug:
+    path: /{resourcePath}/visibility/{transition}/{slug}
+    controller: App\Cruding\Controller\ObjectMeta\ObjectVisibilityController
+    methods: [POST]
+    defaults:
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        transition: '%app.object_meta.visibility_transitions_requirement%'
+
+app_object_visibility_id:
+    path: /{resourcePath}/visibility/{transition}/{id}
+    controller: App\Cruding\Controller\ObjectMeta\ObjectVisibilityController
+    methods: [POST]
+    defaults:
+        _crud_surface: admin
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+        id: '\d+'
+        transition: '%app.object_meta.visibility_transitions_requirement%'

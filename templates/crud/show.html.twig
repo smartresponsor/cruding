@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>{{ crud.resourcePath }} show</h1>
+
+    <p>Object loaded for {{ crud.identifierField }}={{ crud.identifierValue }}</p>
+    <p>Class: {{ object is not null ? object|default('object') : 'n/a' }}</p>
+{% endblock %}
