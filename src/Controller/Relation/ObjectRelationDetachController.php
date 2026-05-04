@@ -26,11 +26,25 @@ final class ObjectRelationDetachController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $subject = $this->objectFinder->findOne($context->crud);
+        if (null === $subject) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $access = $this->accessContextBuilder->build($context->crud, $subject);
         $this->mutationGuard->assertCanEdit($access);
-        $this->relationManager->detach($context, $subject);
+        try {
+            $this->relationManager->detach($context, $subject);
+        } catch (\Symfony\Component\HttpKernel\Exception\BadRequestHttpException) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
 
         return $this->redirect($request->headers->get('referer') ?: sprintf('/%s/%s/%s/', $context->crud->resourcePath, $context->relationKind, (string) $context->crud->identifierValue));
     }

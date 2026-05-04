@@ -26,8 +26,16 @@ final class ObjectRelationListController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $subject = $this->objectFinder->findOne($context->crud);
+        if (null === $subject) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $access = $this->accessContextBuilder->build($context->crud, $subject);
         if (!$access->canView) {
             throw $this->createAccessDeniedException('You are not allowed to view this object relations.');

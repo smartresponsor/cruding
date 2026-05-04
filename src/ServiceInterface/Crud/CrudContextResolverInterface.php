@@ -10,4 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 interface CrudContextResolverInterface
 {
     public function resolve(Request $request): CrudContext;
+
+    public function tryResolve(Request $request): ?CrudContext;
 }

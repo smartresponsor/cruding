@@ -9,11 +9,11 @@ use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
 use App\Cruding\ServiceInterface\Crud\CrudMutationGuardInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
+use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CrudEditController extends AbstractController
 {
@@ -23,19 +23,28 @@ final class CrudEditController extends AbstractController
         private readonly CrudFormHandlerInterface $formHandler,
         private readonly CrudRouteNameResolverInterface $routeNameResolver,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
+        private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
         private readonly CrudMutationGuardInterface $mutationGuard,
     ) {
     }
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $object = $this->objectFinder->findOne($context);
+        if (null === $object) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $access = $this->accessContextBuilder->build($context, $object);
         $this->mutationGuard->assertCanEdit($access);
 
         if (null === $context->formTypeClass) {
-            throw new NotFoundHttpException(sprintf('Form type for "%s" could not be resolved.', $context->resourcePath));
+            return new Response('', Response::HTTP_NOT_FOUND);
         }
 
         $form = $this->formHandler->createAndHandle($this, $context->formTypeClass, $object, $request);
@@ -48,9 +57,12 @@ final class CrudEditController extends AbstractController
             );
         }
 
-        return $this->render($context->template('edit'), [
+        $page = $this->pageDefinitionProvider->provideEdit($context, $object, $form->createView());
+
+        return $this->render($page->template, [
             'crud' => $context,
             'crud_access' => $access,
+            'page' => $page,
             'object' => $object,
             'form' => $form->createView(),
         ]);

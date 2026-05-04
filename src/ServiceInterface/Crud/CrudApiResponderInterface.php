@@ -22,6 +22,8 @@ interface CrudApiResponderInterface
      */
     public function deleted(CrudContext $context): JsonResponse;
 
+    public function notFound(string $resourcePath, string $detail = 'Resource not found.'): JsonResponse;
+
     /**
      * @return JsonResponse<array{resource: string, errors: array<int, array{field: string, message: string}>}>
      */

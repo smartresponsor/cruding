@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\ServiceInterface\Relation;
 
 use App\Cruding\Dto\Relation\ObjectRelationContext;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 interface ObjectRelationResponderInterface
@@ -18,4 +19,6 @@ interface ObjectRelationResponderInterface
     public function apiAttached(ObjectRelationContext $context, object $subject, object $relation): Response;
 
     public function apiDetached(ObjectRelationContext $context, object $subject): Response;
+
+    public function notFound(string $resourcePath, string $detail = 'Resource not found.'): JsonResponse;
 }

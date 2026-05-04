@@ -7,11 +7,11 @@ namespace App\Cruding\Controller\Crud;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
+use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CrudCreateController extends AbstractController
 {
@@ -20,18 +20,22 @@ final class CrudCreateController extends AbstractController
         private readonly CrudFormHandlerInterface $formHandler,
         private readonly CrudRouteNameResolverInterface $routeNameResolver,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
+        private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
     ) {
     }
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
-        $entityClass = $context->entityClass;
-        $object = new $entityClass();
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
+        $object = $this->createEmptyObject($context->entityClass);
         $access = $this->accessContextBuilder->build($context, $object);
 
         if (null === $context->formTypeClass) {
-            throw new NotFoundHttpException(sprintf('Form type for "%s" could not be resolved.', $context->resourcePath));
+            return new Response('', Response::HTTP_NOT_FOUND);
         }
 
         $form = $this->formHandler->createAndHandle($this, $context->formTypeClass, $object, $request);
@@ -53,9 +57,13 @@ final class CrudCreateController extends AbstractController
             );
         }
 
-        return $this->render($context->template('new'), [
+        $page = $this->pageDefinitionProvider->provideNew($context, $object, $form->createView());
+
+        return $this->render($page->template, [
             'crud' => $context,
             'crud_access' => $access,
+            'page' => $page,
+            'object' => $object,
             'form' => $form->createView(),
         ]);
     }
@@ -79,5 +87,48 @@ final class CrudCreateController extends AbstractController
         }
 
         return null;
+    }
+
+    private function createEmptyObject(string $entityClass): object
+    {
+        $reflection = new \ReflectionClass($entityClass);
+        $constructor = $reflection->getConstructor();
+        if (null === $constructor) {
+            return $reflection->newInstance();
+        }
+
+        $arguments = [];
+        foreach ($constructor->getParameters() as $parameter) {
+            if ($parameter->isDefaultValueAvailable()) {
+                $arguments[] = $parameter->getDefaultValue();
+                continue;
+            }
+
+            $type = $parameter->getType();
+            if ($type instanceof \ReflectionNamedType) {
+                if ($type->allowsNull()) {
+                    $arguments[] = null;
+                    continue;
+                }
+
+                $arguments[] = match ($type->getName()) {
+                    'string' => '',
+                    'int' => 0,
+                    'float' => 0.0,
+                    'bool' => false,
+                    'array' => [],
+                    default => null,
+                };
+                continue;
+            }
+
+            $arguments[] = null;
+        }
+
+        try {
+            return $reflection->newInstanceArgs($arguments);
+        } catch (\Throwable) {
+            return $reflection->newInstanceWithoutConstructor();
+        }
     }
 }

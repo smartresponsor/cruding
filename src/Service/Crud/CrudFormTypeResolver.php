@@ -8,6 +8,11 @@ final class CrudFormTypeResolver
 {
     public function resolve(string $entityClass): ?string
     {
+        $explicit = $this->explicitTypes();
+        if (isset($explicit[$entityClass])) {
+            return $explicit[$entityClass];
+        }
+
         $entityParts = explode('\\Entity\\', $entityClass, 2);
         if (!isset($entityParts[1])) {
             return null;
@@ -35,5 +40,15 @@ final class CrudFormTypeResolver
         }
 
         return null;
+    }
+
+    /**
+     * @return array<class-string, class-string>
+     */
+    private function explicitTypes(): array
+    {
+        return array_filter([
+            \App\Cataloging\Entity\Catalog\CatalogCategoryEntity::class => class_exists(\App\Cataloging\Form\CategoryAdminCategoryType::class) ? \App\Cataloging\Form\CategoryAdminCategoryType::class : null,
+        ]);
     }
 }

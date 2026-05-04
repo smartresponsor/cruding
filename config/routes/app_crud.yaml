@@ -1,4 +1,4 @@
-app_crud_new:
+cruding_new:
     path: /{resourcePath}/new/
     controller: App\Cruding\Controller\Crud\CrudCreateController
     methods: [GET, POST]
@@ -8,7 +8,7 @@ app_crud_new:
     requirements:
         resourcePath: '[a-z0-9/_-]+'
 
-app_crud_edit_id:
+cruding_edit_id:
     path: /{resourcePath}/edit/{id}
     controller: App\Cruding\Controller\Crud\CrudEditController
     methods: [GET, POST]
@@ -19,7 +19,7 @@ app_crud_edit_id:
         resourcePath: '[a-z0-9/_-]+'
         id: '\d+'
 
-app_crud_edit_slug:
+cruding_edit_slug:
     path: /{resourcePath}/edit/{slug}
     controller: App\Cruding\Controller\Crud\CrudEditController
     methods: [GET, POST]
@@ -30,7 +30,7 @@ app_crud_edit_slug:
         resourcePath: '[a-z0-9/_-]+'
         slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
-app_crud_delete_id:
+cruding_delete_id:
     path: /{resourcePath}/delete/{id}
     controller: App\Cruding\Controller\Crud\CrudDeleteController
     methods: [POST]
@@ -41,7 +41,7 @@ app_crud_delete_id:
         resourcePath: '[a-z0-9/_-]+'
         id: '\d+'
 
-app_crud_delete_slug:
+cruding_delete_slug:
     path: /{resourcePath}/delete/{slug}
     controller: App\Cruding\Controller\Crud\CrudDeleteController
     methods: [POST]
@@ -52,18 +52,18 @@ app_crud_delete_slug:
         resourcePath: '[a-z0-9/_-]+'
         slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
-app_crud_show_id:
+cruding_show_id:
     path: /{resourcePath}/{id}
     controller: App\Cruding\Controller\Crud\CrudShowController
     methods: [GET]
     defaults:
         _crud_operation: show
-        _crud_surface: admin
+        _crud_surface: public
     requirements:
         resourcePath: '[a-z0-9/_-]+'
         id: '\d+'
 
-app_crud_show_slug:
+cruding_show_slug:
     path: /{resourcePath}/{slug}
     controller: App\Cruding\Controller\Crud\CrudShowController
     methods: [GET]
@@ -74,8 +74,18 @@ app_crud_show_slug:
         resourcePath: '[a-z0-9/_-]+'
         slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
-app_crud_index:
+cruding_index:
     path: /{resourcePath}/
+    controller: App\Cruding\Controller\Crud\CrudIndexController
+    methods: [GET]
+    defaults:
+        _crud_operation: index
+        _crud_surface: public
+    requirements:
+        resourcePath: '[a-z0-9/_-]+'
+
+cruding_index_root:
+    path: /{resourcePath}
     controller: App\Cruding\Controller\Crud\CrudIndexController
     methods: [GET]
     defaults:

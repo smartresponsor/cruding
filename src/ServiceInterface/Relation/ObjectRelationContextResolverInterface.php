@@ -10,4 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 interface ObjectRelationContextResolverInterface
 {
     public function resolve(Request $request): ObjectRelationContext;
+
+    public function tryResolve(Request $request): ?ObjectRelationContext;
 }

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Crud;
 
-use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
+use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,19 +14,24 @@ final class CrudIndexController extends AbstractController
 {
     public function __construct(
         private readonly CrudContextResolverInterface $contextResolver,
-        private readonly CrudObjectFinderInterface $objectFinder,
-        private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
+        private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
     ) {
     }
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
 
-        return $this->render($context->template('index'), [
-            'crud' => $context,
-            'crud_access' => $this->accessContextBuilder->build($context),
-            'objects' => $this->objectFinder->findAll($context),
+        $page = $this->pageDefinitionProvider->provideIndex($context);
+
+        return $this->render($page->template, [
+            'crud' => $page->context,
+            'crud_access' => $page->access,
+            'page' => $page,
+            'objects' => $page->objects,
         ]);
     }
 }

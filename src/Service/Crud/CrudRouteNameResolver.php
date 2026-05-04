@@ -11,14 +11,33 @@ final class CrudRouteNameResolver implements CrudRouteNameResolverInterface
 {
     public function resolveIndex(CrudContext $context): string
     {
-        return 'app_crud_index';
+        return 'cruding_index';
+    }
+
+    public function resolveNew(CrudContext $context): string
+    {
+        return 'cruding_new';
     }
 
     public function resolveShow(CrudContext $context, ?string $identifierField = null): string
     {
         $field = $identifierField ?? $context->identifierField;
 
-        return 'id' === $field ? 'app_crud_show_id' : 'app_crud_show_slug';
+        return 'id' === $field ? 'cruding_show_id' : 'cruding_show_slug';
+    }
+
+    public function resolveEdit(CrudContext $context, ?string $identifierField = null): string
+    {
+        $field = $identifierField ?? $context->identifierField;
+
+        return 'id' === $field ? 'cruding_edit_id' : 'cruding_edit_slug';
+    }
+
+    public function resolveDelete(CrudContext $context, ?string $identifierField = null): string
+    {
+        $field = $identifierField ?? $context->identifierField;
+
+        return 'id' === $field ? 'cruding_delete_id' : 'cruding_delete_slug';
     }
 
     /**

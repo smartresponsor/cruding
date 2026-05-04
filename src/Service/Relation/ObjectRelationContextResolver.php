@@ -21,11 +21,25 @@ final readonly class ObjectRelationContextResolver implements ObjectRelationCont
 
     public function resolve(Request $request): ObjectRelationContext
     {
-        $crud = $this->crudContextResolver->resolve($request);
+        $context = $this->tryResolve($request);
+        if (null !== $context) {
+            return $context;
+        }
+
+        $relationKind = (string) $request->attributes->get('relationKind', '');
+        throw new NotFoundHttpException(sprintf('Relation kind "%s" is not configured.', $relationKind));
+    }
+
+    public function tryResolve(Request $request): ?ObjectRelationContext
+    {
+        $crud = $this->crudContextResolver->tryResolve($request);
+        if (null === $crud) {
+            return null;
+        }
         $relationKind = (string) $request->attributes->get('relationKind', '');
         $config = $this->relationMap[$relationKind] ?? null;
         if (!is_array($config)) {
-            throw new NotFoundHttpException(sprintf('Relation kind "%s" is not configured.', $relationKind));
+            return null;
         }
 
         $relatedSlug = $request->attributes->get('relatedSlug');

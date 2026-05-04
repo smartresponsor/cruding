@@ -6,8 +6,8 @@ namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
+use Doctrine\ORM\Exception\PersisterException;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class CrudObjectFinder implements CrudObjectFinderInterface
 {
@@ -21,11 +21,11 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
             return null;
         }
 
-        $repository = $this->managerRegistry->getRepository($context->entityClass);
-        $object = $repository->findOneBy([$context->identifierField => $context->identifierValue]);
-
-        if (null === $object) {
-            throw new NotFoundHttpException(sprintf('Object for resource "%s" was not found by %s "%s".', $context->resourcePath, $context->identifierField, (string) $context->identifierValue));
+        try {
+            $repository = $this->managerRegistry->getRepository($context->entityClass);
+            $object = $repository->findOneBy([$context->identifierField => $context->identifierValue]);
+        } catch (PersisterException) {
+            return null;
         }
 
         return $object;

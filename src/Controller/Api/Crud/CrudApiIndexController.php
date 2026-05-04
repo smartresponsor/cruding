@@ -22,7 +22,10 @@ final class CrudApiIndexController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+        }
 
         return $this->apiResponder->collection($context, $this->objectFinder->findAll($context));
     }

@@ -26,8 +26,21 @@ final class ObjectRelationApiListController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return $this->responder->notFound((string) $request->attributes->get('resourcePath', ''));
+        }
+
         $subject = $this->objectFinder->findOne($context->crud);
+        if (null === $subject) {
+            return $this->responder->notFound($context->crud->resourcePath, sprintf(
+                'Object for resource "%s" was not found by %s "%s".',
+                $context->crud->resourcePath,
+                $context->crud->identifierField,
+                (string) $context->crud->identifierValue,
+            ));
+        }
+
         $access = $this->accessContextBuilder->build($context->crud, $subject);
         if (!$access->canView) {
             throw $this->createAccessDeniedException('You are not allowed to view this object relations.');

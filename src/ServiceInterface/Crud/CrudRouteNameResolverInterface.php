@@ -10,7 +10,13 @@ interface CrudRouteNameResolverInterface
 {
     public function resolveIndex(CrudContext $context): string;
 
+    public function resolveNew(CrudContext $context): string;
+
     public function resolveShow(CrudContext $context, ?string $identifierField = null): string;
+
+    public function resolveEdit(CrudContext $context, ?string $identifierField = null): string;
+
+    public function resolveDelete(CrudContext $context, ?string $identifierField = null): string;
 
     /**
      * @return array<string, string|int>

@@ -27,6 +27,7 @@ services:
     App\Cruding\ServiceInterface\Crud\CrudMutationGuardInterface: '@App\Cruding\Service\Crud\CrudMutationGuard'
     App\Cruding\ServiceInterface\Crud\CrudApiInputHandlerInterface: '@App\Cruding\Service\Crud\CrudApiInputHandler'
     App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface: '@App\Cruding\Service\Crud\CrudApiResponder'
+    App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Service\Crud\CrudPageDefinitionProvider'
 
     App\Cruding\Controller\Relation\:
         resource: '../src/Controller/Relation/'
@@ -38,8 +39,6 @@ services:
 
     App\Cruding\Service\Relation\:
         resource: '../src/Service/Relation/'
-        arguments:
-            $relationMap: '%app.object_relation_map%'
 
     App\Cruding\ServiceInterface\Relation\ObjectRelationContextResolverInterface: '@App\Cruding\Service\Relation\ObjectRelationContextResolver'
     App\Cruding\ServiceInterface\Relation\ObjectRelationManagerInterface: '@App\Cruding\Service\Relation\ObjectRelationManager'

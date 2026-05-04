@@ -22,8 +22,20 @@ final class CrudApiShowController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+        }
+
         $object = $this->objectFinder->findOne($context);
+        if (null === $object) {
+            return $this->apiResponder->notFound($context->resourcePath, sprintf(
+                'Object for resource "%s" was not found by %s "%s".',
+                $context->resourcePath,
+                $context->identifierField,
+                (string) $context->identifierValue,
+            ));
+        }
 
         return $this->apiResponder->item($context, $object);
     }

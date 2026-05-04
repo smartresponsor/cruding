@@ -55,6 +55,17 @@ final class ObjectRelationResponder extends AbstractController implements Object
         ]);
     }
 
+    public function notFound(string $resourcePath, string $detail = 'Resource not found.'): JsonResponse
+    {
+        return new JsonResponse([
+            'type' => 'about:blank',
+            'title' => 'Not Found',
+            'status' => Response::HTTP_NOT_FOUND,
+            'detail' => $detail,
+            'resourcePath' => $resourcePath,
+        ], Response::HTTP_NOT_FOUND, ['Content-Type' => 'application/problem+json']);
+    }
+
     private function normalizeObject(object $object): array
     {
         $result = ['class' => $object::class];

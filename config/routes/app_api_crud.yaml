@@ -1,4 +1,4 @@
-app_api_crud_index:
+cruding_api_index:
     path: /api/{resourcePath}/
     controller: App\Cruding\Controller\Api\Crud\CrudApiIndexController
     methods: [GET]
@@ -8,7 +8,7 @@ app_api_crud_index:
     requirements:
         resourcePath: '[a-z0-9/_-]+'
 
-app_api_crud_create:
+cruding_api_create:
     path: /api/{resourcePath}/
     controller: App\Cruding\Controller\Api\Crud\CrudApiCreateController
     methods: [POST]
@@ -18,7 +18,7 @@ app_api_crud_create:
     requirements:
         resourcePath: '[a-z0-9/_-]+'
 
-app_api_crud_show_slug:
+cruding_api_show_slug:
     path: /api/{resourcePath}/{slug}
     controller: App\Cruding\Controller\Api\Crud\CrudApiShowController
     methods: [GET]
@@ -29,7 +29,7 @@ app_api_crud_show_slug:
         resourcePath: '[a-z0-9/_-]+'
         slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
-app_api_crud_update_slug:
+cruding_api_update_slug:
     path: /api/{resourcePath}/{slug}
     controller: App\Cruding\Controller\Api\Crud\CrudApiUpdateController
     methods: [PUT, PATCH]
@@ -40,7 +40,7 @@ app_api_crud_update_slug:
         resourcePath: '[a-z0-9/_-]+'
         slug: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
-app_api_crud_delete_slug:
+cruding_api_delete_slug:
     path: /api/{resourcePath}/{slug}
     controller: App\Cruding\Controller\Api\Crud\CrudApiDeleteController
     methods: [DELETE]

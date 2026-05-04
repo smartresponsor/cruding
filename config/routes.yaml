@@ -1,7 +1,7 @@
-cruding_app_crud:
+cruding_crud:
     resource: 'routes/app_crud.yaml'
 
-cruding_app_api_crud:
+cruding_api_crud:
     resource: 'routes/app_api_crud.yaml'
 
 cruding_app_object_relations:

@@ -14,7 +14,6 @@ use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CrudApiUpdateController extends AbstractController
 {
@@ -31,13 +30,26 @@ final class CrudApiUpdateController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+        }
+
         $object = $this->objectFinder->findOne($context);
+        if (null === $object) {
+            return $this->apiResponder->notFound($context->resourcePath, sprintf(
+                'Object for resource "%s" was not found by %s "%s".',
+                $context->resourcePath,
+                $context->identifierField,
+                (string) $context->identifierValue,
+            ));
+        }
+
         $access = $this->accessContextBuilder->build($context, $object);
         $this->mutationGuard->assertCanEdit($access);
 
         if (null === $context->formTypeClass) {
-            throw new NotFoundHttpException(sprintf('Form type for "%s" could not be resolved.', $context->resourcePath));
+            return $this->apiResponder->notFound($context->resourcePath, sprintf('Form type for "%s" could not be resolved.', $context->resourcePath));
         }
 
         $clearMissing = 'PATCH' !== strtoupper($request->getMethod());

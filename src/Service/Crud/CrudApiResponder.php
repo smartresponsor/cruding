@@ -45,6 +45,13 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
         ], JsonResponse::HTTP_OK);
     }
 
+    public function notFound(string $resourcePath, string $detail = 'Resource not found.'): JsonResponse
+    {
+        return $this->problemResponseFactory->notFound($detail, [
+            'resourcePath' => $resourcePath,
+        ]);
+    }
+
     public function validationError(CrudContext $context, FormInterface $form): JsonResponse
     {
         $errors = [];

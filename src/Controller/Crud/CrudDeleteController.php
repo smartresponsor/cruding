@@ -28,8 +28,16 @@ final class CrudDeleteController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->resolve($request);
+        $context = $this->contextResolver->tryResolve($request);
+        if (null === $context) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $object = $this->objectFinder->findOne($context);
+        if (null === $object) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $access = $this->accessContextBuilder->build($context, $object);
         $this->mutationGuard->assertCanDelete($access);
 

@@ -1,10 +1,93 @@
-{% extends 'base.html.twig' %}
+{% extends '@Cruding/base.html.twig' %}
+
+{% block title %}{{ page.title }}{% endblock %}
 
 {% block body %}
-    <h1>{{ crud.resourcePath }} new</h1>
+  <style>
+    :root {
+      --crud-bg: #f3f6fb;
+      --crud-panel: #ffffff;
+      --crud-border: #d7deea;
+      --crud-text: #1f2937;
+      --crud-muted: #5b6574;
+      --crud-primary: #2563eb;
+      --crud-radius: 16px;
+      --crud-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+    body { background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 26%), radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 24%), var(--crud-bg); }
+    .crud-shell { max-width: 1440px; margin: 0 auto; padding: 24px; color: var(--crud-text); }
+    .crud-header, .crud-card, .crud-footer { border: 1px solid var(--crud-border); border-radius: var(--crud-radius); background: var(--crud-panel); box-shadow: var(--crud-shadow); }
+    .crud-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:22px 24px; }
+    .crud-eyebrow { color: var(--crud-primary); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .crud-title { margin:8px 0 0; font-size:30px; line-height:1.12; }
+    .crud-subtitle { margin:10px 0 0; color: var(--crud-muted); font-size:14px; max-width:760px; }
+    .crud-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; min-width:240px; }
+    .crud-button { display:inline-flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:10px; border:1px solid var(--crud-border); background:#fff; color:var(--crud-text); text-decoration:none; font-size:14px; font-weight:700; }
+    .crud-button-primary { background: var(--crud-primary); border-color: var(--crud-primary); color:#fff; }
+    .crud-grid { margin-top:16px; display:grid; grid-template-columns:minmax(280px,.9fr) minmax(0,1.8fr); gap:16px; }
+    .crud-card-head { padding:18px 20px 0; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .crud-card-title { margin:0; font-size:18px; font-weight:800; }
+    .crud-card-hint { color: var(--crud-muted); font-size:12px; }
+    .crud-nav { padding:16px 20px 20px; display:flex; flex-direction:column; gap:12px; }
+    .crud-nav-item, .crud-form-panel { padding:12px 14px; border-radius:12px; border:1px solid var(--crud-border); background:#fcfdff; }
+    .crud-nav-item strong { display:block; margin-bottom:4px; font-size:13px; }
+    .crud-nav-item span { display:block; color: var(--crud-muted); font-size:12px; line-height:1.45; }
+    .crud-form { padding: 16px 20px 20px; display:flex; flex-direction:column; gap:16px; }
+    .crud-form-footer { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .crud-footer { margin-top:16px; padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; color:var(--crud-muted); font-size:13px; }
+    @media (max-width: 1080px) { .crud-header, .crud-grid, .crud-footer { grid-template-columns:1fr; flex-direction:column; } .crud-actions { justify-content:flex-start; min-width:0; } }
+    @media (max-width: 860px) { .crud-shell { padding:16px; } }
+  </style>
 
-    {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button type="submit">Create</button>
-    {{ form_end(form) }}
+  <div class="crud-shell">
+    <header class="crud-header">
+      <div>
+        <div class="crud-eyebrow">Generic CRUD shell</div>
+        <h1 class="crud-title">{{ page.title }}</h1>
+        <p class="crud-subtitle">{{ crud.resourcePath }} · creating a new object for {{ crud.entityClass|split('\\')|last }}</p>
+      </div>
+      <div class="crud-actions">
+        {% for action in page.actions %}
+          <a class="crud-button{% if action.name == 'index' %} crud-button-primary{% endif %}" href="{{ path(action.routeName, action.routeParameters) }}">{{ action.label }}</a>
+        {% endfor %}
+      </div>
+    </header>
+
+    <section class="crud-grid">
+      <aside class="crud-card">
+        <div class="crud-card-head">
+          <h2 class="crud-card-title">Navigation</h2>
+          <div class="crud-card-hint">create flow</div>
+        </div>
+        <div class="crud-nav">
+          <div class="crud-nav-item"><strong>Resource</strong><span>{{ crud.resourcePath }}</span></div>
+          <div class="crud-nav-item"><strong>Surface</strong><span>{{ crud.surface }}</span></div>
+          <div class="crud-nav-item"><strong>Operation</strong><span>{{ crud.operation }}</span></div>
+          <div class="crud-nav-item"><strong>Template</strong><span>{{ page.template }}</span></div>
+        </div>
+      </aside>
+
+      <main class="crud-card">
+        <div class="crud-card-head">
+          <h2 class="crud-card-title">Create object</h2>
+          <div class="crud-card-hint">{{ crud.formTypeClass ?? 'No form type' }}</div>
+        </div>
+        <div class="crud-form">
+          <div class="crud-form-panel">
+            {{ form_start(form) }}
+              {{ form_widget(form) }}
+              <div class="crud-form-footer">
+                <button class="crud-button crud-button-primary" type="submit">Create</button>
+              </div>
+            {{ form_end(form) }}
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <footer class="crud-footer">
+      <div>CRUD create rendered by <strong>Cruding</strong>.</div>
+      <div>resource: {{ crud.resourcePath }} · template: {{ page.template }}</div>
+    </footer>
+  </div>
 {% endblock %}
