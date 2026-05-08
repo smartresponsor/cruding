@@ -1,3 +1,6 @@
+cruding_interfacing_assets:
+    resource: 'routes/app_interfacing_assets.yaml'
+
 cruding_crud:
     resource: 'routes/app_crud.yaml'
 

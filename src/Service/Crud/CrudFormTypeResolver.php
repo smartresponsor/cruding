@@ -49,6 +49,7 @@ final class CrudFormTypeResolver
     {
         return array_filter([
             \App\Cataloging\Entity\Catalog\CatalogCategoryEntity::class => class_exists(\App\Cataloging\Form\CategoryAdminCategoryType::class) ? \App\Cataloging\Form\CategoryAdminCategoryType::class : null,
+            \App\Vendoring\Entity\Vendor\VendorEntity::class => class_exists(\App\Vendoring\Form\Vendor\VendorCreateForm::class) ? \App\Vendoring\Form\Vendor\VendorCreateForm::class : null,
         ]);
     }
 }

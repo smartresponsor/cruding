@@ -42,7 +42,7 @@
   <div class="crud-shell">
     <header class="crud-header">
       <div>
-        <div class="crud-eyebrow">Generic CRUD shell</div>
+        <div class="crud-eyebrow">Commerce resource workspace</div>
         <h1 class="crud-title">{{ page.title }}</h1>
         <p class="crud-subtitle">{{ crud.resourcePath }} · creating a new object for {{ crud.entityClass|split('\\')|last }}</p>
       </div>
@@ -56,7 +56,7 @@
     <section class="crud-grid">
       <aside class="crud-card">
         <div class="crud-card-head">
-          <h2 class="crud-card-title">Navigation</h2>
+          <h2 class="crud-card-title">Resource snapshot</h2>
           <div class="crud-card-hint">create flow</div>
         </div>
         <div class="crud-nav">
@@ -69,7 +69,7 @@
 
       <main class="crud-card">
         <div class="crud-card-head">
-          <h2 class="crud-card-title">Create object</h2>
+          <h2 class="crud-card-title">Create commerce record</h2>
           <div class="crud-card-hint">{{ crud.formTypeClass ?? 'No form type' }}</div>
         </div>
         <div class="crud-form">
@@ -86,7 +86,7 @@
     </section>
 
     <footer class="crud-footer">
-      <div>CRUD create rendered by <strong>Cruding</strong>.</div>
+      <div>Commerce create rendered by <strong>Cruding</strong>.</div>
       <div>resource: {{ crud.resourcePath }} · template: {{ page.template }}</div>
     </footer>
   </div>

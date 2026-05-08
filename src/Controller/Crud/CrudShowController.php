@@ -6,6 +6,7 @@ namespace App\Cruding\Controller\Crud;
 
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
+use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,6 +20,7 @@ final class CrudShowController extends AbstractController
         private readonly CrudObjectFinderInterface $objectFinder,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
+        private readonly CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
     ) {
     }
 
@@ -41,11 +43,9 @@ final class CrudShowController extends AbstractController
 
         $page = $this->pageDefinitionProvider->provideShow($context, $object);
 
-        return $this->render($page->template, [
-            'crud' => $context,
-            'crud_access' => $access,
-            'object' => $object,
-            'page' => $page,
-        ]);
+        return $this->render(
+            'interfacing/bridge/provider_surface.html.twig',
+            $this->providerSurfaceBuilder->build($page, $object),
+        );
     }
 }

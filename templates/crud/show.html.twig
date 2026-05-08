@@ -223,7 +223,7 @@
   <div class="crud-shell">
     <header class="crud-header">
       <div>
-        <div class="crud-eyebrow">Generic CRUD shell</div>
+        <div class="crud-eyebrow">Commerce resource workspace</div>
         <h1 class="crud-title">{{ page.title }}</h1>
         <p class="crud-subtitle">
           {{ crud.resourcePath }} · {{ crud.identifierField }}={{ crud.identifierValue ?? 'n/a' }} · {{ crud_access.supportsId ? 'ID-backed' : 'slug-backed' }} · {{ crud_access.ownership.canMutate() ? 'mutations allowed' : 'view-only' }}
@@ -245,7 +245,7 @@
     <section class="crud-grid">
       <aside class="crud-card">
         <div class="crud-card-head">
-          <h2 class="crud-card-title">Navigation</h2>
+          <h2 class="crud-card-title">Resource snapshot</h2>
           <div class="crud-card-hint">current object</div>
         </div>
         <div class="crud-nav">

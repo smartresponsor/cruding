@@ -1,3 +1,8 @@
 = Cruding
 
 Universal CRUD, relation, object-meta, and capability-resolution bundle for Symfony host applications.
+
+
+== Wave 46: Interfacing provider surface rendering
+
+Cruding visible CRUD controllers delegate their primary browser rendering to `interfacing/bridge/provider_surface.html.twig`. Cruding remains the resource/data/form owner; Interfacing owns the final provider-rendered UI document. Bootstrap, EasyAdmin, local handmade Twig CSS, and Cruding shell templates are not the canonical primary UI path.

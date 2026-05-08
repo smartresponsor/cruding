@@ -1,0 +1,6 @@
+cruding_interfacing_admin_body_asset:
+    path: /interfacing/admin-body/{assetPath}
+    controller: App\Cruding\Controller\Interfacing\InterfacingAdminBodyAssetController
+    methods: [GET]
+    requirements:
+        assetPath: '.+'

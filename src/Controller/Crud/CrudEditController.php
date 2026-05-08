@@ -7,6 +7,7 @@ namespace App\Cruding\Controller\Crud;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
+use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudMutationGuardInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
@@ -24,6 +25,7 @@ final class CrudEditController extends AbstractController
         private readonly CrudRouteNameResolverInterface $routeNameResolver,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
+        private readonly CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
         private readonly CrudMutationGuardInterface $mutationGuard,
     ) {
     }
@@ -59,12 +61,9 @@ final class CrudEditController extends AbstractController
 
         $page = $this->pageDefinitionProvider->provideEdit($context, $object, $form->createView());
 
-        return $this->render($page->template, [
-            'crud' => $context,
-            'crud_access' => $access,
-            'page' => $page,
-            'object' => $object,
-            'form' => $form->createView(),
-        ]);
+        return $this->render(
+            'interfacing/bridge/provider_surface.html.twig',
+            $this->providerSurfaceBuilder->build($page, $object, $form->createView()),
+        );
     }
 }

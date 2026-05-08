@@ -3,6 +3,13 @@ services:
         autowire: true
         autoconfigure: true
 
+
+    App\Cruding\Controller\Interfacing\:
+        resource: '../src/Controller/Interfacing/'
+        tags: ['controller.service_arguments']
+        bind:
+            $projectDir: '%kernel.project_dir%'
+
     App\Cruding\Controller\Crud\:
         resource: '../src/Controller/Crud/'
         tags: ['controller.service_arguments']
@@ -28,6 +35,7 @@ services:
     App\Cruding\ServiceInterface\Crud\CrudApiInputHandlerInterface: '@App\Cruding\Service\Crud\CrudApiInputHandler'
     App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface: '@App\Cruding\Service\Crud\CrudApiResponder'
     App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Service\Crud\CrudPageDefinitionProvider'
+    App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface: '@App\Cruding\Service\Crud\CrudInterfacingProviderSurfaceBuilder'
 
     App\Cruding\Controller\Relation\:
         resource: '../src/Controller/Relation/'
