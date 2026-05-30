@@ -9,9 +9,9 @@ final readonly class CapabilityMatch
     public function __construct(
         public string $capability,
         public bool $supported,
-        public string $confidence = 'none',
-        public ?string $memberName = null,
-        public ?string $memberKind = null,
+        public string $source = 'none',
+        public ?string $accessor = null,
+        public ?string $accessorType = null,
         public ?string $interfaceName = null,
     ) {
     }

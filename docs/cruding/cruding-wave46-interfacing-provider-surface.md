@@ -1,41 +1,28 @@
-# Cruding Wave 46 — Interfacing provider surface rendering
+# Cruding Interfacing Surface Contract
 
-Cruding no longer owns the primary visible CRUD shell for browser pages.
+Cruding is limited to CRUD route processing, entity resolution, form handling, mutation guards, API responders, and neutral surface payload preparation.
 
-Cruding remains responsible for:
+## Browser rendering order
 
-- resolving the resource context;
-- loading objects;
-- creating and handling forms;
-- building access and action metadata;
-- preserving mutation redirects and server-side ownership.
+1. `@Interfacing/<resource>/index.html.twig` when a resource-specific Interfacing surface exists.
+2. `@Interfacing/base.html.twig` as the shared Interfacing document fallback.
+3. `@Cruding/crud/index.html.twig` as a minimal self-owned diagnostic/data fallback when Interfacing base is not available.
 
-The final visible page is rendered through:
+`index.html.twig` is the industrially cleaner concrete surface entry point. `base.html.twig` remains an inheritance/layout document, not the preferred resource render target.
 
-```text
-Cruding controller/page definition
-  -> CrudInterfacingProviderSurfaceBuilder
-  -> interfacing/bridge/provider_surface.html.twig
-  -> Interfacing provider document
-  -> Ant Design ProComponents primary provider
-  -> PrimeReact secondary provider
-```
+## Bundle/config contract
 
-The old `templates/crud/*.html.twig` files are not deleted in this wave, but
-Cruding CRUD controllers must not use them as the primary browser UI path.
-They are legacy/local templates until a later cleanup wave removes or converts
-remaining non-primary references.
+`CrudingExtension` loads the bundle service configuration and prepends the `@Cruding` Twig namespace to `templates/`. The extension exposes a small host-facing configuration surface:
 
-Forbidden as primary rendering path:
+- `resource_path_requirement`
+- `capability_map`
+- `entity_class_alias_map`
+- `form_type_map`
 
-- `render($page->template)` in visible CRUD controllers;
-- `crud-app-shell` as the visible page shell;
-- handmade Twig CSS as the primary UI surface;
-- Bootstrap/EasyAdmin fallback UI.
+The default route requirement reserves CRUD/meta operation path segments only. Producer-specific exclusions, frontend section names, relation screens, and object-meta screens do not belong in this processor.
 
-Required primary rendering path:
+## Path normalization
 
-- `interfacing/bridge/provider_surface.html.twig`;
-- provider workbench metadata declaring `ant-design-procomponents` as primary;
-- `primereact` as secondary/rich facade provider;
-- Bridge/Interfacing ownership markers in the workbench diagnostics.
+Incoming `resourcePath` values are normalized before lookup/rendering. This keeps `/Product///Price/`, `product_price`, and similar aliases from producing divergent entity lookup, route-generation, or template-lookup behavior.
+
+Cruding does not own platform menus, frontend provider selection, local shell CSS, object-meta screens, or relation screens in this cleaned slice.

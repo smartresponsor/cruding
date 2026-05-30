@@ -16,6 +16,7 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
         private CrudEntityClassResolver $entityClassResolver,
         private CrudFormTypeResolver $formTypeResolver,
         private CrudTemplateResolverInterface $templateResolver,
+        private CrudResourcePathParser $resourcePathParser,
     ) {
     }
 
@@ -32,7 +33,11 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
 
     public function tryResolve(Request $request): ?CrudContext
     {
-        $resourcePath = (string) $request->attributes->get('resourcePath', '');
+        $resourcePath = $this->resourcePathParser->normalize((string) $request->attributes->get('resourcePath', ''));
+        if ('' === $resourcePath) {
+            return null;
+        }
+
         $surface = (string) $request->attributes->get('_crud_surface', 'public');
         $operation = (string) $request->attributes->get('_crud_operation', 'index');
         $entityClass = $this->entityClassResolver->tryResolve($resourcePath);

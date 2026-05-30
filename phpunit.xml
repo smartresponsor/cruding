@@ -8,16 +8,11 @@
         <server name="APP_ENV" value="test" force="true"/>
         <server name="APP_DEBUG" value="1" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
-        <server name="KERNEL_CLASS" value="App\Messaging\Tests\Support\TestKernel"/>
     </php>
 
     <testsuites>
-        <testsuite name="Catalog">
+        <testsuite name="Cruding">
             <directory>tests</directory>
-            <exclude>tests/Panther</exclude>
-        </testsuite>
-        <testsuite name="Panther">
-            <directory>tests/Panther</directory>
         </testsuite>
     </testsuites>
 

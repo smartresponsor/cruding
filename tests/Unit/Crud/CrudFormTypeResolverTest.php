@@ -5,16 +5,25 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\Crud;
 
 use App\Cruding\Service\Crud\CrudFormTypeResolver;
-use App\Vendoring\Entity\Vendor\VendorEntity;
-use App\Vendoring\Form\Vendor\VendorCreateForm;
+use App\Tests\Fixture\Entity\ProductEntity;
+use App\Tests\Fixture\Form\ProductEntityType;
 use PHPUnit\Framework\TestCase;
 
 final class CrudFormTypeResolverTest extends TestCase
 {
-    public function testResolveUsesExplicitVendorCreateForm(): void
+    public function testResolveUsesExplicitHostProvidedFormTypeMap(): void
+    {
+        $resolver = new CrudFormTypeResolver([
+            ProductEntity::class => ProductEntityType::class,
+        ]);
+
+        self::assertSame(ProductEntityType::class, $resolver->resolve(ProductEntity::class));
+    }
+
+    public function testResolveUsesSymfonyFormNamingConvention(): void
     {
         $resolver = new CrudFormTypeResolver();
 
-        self::assertSame(VendorCreateForm::class, $resolver->resolve(VendorEntity::class));
+        self::assertSame(ProductEntityType::class, $resolver->resolve(ProductEntity::class));
     }
 }

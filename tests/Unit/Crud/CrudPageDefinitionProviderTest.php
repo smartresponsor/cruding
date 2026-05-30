@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CrudPageDefinitionProviderTest extends TestCase
 {
-    public function testProvideIndexBuildsBridgeReadyPageDefinition(): void
+    public function testProvideIndexBuildsSurfaceReadyPageDefinition(): void
     {
         $context = new CrudContext('public', 'index', 'product', 'App\\Cruding\\Entity\\Product', 'slug', null, 'App\\Cruding\\Form\\ProductType', 'crud');
         $access = new CrudAccessContext(
@@ -182,7 +182,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
 
     public function testProvideShowBuildsShellReadyPageDefinition(): void
     {
-        $context = new CrudContext('public', 'show', 'vendor', 'App\\Vendoring\\Entity\\Vendor\\VendorEntity', 'id', 13, 'App\\Vendoring\\Form\\VendorType', 'crud');
+        $context = new CrudContext('public', 'show', 'product', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'id', 13, 'App\\Tests\\Fixture\\Form\\ProductEntityType', 'crud');
         $access = new CrudAccessContext(
             $context,
             false,
@@ -264,13 +264,13 @@ final class CrudPageDefinitionProviderTest extends TestCase
         $provider = new CrudPageDefinitionProvider($objectFinder, $accessBuilder, $routeResolver);
         $page = $provider->provideShow($context, $object);
 
-        self::assertSame('vendor show', $page->title);
+        self::assertSame('product show', $page->title);
         self::assertSame('crud/show.html.twig', $page->template);
         self::assertSame([$object], $page->objects);
         self::assertCount(2, $page->actions);
         self::assertSame('index', $page->actions[0]->name);
         self::assertSame('edit', $page->actions[1]->name);
-        self::assertSame('vendor', $page->meta['resourcePath']);
+        self::assertSame('product', $page->meta['resourcePath']);
         self::assertSame(13, $page->meta['identifierValue']);
     }
 }

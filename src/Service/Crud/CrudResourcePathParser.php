@@ -11,7 +11,7 @@ final class CrudResourcePathParser
         $trimmed = trim($resourcePath, '/');
         $collapsed = preg_replace('{/+}', '/', $trimmed);
 
-        return strtolower((string) $collapsed);
+        return str_replace('_', '-', strtolower((string) $collapsed));
     }
 
     /**

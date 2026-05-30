@@ -44,7 +44,13 @@ final readonly class CrudCapabilityResolver implements CrudCapabilityResolverInt
     public function match(string $capability, object|string $subject): CapabilityMatch
     {
         $config = $this->capabilityMap[$capability] ?? [];
-        $reflection = new \ReflectionClass($this->resolveClassName($subject));
+        $className = $this->resolveClassName($subject);
+
+        if (!class_exists($className) && !interface_exists($className)) {
+            return new CapabilityMatch($capability, false);
+        }
+
+        $reflection = new \ReflectionClass($className);
 
         foreach (($config['interfaces'] ?? []) as $interfaceName) {
             if ($reflection->implementsInterface($interfaceName)) {

@@ -36,47 +36,46 @@ final class CrudCapabilityResolverTest extends TestCase
     public function testFallsBackToAliasMethodWhenNoInterfaceExists(): void
     {
         $resolver = new CrudCapabilityResolver([
-            'ownable' => [
+            'identifiable' => [
                 'interfaces' => [],
-                'methods_any' => ['getCreatedBy', 'getOwner'],
+                'methods_any' => ['getId'],
             ],
         ]);
 
         $subject = new class {
-            public function getCreatedBy(): string
+            public function getId(): int
             {
-                return 'owner';
+                return 42;
             }
         };
 
-        $match = $resolver->match('ownable', $subject);
+        $match = $resolver->match('identifiable', $subject);
 
         self::assertTrue($match->supported);
         self::assertSame('alias_method', $match->source);
-        self::assertSame('getCreatedBy', $match->accessor);
+        self::assertSame('getId', $match->accessor);
         self::assertSame('method', $match->accessorType);
     }
 
     public function testFallsBackToAliasPropertyWhenNoInterfaceOrMethodExists(): void
     {
         $resolver = new CrudCapabilityResolver([
-            'taggable' => [
+            'sluggable' => [
                 'interfaces' => [],
                 'methods_any' => [],
-                'properties_any' => ['tags'],
+                'properties_any' => ['slug'],
             ],
         ]);
 
         $subject = new class {
-            /** @var list<string> */
-            public array $tags = [];
+            public string $slug = 'demo-slug';
         };
 
-        $match = $resolver->match('taggable', $subject);
+        $match = $resolver->match('sluggable', $subject);
 
         self::assertTrue($match->supported);
         self::assertSame('alias_property', $match->source);
-        self::assertSame('tags', $match->accessor);
+        self::assertSame('slug', $match->accessor);
         self::assertSame('property', $match->accessorType);
     }
 
@@ -86,8 +85,8 @@ final class CrudCapabilityResolverTest extends TestCase
             'sluggable' => [
                 'interfaces' => [SluggableInterface::class],
             ],
-            'attachable' => [
-                'methods_any' => ['getAttachments'],
+            'displayable' => [
+                'methods_any' => ['displayLabel'],
             ],
         ]);
 
@@ -101,8 +100,8 @@ final class CrudCapabilityResolverTest extends TestCase
         $profile = $resolver->profile($subject);
 
         self::assertArrayHasKey('sluggable', $profile->matches);
-        self::assertArrayHasKey('attachable', $profile->matches);
+        self::assertArrayHasKey('displayable', $profile->matches);
         self::assertTrue($profile->matches['sluggable']->supported);
-        self::assertFalse($profile->matches['attachable']->supported);
+        self::assertFalse($profile->matches['displayable']->supported);
     }
 }

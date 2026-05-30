@@ -12,9 +12,8 @@ use Symfony\Component\Form\FormView;
 /**
  * Converts Cruding-owned resource pages into the canonical Interfacing provider surface.
  *
- * This is intentionally a bridge-facing presenter: no Bootstrap, no local shell
- * CSS, no Twig table/form rendering. Controllers keep Cruding as the data and
- * mutation owner, while Interfacing owns the final provider-rendered UI.
+ * Controllers keep Cruding as the route/data/mutation owner. Interfacing owns
+ * the final UI document and provider-native rendering.
  */
 final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProviderSurfaceBuilderInterface
 {
@@ -23,22 +22,28 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
         $context = $page->context;
         $operation = '' !== $context->operation ? $context->operation : $this->operationFromTemplate($page->template);
         $resourcePath = trim(str_replace('_', '-', $context->resourcePath), '/');
-        $component = $this->inferComponent($resourcePath);
+        $component = 'cruding';
         $objects = null !== $object && [] === $page->objects ? [$object] : $page->objects;
 
+        $rows = $this->rowsFor($objects, $resourcePath, $component);
+        $columns = $this->columnsFor($objects, $resourcePath, $component);
+        $filters = $this->filtersFor($resourcePath);
+        $formFields = $this->formFieldsFor($form, $resourcePath);
+        $actions = $this->actionsFor($page->actions);
+
         return [
-            'bridgeComponent' => $component,
-            'bridgeResource' => $resourcePath,
-            'bridgeOperation' => $operation,
-            'bridgeSurface' => $context->surface,
-            'bridgeTitle' => '' !== $page->title ? $page->title : $this->humanize($resourcePath),
-            'bridgeCollectionLabel' => $this->humanize($resourcePath),
-            'bridgeDefaultView' => in_array($operation, ['new', 'edit'], true) ? 'form' : ('show' === $operation ? 'detail' : 'table'),
-            'bridgeRows' => $this->rowsFor($objects, $resourcePath, $component),
-            'bridgeColumns' => $this->columnsFor($objects, $resourcePath, $component),
-            'bridgeFilters' => $this->filtersFor($resourcePath),
-            'bridgeFormFields' => $this->formFieldsFor($form, $resourcePath),
-            'bridgeHeaderActions' => $this->actionsFor($page->actions),
+            'component' => $component,
+            'resource' => $resourcePath,
+            'operation' => $operation,
+            'surface' => $context->surface,
+            'title' => '' !== $page->title ? $page->title : $this->humanize($resourcePath),
+            'collectionLabel' => $this->humanize($resourcePath),
+            'defaultView' => in_array($operation, ['new', 'edit'], true) ? 'form' : ('show' === $operation ? 'detail' : 'table'),
+            'rows' => $rows,
+            'columns' => $columns,
+            'filters' => $filters,
+            'formFields' => $formFields,
+            'headerActions' => $actions,
             'workbench' => $this->workbenchFor($page, $objects, $form, $resourcePath, $component, $operation),
         ];
     }
@@ -57,11 +62,8 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
         return [
             'title' => $page->title,
             'component' => $component,
-            'integrationOwner' => 'bridge',
+            'sourceComponent' => 'cruding',
             'renderingOwner' => 'interfacing',
-            'primaryProvider' => 'ant-design-procomponents',
-            'secondaryProvider' => 'primereact',
-            'shellMode' => 'provider-document',
             'routeContext' => [
                 'resourcePath' => $resourcePath,
                 'resourceLabel' => $this->humanize($resourcePath),
@@ -71,7 +73,7 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
                 'mode' => $mode,
                 'collectionHref' => '/'.$resourcePath.'/',
                 'sourceComponent' => 'cruding',
-                'sourceTemplateDisabled' => $page->template,
+                'sourceTemplate' => $page->template,
             ],
             'columns' => $columns,
             'rows' => $rows,
@@ -80,10 +82,14 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
             'formSections' => [],
             'headerActions' => $this->actionsFor($page->actions),
             'paginationLabel' => sprintf('%d Cruding-owned records exposed through Interfacing', count($rows)),
+            'resourceUrl' => 'show' === $operation && null !== $page->context->identifierValue
+                ? '/'.trim($resourcePath, '/').'/'.(string) $page->context->identifierValue
+                : null,
             'diagnostics' => [
                 'sourceComponent' => 'cruding',
                 'sourceTemplate' => $page->template,
-                'renderingTemplate' => 'interfacing/bridge/provider_surface.html.twig',
+                'renderingContract' => '@Interfacing/<resource>/index.html.twig',
+                'fallbackContract' => '@Interfacing/base.html.twig, then @Cruding/crud/index.html.twig',
                 'localTwigShellPrimaryRendering' => false,
             ],
         ];
@@ -152,15 +158,6 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
             ['key' => 'status', 'label' => 'Status', 'type' => 'text', 'isCode' => false, 'isStatus' => true],
             ['key' => 'locale', 'label' => 'Locale', 'type' => 'text', 'isCode' => false, 'isStatus' => false],
         ];
-
-        if ('cataloging' === $component || str_contains($resourcePath, 'product')) {
-            $columns = [
-                ['key' => 'title', 'label' => 'Product title', 'type' => 'text', 'isCode' => false, 'isStatus' => false],
-                ['key' => 'code', 'label' => 'SKU / code', 'type' => 'text', 'isCode' => true, 'isStatus' => false],
-                ['key' => 'status', 'label' => 'Status', 'type' => 'text', 'isCode' => false, 'isStatus' => true],
-                ['key' => 'locale', 'label' => 'Locale', 'type' => 'text', 'isCode' => false, 'isStatus' => false],
-            ];
-        }
 
         if ([] !== $objects) {
             $first = $this->rowsFor([$objects[0]], $resourcePath, $component)[0];
@@ -313,22 +310,6 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
             str_contains($template, '/edit.') => 'edit',
             str_contains($template, '/show.') => 'show',
             default => 'index',
-        };
-    }
-
-    private function inferComponent(string $resourcePath): string
-    {
-        $first = strtolower(strtok(str_replace('_', '/', $resourcePath), '/') ?: $resourcePath);
-
-        return match ($first) {
-            'catalog', 'category', 'product', 'collection', 'attribute' => 'cataloging',
-            'vendor', 'merchant' => 'vendoring',
-            'order' => 'ordering',
-            'payment', 'refund' => 'paying',
-            'shipping', 'shipment' => 'shipping',
-            'tax', 'taxation' => 'taxating',
-            'currency', 'money', 'exchange-rate', 'exchange-quote' => 'currencing',
-            default => 'cruding',
         };
     }
 

@@ -18,7 +18,7 @@ final class ApiExceptionSubscriberTest extends TestCase
     public function testSubscriberTransformsApiNotFoundIntoProblemJson(): void
     {
         $subscriber = new ApiExceptionSubscriber(new ApiProblemResponseFactory());
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = $this->createStub(KernelInterface::class);
         $request = Request::create('/api/product/missing');
         $request->attributes->set('resourcePath', 'product');
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, new NotFoundHttpException('Missing product.'));
@@ -37,7 +37,7 @@ final class ApiExceptionSubscriberTest extends TestCase
     public function testSubscriberIgnoresNonApiRequests(): void
     {
         $subscriber = new ApiExceptionSubscriber(new ApiProblemResponseFactory());
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = $this->createStub(KernelInterface::class);
         $request = Request::create('/product/demo');
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, new NotFoundHttpException('Missing product.'));
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Crud;
 
+use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\CrudSurfaceResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,9 @@ final class CrudIndexController extends AbstractController
     public function __construct(
         private readonly CrudContextResolverInterface $contextResolver,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private readonly CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
+        private readonly CrudSurfaceContractFactory $surfaceContractFactory,
+        private readonly CrudSurfaceResponseFactory $surfaceResponseFactory,
+        private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
 
@@ -24,14 +28,12 @@ final class CrudIndexController extends AbstractController
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return new Response('', Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponseFactory->create($request, 'crud_context_not_found');
         }
 
         $page = $this->pageDefinitionProvider->provideIndex($context);
+        $surface = $this->surfaceContractFactory->create($page);
 
-        return $this->render(
-            'interfacing/bridge/provider_surface.html.twig',
-            $this->providerSurfaceBuilder->build($page),
-        );
+        return $this->surfaceResponseFactory->render($surface);
     }
 }

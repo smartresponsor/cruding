@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Crud;
 
+use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
@@ -23,6 +24,7 @@ final class CrudDeleteController extends AbstractController
         private readonly CrudRouteNameResolverInterface $routeNameResolver,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudMutationGuardInterface $mutationGuard,
+        private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
 
@@ -30,12 +32,12 @@ final class CrudDeleteController extends AbstractController
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return new Response('', Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponseFactory->create($request, 'crud_context_not_found');
         }
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            return new Response('', Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
 
         $access = $this->accessContextBuilder->build($context, $object);

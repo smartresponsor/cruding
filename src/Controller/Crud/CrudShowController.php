@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Crud;
 
+use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\CrudSurfaceResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +22,9 @@ final class CrudShowController extends AbstractController
         private readonly CrudObjectFinderInterface $objectFinder,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private readonly CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
+        private readonly CrudSurfaceContractFactory $surfaceContractFactory,
+        private readonly CrudSurfaceResponseFactory $surfaceResponseFactory,
+        private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
 
@@ -28,12 +32,12 @@ final class CrudShowController extends AbstractController
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return new Response('', 404);
+            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            return new Response('', 404);
+            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
 
         $access = $this->accessContextBuilder->build($context, $object);
@@ -42,10 +46,8 @@ final class CrudShowController extends AbstractController
         }
 
         $page = $this->pageDefinitionProvider->provideShow($context, $object);
+        $surface = $this->surfaceContractFactory->create($page, $object);
 
-        return $this->render(
-            'interfacing/bridge/provider_surface.html.twig',
-            $this->providerSurfaceBuilder->build($page, $object),
-        );
+        return $this->surfaceResponseFactory->render($surface);
     }
 }

@@ -7,4 +7,6 @@ namespace App\Cruding\ServiceInterface\Crud;
 interface CrudTemplateResolverInterface
 {
     public function resolvePrefix(string $resourcePath): string;
+
+    public function resolveSurfaceTemplate(string $resourcePath): string;
 }

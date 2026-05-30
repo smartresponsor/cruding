@@ -1,14 +1,23 @@
+parameters:
+    cruding.resource_path_requirement: '(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))[a-z0-9](?:[a-z0-9/_-]*[a-z0-9])?'
+    cruding.capability_map:
+        identifiable:
+            interfaces:
+                - App\Cruding\Contract\Capability\IdentifiableInterface
+            methods_any: ['getId']
+            properties_any: ['id']
+        sluggable:
+            interfaces:
+                - App\Cruding\Contract\Capability\SluggableInterface
+            methods_any: ['getSlug']
+            properties_any: ['slug']
+    cruding.entity_class_alias_map: []
+    cruding.form_type_map: []
+
 services:
     _defaults:
         autowire: true
         autoconfigure: true
-
-
-    App\Cruding\Controller\Interfacing\:
-        resource: '../src/Controller/Interfacing/'
-        tags: ['controller.service_arguments']
-        bind:
-            $projectDir: '%kernel.project_dir%'
 
     App\Cruding\Controller\Crud\:
         resource: '../src/Controller/Crud/'
@@ -21,7 +30,9 @@ services:
     App\Cruding\Service\Crud\:
         resource: '../src/Service/Crud/'
         bind:
-            $capabilityMap: '%app.capability_map%'
+            $capabilityMap: '%cruding.capability_map%'
+            $entityClassAliasMap: '%cruding.entity_class_alias_map%'
+            $formTypeMap: '%cruding.form_type_map%'
 
     App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface: '@App\Cruding\Service\Crud\CrudContextResolver'
     App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface: '@App\Cruding\Service\Crud\CrudObjectFinder'
@@ -36,37 +47,6 @@ services:
     App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface: '@App\Cruding\Service\Crud\CrudApiResponder'
     App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Service\Crud\CrudPageDefinitionProvider'
     App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface: '@App\Cruding\Service\Crud\CrudInterfacingProviderSurfaceBuilder'
-
-    App\Cruding\Controller\Relation\:
-        resource: '../src/Controller/Relation/'
-        tags: ['controller.service_arguments']
-
-    App\Cruding\Controller\Api\Relation\:
-        resource: '../src/Controller/Api/Relation/'
-        tags: ['controller.service_arguments']
-
-    App\Cruding\Service\Relation\:
-        resource: '../src/Service/Relation/'
-
-    App\Cruding\ServiceInterface\Relation\ObjectRelationContextResolverInterface: '@App\Cruding\Service\Relation\ObjectRelationContextResolver'
-    App\Cruding\ServiceInterface\Relation\ObjectRelationManagerInterface: '@App\Cruding\Service\Relation\ObjectRelationManager'
-    App\Cruding\ServiceInterface\Relation\ObjectRelationResponderInterface: '@App\Cruding\Service\Relation\ObjectRelationResponder'
-
-    App\Cruding\Controller\ObjectMeta\:
-        resource: '../src/Controller/ObjectMeta/'
-        tags: ['controller.service_arguments']
-
-    App\Cruding\Controller\Api\ObjectMeta\:
-        resource: '../src/Controller/Api/ObjectMeta/'
-        tags: ['controller.service_arguments']
-
-    App\Cruding\Service\ObjectMeta\:
-        resource: '../src/Service/ObjectMeta/'
-        bind:
-            $visibilityTransitions: '%app.object_meta.visibility_transitions%'
-
-    App\Cruding\ServiceInterface\ObjectMeta\ObjectAuditExtractorInterface: '@App\Cruding\Service\ObjectMeta\ObjectAuditExtractor'
-    App\Cruding\ServiceInterface\ObjectMeta\ObjectVisibilityManagerInterface: '@App\Cruding\Service\ObjectMeta\ObjectVisibilityManager'
 
     App\Cruding\Service\Api\ApiProblemResponseFactory: ~
     App\Cruding\EventSubscriber\ApiExceptionSubscriber:

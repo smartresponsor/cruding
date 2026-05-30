@@ -9,9 +9,13 @@ use Doctrine\Persistence\ManagerRegistry;
 
 final readonly class CrudEntityClassResolver
 {
+    /**
+     * @param array<string, class-string> $entityClassAliasMap
+     */
     public function __construct(
         private ManagerRegistry $managerRegistry,
         private CrudResourcePathParser $resourcePathParser,
+        private array $entityClassAliasMap = [],
     ) {
     }
 
@@ -27,28 +31,39 @@ final readonly class CrudEntityClassResolver
 
     public function tryResolve(string $resourcePath): ?string
     {
-        $normalizedPath = $this->resourcePathParser->normalize($resourcePath);
-        static $candidateMap = null;
+        $candidateMap = $this->buildCandidateMap();
 
-        if (null === $candidateMap) {
-            $candidateMap = $this->buildCandidateMap();
-        }
+        foreach ($this->buildLookupKeys($resourcePath) as $lookupKey) {
+            $explicitAliasClass = $this->entityClassAliasMap[$lookupKey] ?? null;
+            if (is_string($explicitAliasClass) && '' !== $explicitAliasClass) {
+                return $explicitAliasClass;
+            }
 
-        $explicit = $this->explicitAliases();
-        if (isset($explicit[$normalizedPath])) {
-            return $explicit[$normalizedPath];
-        }
+            if (isset($candidateMap[$lookupKey])) {
+                return $candidateMap[$lookupKey];
+            }
 
-        if (isset($candidateMap[$normalizedPath])) {
-            return $candidateMap[$normalizedPath];
-        }
-
-        $tail = $this->resourcePathParser->tail($normalizedPath);
-        if ('' !== $tail && isset($candidateMap[$tail])) {
-            return $candidateMap[$tail];
+            $tail = $this->resourcePathParser->tail($lookupKey);
+            if ('' !== $tail && isset($candidateMap[$tail])) {
+                return $candidateMap[$tail];
+            }
         }
 
         return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildLookupKeys(string $resourcePath): array
+    {
+        $keys = [$this->resourcePathParser->normalize($resourcePath)];
+
+        if (str_contains($resourcePath, '_')) {
+            $keys[] = $this->resourcePathParser->normalize(str_replace('_', '/', $resourcePath));
+        }
+
+        return array_values(array_unique(array_filter($keys, static fn (string $key): bool => '' !== $key)));
     }
 
     /**
@@ -78,8 +93,13 @@ final readonly class CrudEntityClassResolver
     {
         $parts = explode('\\Entity\\', $class, 2);
         $tail = $parts[1] ?? preg_replace('{^.*\\\\}', '', $class) ?? $class;
-        $segments = array_values(array_filter(array_map([$this, 'normalizeSegment'], explode('\\', $tail))));
+        $rawSegments = array_values(array_filter(explode('\\', $tail)));
 
+        if ([] === $rawSegments) {
+            return [];
+        }
+
+        $segments = $this->buildResourceSegments($rawSegments);
         if ([] === $segments) {
             return [];
         }
@@ -89,43 +109,37 @@ final readonly class CrudEntityClassResolver
         $keys[] = (string) end($segments);
         $keys[] = $this->normalizeEntityAlias($class);
 
-        $deduplicated = [];
-        foreach ($segments as $segment) {
-            $last = [] === $deduplicated ? null : end($deduplicated);
-            if ($segment !== $last) {
-                $deduplicated[] = $segment;
-            }
-        }
-
-        if ([] !== $deduplicated) {
-            $keys[] = implode('/', $deduplicated);
-            $keys[] = (string) end($deduplicated);
-            $keys[] = $this->normalizeEntityAlias($class);
-        }
-
         return array_values(array_unique(array_filter($keys, static fn (mixed $value): bool => is_string($value) && '' !== $value)));
     }
 
     /**
-     * @return array<string, class-string>
+     * @param list<string> $rawSegments
+     *
+     * @return list<string>
      */
-    private function explicitAliases(): array
+    private function buildResourceSegments(array $rawSegments): array
     {
-        return array_filter([
-            'access' => class_exists(\App\Accessing\Entity\AccessAccountEntity::class) ? \App\Accessing\Entity\AccessAccountEntity::class : null,
-            'address' => class_exists(\App\Entity\AddressEntity::class) ? \App\Entity\AddressEntity::class : null,
-            'adjudication' => class_exists(\App\Entity\AdjudicationRuleEntity::class) ? \App\Entity\AdjudicationRuleEntity::class : null,
-            'analytics' => class_exists(\App\Analysing\Entity\Analytics\AnalyticsMetricSnapshotEntity::class) ? \App\Analysing\Entity\Analytics\AnalyticsMetricSnapshotEntity::class : null,
-            'catalog' => class_exists(\App\Cataloging\Entity\Catalog\CatalogCategoryEntity::class) ? \App\Cataloging\Entity\Catalog\CatalogCategoryEntity::class : null,
-            'billing' => class_exists(\App\Billing\Entity\BillingInvoiceEntity::class) ? \App\Billing\Entity\BillingInvoiceEntity::class : null,
-            'order' => class_exists(\App\Entity\Order\OrderEntity::class) ? \App\Entity\Order\OrderEntity::class : null,
-            'orders' => class_exists(\App\Entity\Order\OrderEntity::class) ? \App\Entity\Order\OrderEntity::class : null,
-            'product' => class_exists(\App\Entity\Product\ProductTypeEntity::class) ? \App\Entity\Product\ProductTypeEntity::class : null,
-            'shipment' => class_exists(\App\Entity\ShipmentCarrierEntity::class) ? \App\Entity\ShipmentCarrierEntity::class : null,
-            'shipping' => class_exists(\App\Entity\ShipmentCarrierEntity::class) ? \App\Entity\ShipmentCarrierEntity::class : null,
-            'taxating' => class_exists(\App\Taxating\Entity\Taxation\TaxationEntity::class) ? \App\Taxating\Entity\Taxation\TaxationEntity::class : null,
-            'vendor' => class_exists(\App\Vendoring\Entity\Vendor\VendorEntity::class) ? \App\Vendoring\Entity\Vendor\VendorEntity::class : null,
-        ]);
+        $lastIndex = array_key_last($rawSegments);
+        $segments = [];
+
+        foreach ($rawSegments as $index => $segment) {
+            if ($index !== $lastIndex) {
+                $segments[] = $this->normalizeSegment($segment);
+                continue;
+            }
+
+            $shortName = preg_replace('/Entity$/', '', $segment) ?? $segment;
+            $parentName = [] === $segments ? '' : (string) end($segments);
+            $parentStudly = str_replace(' ', '', ucwords(str_replace('-', ' ', $parentName)));
+
+            if ('' !== $parentStudly && str_starts_with($shortName, $parentStudly) && $shortName !== $parentStudly) {
+                $shortName = substr($shortName, strlen($parentStudly));
+            }
+
+            $segments[] = $this->normalizeSegment($shortName);
+        }
+
+        return array_values(array_filter($segments, static fn (string $segment): bool => '' !== $segment));
     }
 
     private function normalizeEntityAlias(string $class): string

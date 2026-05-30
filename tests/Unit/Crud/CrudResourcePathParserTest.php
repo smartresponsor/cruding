@@ -20,14 +20,14 @@ final class CrudResourcePathParserTest extends TestCase
     {
         $parser = new CrudResourcePathParser();
 
-        self::assertSame(['vendor', 'profile'], $parser->segments('/vendor/profile/'));
+        self::assertSame(['product', 'price'], $parser->segments('/product/price/'));
     }
 
     public function testTailReturnsLastSegment(): void
     {
         $parser = new CrudResourcePathParser();
 
-        self::assertSame('attachment', $parser->tail('/catalog/item/attachment/'));
+        self::assertSame('attachment', $parser->tail('/resource/item/attachment/'));
         self::assertSame('', $parser->tail('/'));
     }
 }

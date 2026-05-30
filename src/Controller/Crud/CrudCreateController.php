@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Crud;
 
+use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\CrudSurfaceResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
-use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +24,9 @@ final class CrudCreateController extends AbstractController
         private readonly CrudRouteNameResolverInterface $routeNameResolver,
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private readonly CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
+        private readonly CrudSurfaceContractFactory $surfaceContractFactory,
+        private readonly CrudSurfaceResponseFactory $surfaceResponseFactory,
+        private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
 
@@ -30,14 +34,14 @@ final class CrudCreateController extends AbstractController
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return new Response('', Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponseFactory->create($request, 'crud_context_not_found');
         }
 
         $object = $this->createEmptyObject($context->entityClass);
         $access = $this->accessContextBuilder->build($context, $object);
 
         if (null === $context->formTypeClass) {
-            return new Response('', Response::HTTP_NOT_FOUND);
+            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
 
         $form = $this->formHandler->createAndHandle($this, $context->formTypeClass, $object, $request);
@@ -60,11 +64,9 @@ final class CrudCreateController extends AbstractController
         }
 
         $page = $this->pageDefinitionProvider->provideNew($context, $object, $form->createView());
+        $surface = $this->surfaceContractFactory->create($page, $object, $form->createView());
 
-        return $this->render(
-            'interfacing/bridge/provider_surface.html.twig',
-            $this->providerSurfaceBuilder->build($page, $object, $form->createView()),
-        );
+        return $this->surfaceResponseFactory->render($surface);
     }
 
     private function detectIdentifierField(object $object): string
