@@ -13,9 +13,6 @@ $requiredFiles = [
     'src/DependencyInjection/CrudingExtension.php',
     'src/DependencyInjection/Configuration.php',
     'src/Service/Crud/CrudSurfaceContractFactory.php',
-    'src/Service/Crud/CrudSurfaceResponseFactory.php',
-    'src/Service/Crud/CrudTemplateResolver.php',
-    'templates/crud/index.html.twig',
     'config/routes/cruding_crud.yaml',
     'config/routes/cruding_api_crud.yaml',
 ];
@@ -27,9 +24,18 @@ foreach ($requiredFiles as $relativePath) {
     }
 }
 
-$templateResolver = file_get_contents($root . '/src/Service/Crud/CrudTemplateResolver.php') ?: '';
+foreach ([
+    'src/Service/Crud/CrudTemplateResolver.php',
+    'src/ServiceInterface/Crud/CrudTemplateResolverInterface.php',
+    'src/Service/Crud/CrudSurfaceResponseFactory.php',
+    'templates/crud/index.html.twig',
+] as $legacyFile) {
+    if (is_file($root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $legacyFile))) {
+        guard_fail(sprintf('Legacy Cruding rendering file must not exist: %s', $legacyFile));
+    }
+}
+
 $factory = file_get_contents($root . '/src/Service/Crud/CrudSurfaceContractFactory.php') ?: '';
-$responseFactory = file_get_contents($root . '/src/Service/Crud/CrudSurfaceResponseFactory.php') ?: '';
 $surfaceContract = file_get_contents($root . '/src/Value/Surface/CrudSurfaceContract.php') ?: '';
 $builder = file_get_contents($root . '/src/Service/Crud/CrudInterfacingProviderSurfaceBuilder.php') ?: '';
 $pageProvider = file_get_contents($root . '/src/Service/Crud/CrudPageDefinitionProvider.php') ?: '';
@@ -40,16 +46,16 @@ $routes = file_get_contents($root . '/config/routes.yaml') ?: '';
 $services = file_get_contents($root . '/config/services.yaml') ?: '';
 $composer = file_get_contents($root . '/composer.json') ?: '';
 
-$mustContain = [
-    '@Interfacing/\' . $resourcePath . \'/index.html.twig',
-    '@Interfacing/base.html.twig',
-    '@Cruding/crud/index.html.twig',
-];
+if (!str_contains($contextResolver, '$this->resourcePathParser->normalize')) {
+    guard_fail('CrudContextResolver must normalize the incoming resourcePath before lookup/rendering.');
+}
 
-foreach ($mustContain as $needle) {
-    if (!str_contains($templateResolver, $needle)) {
-        guard_fail(sprintf('CrudTemplateResolver does not contain expected template candidate: %s', $needle));
-    }
+if (str_contains($factory . $surfaceContract . $builder . $pageProvider, '.html.twig')) {
+    guard_fail('Cruding source must not contain producer-owned Twig template paths.');
+}
+
+if (str_contains($factory . $surfaceContract . $builder . $pageProvider, 'CrudTemplateResolver')) {
+    guard_fail('Cruding source must not depend on a producer-owned template resolver.');
 }
 
 $extensionNeedles = [
@@ -71,28 +77,8 @@ foreach (['resource_path_requirement', 'capability_map', 'entity_class_alias_map
     }
 }
 
-if (!str_contains($contextResolver, '$this->resourcePathParser->normalize')) {
-    guard_fail('CrudContextResolver must normalize the incoming resourcePath before lookup/rendering.');
-}
-
-if (!str_contains($factory, 'resolveSurfaceTemplate($page->context->resourcePath)')) {
-    guard_fail('CrudSurfaceContractFactory does not use the resource surface resolver.');
-}
-
-if (preg_match('/render\(\s*\$page->template/', $factory) === 1) {
-    guard_fail('Factory must not render the source CRUD page template directly.');
-}
-
-if (str_contains($responseFactory . $surfaceContract . $composer, 'InterfacingRendererInterface') || str_contains($responseFactory . $surfaceContract . $composer, 'SurfaceRenderableInterface') || str_contains($composer, 'interfacing/interface')) {
-    guard_fail('Cruding must not require unavailable Interfacing PHP package contracts; Interfacing remains an optional Twig namespace/template integration.');
-}
-
 if (str_contains($composer, 'smart-responsor/objecting') || str_contains($composer, '../Objecting')) {
     guard_fail('Cruding must not require Objecting directly; CRUD routing stays entity-agnostic and host-mapped.');
-}
-
-if (!str_contains($responseFactory, 'private Environment $twig') || !str_contains($responseFactory, "'@Cruding/crud/index.html.twig'")) {
-    guard_fail('CrudSurfaceResponseFactory must render through Twig with a self-owned @Cruding fallback.');
 }
 
 $forbiddenRuntimeNeedles = [
@@ -104,7 +90,7 @@ $forbiddenRuntimeNeedles = [
 ];
 
 foreach ($forbiddenRuntimeNeedles as $needle) {
-    if (str_contains($templateResolver . $factory . $builder . $pageProvider, $needle)) {
+    if (str_contains($factory . $surfaceContract . $builder . $pageProvider, $needle)) {
         guard_fail(sprintf('Forbidden rendering drift remains in runtime code: %s', $needle));
     }
 }
@@ -153,7 +139,6 @@ foreach (['symfony/config', 'symfony/dependency-injection', 'symfony/form', 'php
         guard_fail(sprintf('composer.json misses explicit Symfony bundle infrastructure package: %s', $package));
     }
 }
-
 
 $gitignore = is_file($root . '/.gitignore') ? (file_get_contents($root . '/.gitignore') ?: '') : '';
 foreach (['/vendor/', '/composer.lock'] as $ignoredPath) {

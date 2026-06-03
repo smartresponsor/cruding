@@ -39,7 +39,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $context,
             $access,
             sprintf('%s index', $context->resourcePath),
-            $context->template('index'),
+            'index',
             $this->objectFinder->findAll($context),
             $actions,
             [
@@ -75,7 +75,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $context,
             $access,
             sprintf('%s show', $context->resourcePath),
-            $context->template('show'),
+            'show',
             [$object],
             $actions,
             [
@@ -96,7 +96,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $context,
             $access,
             sprintf('%s new', $context->resourcePath),
-            $context->template('new'),
+            'new',
             [$object],
             [
                 new CrudPageActionDefinition(
@@ -141,7 +141,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $context,
             $access,
             sprintf('%s edit', $context->resourcePath),
-            $context->template('edit'),
+            'edit',
             [$object],
             $actions,
             [

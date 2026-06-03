@@ -8,8 +8,30 @@ cruding_api_index:
     requirements:
         resourcePath: '%cruding.resource_path_requirement%'
 
+
+cruding_api_index_no_slash:
+    path: /api/{resourcePath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiIndexController
+    methods: [GET]
+    defaults:
+        _crud_operation: index
+        _crud_surface: public
+    requirements:
+        resourcePath: '%cruding.resource_path_requirement%'
+
 cruding_api_create:
     path: /api/{resourcePath}/
+    controller: App\Cruding\Controller\Api\Crud\CrudApiCreateController
+    methods: [POST]
+    defaults:
+        _crud_operation: create
+        _crud_surface: public
+    requirements:
+        resourcePath: '%cruding.resource_path_requirement%'
+
+
+cruding_api_create_no_slash:
+    path: /api/{resourcePath}
     controller: App\Cruding\Controller\Api\Crud\CrudApiCreateController
     methods: [POST]
     defaults:

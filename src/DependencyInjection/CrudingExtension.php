@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
+use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -34,6 +35,9 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('cruding.capability_map', $config['capability_map']);
         $container->setParameter('cruding.entity_class_alias_map', $config['entity_class_alias_map']);
         $container->setParameter('cruding.form_type_map', $config['form_type_map']);
+
+        $container->registerForAutoconfiguration(CrudSurfaceProviderInterface::class)
+            ->addTag('cruding.surface_provider');
     }
 
     public function prepend(ContainerBuilder $container): void

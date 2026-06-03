@@ -6,12 +6,12 @@ namespace App\Cruding\Controller\Crud;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\CrudSurfaceContractFactory;
-use App\Cruding\Service\Crud\CrudSurfaceResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
+use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,12 +25,11 @@ final class CrudCreateController extends AbstractController
         private readonly CrudAccessContextBuilderInterface $accessContextBuilder,
         private readonly CrudPageDefinitionProviderInterface $pageDefinitionProvider,
         private readonly CrudSurfaceContractFactory $surfaceContractFactory,
-        private readonly CrudSurfaceResponseFactory $surfaceResponseFactory,
         private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): Response|CrudSurfaceContract
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
@@ -66,7 +65,7 @@ final class CrudCreateController extends AbstractController
         $page = $this->pageDefinitionProvider->provideNew($context, $object, $form->createView());
         $surface = $this->surfaceContractFactory->create($page, $object, $form->createView());
 
-        return $this->surfaceResponseFactory->render($surface);
+        return $surface;
     }
 
     private function detectIdentifierField(object $object): string

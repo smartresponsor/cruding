@@ -6,7 +6,6 @@ namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudPageDefinition;
 use App\Cruding\ServiceInterface\Crud\CrudInterfacingProviderSurfaceBuilderInterface;
-use App\Cruding\ServiceInterface\Crud\CrudTemplateResolverInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Symfony\Component\Form\FormView;
 
@@ -14,7 +13,6 @@ final readonly class CrudSurfaceContractFactory
 {
     public function __construct(
         private CrudInterfacingProviderSurfaceBuilderInterface $providerSurfaceBuilder,
-        private CrudTemplateResolverInterface $templateResolver,
     ) {
     }
 
@@ -22,14 +20,13 @@ final readonly class CrudSurfaceContractFactory
     {
         $built = $this->providerSurfaceBuilder->build($page, $object, $form);
         $workbench = is_array($built['workbench'] ?? null) ? $built['workbench'] : [];
+        $locations = is_array($built['locations'] ?? null) ? $built['locations'] : [];
         $view = $this->viewFromOperation((string) ($workbench['routeContext']['operation'] ?? $page->context->operation));
-        $templatePath = $this->templateResolver->resolveSurfaceTemplate($page->context->resourcePath);
 
         return new CrudSurfaceContract(
             CrudSurfaceContract::WORD,
             $view,
-            $templatePath,
-            $this->slotMap(),
+            CrudSurfaceContract::defaultSlotMap(),
             $workbench,
             [
                 'page' => [
@@ -39,23 +36,12 @@ final readonly class CrudSurfaceContractFactory
                 ],
                 'crud' => $built,
                 'viewModes' => ['table', 'cards'],
-                'sourceTemplate' => $page->template,
+                'sourceView' => $page->template,
                 'sourceOperation' => $page->context->operation,
+                'locations' => $locations,
             ],
+            $locations,
         );
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function slotMap(): array
-    {
-        return [
-            'top.search' => 'Search',
-            'left.panel' => 'Resource operations',
-            'main.body' => 'Resource workbench',
-            'right.panel' => 'Actions',
-        ];
     }
 
     private function viewFromOperation(string $operation): string

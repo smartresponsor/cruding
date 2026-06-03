@@ -14,17 +14,11 @@ final readonly class CrudContext
         public string $identifierField,
         public string|int|null $identifierValue,
         public ?string $formTypeClass,
-        public string $templatePrefix,
     ) {
     }
 
     public function isAdminSurface(): bool
     {
         return 'admin' === $this->surface;
-    }
-
-    public function template(string $name): string
-    {
-        return sprintf('%s/%s.html.twig', trim($this->templatePrefix, '/'), $name);
     }
 }

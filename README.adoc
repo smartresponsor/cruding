@@ -4,7 +4,7 @@ Universal CRUD route processor and capability-resolution bundle for Symfony host
 
 == Responsibility
 
-Cruding owns CRUD route processing, entity/form resolution, neutral browser surface payloads, API responders, mutation guards, and minimal diagnostic fallback rendering. It does not own relation screens, object-meta screens, platform menus, frontend provider selection, or local application shell CSS.
+Cruding owns CRUD route processing, resource-bound surface route parsing, entity/form resolution, neutral browser surface payloads, API responders, mutation guards, and minimal diagnostic fallback rendering. Resource-bound relation/object-meta/frontend surface routes belong to Cruding when they can be expressed through the resource/subject/surface/action grammar. Cruding still does not own platform menus, external callbacks, webhooks, health/metrics endpoints, or local application shell CSS.
 
 == Bundle loading
 
@@ -17,15 +17,42 @@ Cruding owns CRUD route processing, entity/form resolution, neutral browser surf
 
 The shipped defaults keep the component usable as a CRUD route processor without requiring neighbour-component hardcode.
 
-== Interfacing resource surface rendering
 
-Cruding visible CRUD controllers render browser responses through Twig. Interfacing remains an optional template namespace integration, not a required Composer package. Rendering order:
+== Resource-surface routes
 
-. `@Interfacing/<resource>/index.html.twig` when a resource-specific Interfacing surface exists.
-. `@Interfacing/base.html.twig` as the shared Interfacing layout fallback.
-. `@Cruding/crud/index.html.twig` as the minimal self-owned diagnostic fallback when Interfacing has no usable base or Interfacing rendering fails.
+Cruding also exposes a read-oriented resource-surface controller for routes that are not classic admin CRUD, but are still resource-bound. The route path is the declaration:
 
-`index.html.twig` is the concrete resource surface entry point. `base.html.twig` is a layout/inheritance document and must not become the preferred resource render target.
+[source,text]
+----
+/{resource}/{subject}/{surface}
+/{resource}/{subject}/{surface}/{action}
+/{resource}/{subject}/{surface}/{item}/{action}
+----
+
+Examples:
+
+[source,text]
+----
+/vendor/acme-inc/compliance/briefing
+/vendor/acme-inc/document/w9-form/preview
+----
+
+The controller parses the route template into a `CrudRouteContext`, locates a producer provider by convention, and returns only `CrudSurfaceContract`. Producer providers implement `CrudSurfaceProviderInterface` and return a location-based payload. They must not render Twig or return Symfony `Response`/`JsonResponse`.
+
+If no producer provider exists, the surface controller falls back only to generic read operations (`index`, `detail/show/view`). Mutation routes remain on the existing CRUD controllers.
+
+See `docs/cruding/cruding-resource-surface-routes.md`.
+
+== Viewing / Interfacing resource surface rendering
+
+For resource-surface routes, Cruding is the producer-side route-token and payload owner only. It returns `CrudSurfaceContract`; it does not own the runtime Twig lookup, final fallback chain, or HTML response decision. Viewing owns the render boundary and may use Interfacing as a passive template tree when available. The canonical runtime fallback is:
+
+. `@Interfacing/<surface-or-resource>/index.html.twig`
+. `@Interfacing/index.html.twig`
+. `@<Component>/index.html.twig`
+. `@Viewing/view/index.html.twig`
+
+Any `templateCandidates` exposed by `CrudRouteContext` are diagnostic folder/index hints for debug commands only. They are not a render contract and must not reintroduce operation-based Twig files such as `<operation>.html.twig`.
 
 == Routing/template contract
 

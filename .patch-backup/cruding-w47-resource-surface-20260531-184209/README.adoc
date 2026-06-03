@@ -1,0 +1,55 @@
+= Cruding
+
+Universal CRUD route processor and capability-resolution bundle for Symfony host applications.
+
+== Responsibility
+
+Cruding owns CRUD route processing, entity/form resolution, neutral browser surface payloads, API responders, mutation guards, and minimal diagnostic fallback rendering. It does not own relation screens, object-meta screens, platform menus, frontend provider selection, or local application shell CSS.
+
+== Bundle loading
+
+`CrudingExtension` loads `config/services.yaml` from the bundle and registers `templates/` as the `@Cruding` Twig namespace. Host applications may configure these options under the `cruding` extension key:
+
+* `resource_path_requirement`
+* `capability_map`
+* `entity_class_alias_map`
+* `form_type_map`
+
+The shipped defaults keep the component usable as a CRUD route processor without requiring neighbour-component hardcode.
+
+== Interfacing resource surface rendering
+
+Cruding visible CRUD controllers render browser responses through Twig. Interfacing remains an optional template namespace integration, not a required Composer package. Rendering order:
+
+. `@Interfacing/<resource>/index.html.twig` when a resource-specific Interfacing surface exists.
+. `@Interfacing/base.html.twig` as the shared Interfacing layout fallback.
+. `@Cruding/crud/index.html.twig` as the minimal self-owned diagnostic fallback when Interfacing has no usable base or Interfacing rendering fails.
+
+`index.html.twig` is the concrete resource surface entry point. `base.html.twig` is a layout/inheritance document and must not become the preferred resource render target.
+
+== Routing/template contract
+
+Cruding declares its reusable resource-path route requirement through `cruding.resource_path_requirement`. The default requirement reserves only CRUD/meta operation path segments (`new`, `edit`, `delete`, `audit`, `visibility`, `attach`, `detach`) so the processor does not carry hard-coded neighbour or frontend-section exclusions such as profile/cart/vendor-specific rules. Host applications should mount Cruding where generic resource processing belongs.
+
+Incoming `resourcePath` values are normalized before entity lookup, route generation, and surface rendering. Underscore aliases become hyphenated paths, duplicate slashes collapse, and paths are lowercased.
+
+
+== Dependency policy
+
+Cruding must remain installable as a CRUD route processor without a hard Composer dependency on an Interfacing package. The integration boundary is the Twig namespace contract (`@Interfacing/...`) exposed by the host application when Interfacing is installed.
+
+For local validation use:
+
+[source,powershell]
+----
+composer update -W
+composer validate --strict
+composer dump-autoload
+composer canon:cruding
+.\vendor\bin\phpunit
+----
+
+
+== W8 dependency/test seal
+
+Cruding intentionally keeps `composer.lock` as a local development artifact only. The repository ignores `/composer.lock` and `/vendor/`, while `composer.json` declares the runtime packages needed by the CRUD route processor, including Symfony Form support for optional host-provided form types.

@@ -7,7 +7,6 @@ namespace App\Cruding\Service\Crud;
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Exception\Crud\CrudResourceNotFoundException;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudTemplateResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CrudContextResolver implements CrudContextResolverInterface
@@ -15,7 +14,6 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
     public function __construct(
         private CrudEntityClassResolver $entityClassResolver,
         private CrudFormTypeResolver $formTypeResolver,
-        private CrudTemplateResolverInterface $templateResolver,
         private CrudResourcePathParser $resourcePathParser,
     ) {
     }
@@ -56,7 +54,6 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
             identifierField: $identifierField,
             identifierValue: is_scalar($identifierValue) ? $identifierValue : null,
             formTypeClass: $this->formTypeResolver->resolve($entityClass),
-            templatePrefix: $this->templateResolver->resolvePrefix($resourcePath),
         );
     }
 }

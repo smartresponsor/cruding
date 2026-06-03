@@ -31,6 +31,8 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
         $formFields = $this->formFieldsFor($form, $resourcePath);
         $actions = $this->actionsFor($page->actions);
 
+        $workbench = $this->workbenchFor($page, $objects, $form, $resourcePath, $component, $operation);
+
         return [
             'component' => $component,
             'resource' => $resourcePath,
@@ -44,7 +46,63 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
             'filters' => $filters,
             'formFields' => $formFields,
             'headerActions' => $actions,
-            'workbench' => $this->workbenchFor($page, $objects, $form, $resourcePath, $component, $operation),
+            'workbench' => $workbench,
+            'locations' => $this->locationsFor($workbench, $rows, $columns, $filters, $formFields, $actions),
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $columns
+     * @param list<array<string, mixed>> $filters
+     * @param list<array<string, mixed>> $formFields
+     * @param list<array<string, mixed>> $actions
+     *
+     * @return array<string, mixed>
+     */
+    private function locationsFor(array $workbench, array $rows, array $columns, array $filters, array $formFields, array $actions): array
+    {
+        return [
+            'top' => [
+                [
+                    'key' => 'resource_header',
+                    'type' => 'resource_header',
+                    'data' => [
+                        'title' => $workbench['title'] ?? 'Cruding',
+                        'routeContext' => $workbench['routeContext'] ?? [],
+                    ],
+                    'meta' => [],
+                ],
+            ],
+            'filter' => [
+                [
+                    'key' => 'resource_filter',
+                    'type' => 'resource_filter',
+                    'data' => ['items' => $filters],
+                    'meta' => [],
+                ],
+            ],
+            'body' => [
+                [
+                    'key' => 'resource_workbench',
+                    'type' => 'resource_workbench',
+                    'data' => [
+                        'rows' => $rows,
+                        'columns' => $columns,
+                        'formFields' => $formFields,
+                        'workbench' => $workbench,
+                    ],
+                    'meta' => [],
+                ],
+            ],
+            'right' => [
+                [
+                    'key' => 'resource_action',
+                    'type' => 'resource_action',
+                    'data' => ['items' => $actions],
+                    'meta' => [],
+                ],
+            ],
         ];
     }
 
@@ -73,7 +131,7 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
                 'mode' => $mode,
                 'collectionHref' => '/'.$resourcePath.'/',
                 'sourceComponent' => 'cruding',
-                'sourceTemplate' => $page->template,
+                'sourceView' => $page->template,
             ],
             'columns' => $columns,
             'rows' => $rows,
@@ -87,9 +145,9 @@ final class CrudInterfacingProviderSurfaceBuilder implements CrudInterfacingProv
                 : null,
             'diagnostics' => [
                 'sourceComponent' => 'cruding',
-                'sourceTemplate' => $page->template,
-                'renderingContract' => '@Interfacing/<resource>/index.html.twig',
-                'fallbackContract' => '@Interfacing/base.html.twig, then @Cruding/crud/index.html.twig',
+                'sourceView' => $page->template,
+                'renderingContract' => 'Interfacing resource index candidate chain',
+                'fallbackContract' => 'Interfacing index then local component then Viewing',
                 'localTwigShellPrimaryRendering' => false,
             ],
         ];

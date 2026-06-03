@@ -23,9 +23,16 @@ services:
         resource: '../src/Controller/Crud/'
         tags: ['controller.service_arguments']
 
+    App\Cruding\Controller\Surface\:
+        resource: '../src/Controller/Surface/'
+        tags: ['controller.service_arguments']
+
     App\Cruding\Controller\Api\Crud\:
         resource: '../src/Controller/Api/Crud/'
         tags: ['controller.service_arguments']
+
+    App\Cruding\Command\:
+        resource: '../src/Command/'
 
     App\Cruding\Service\Crud\:
         resource: '../src/Service/Crud/'
@@ -34,10 +41,16 @@ services:
             $entityClassAliasMap: '%cruding.entity_class_alias_map%'
             $formTypeMap: '%cruding.form_type_map%'
 
+    App\Cruding\Service\:
+        resource: '../src/Service/'
+
+    App\Cruding\Service\CrudSurfaceProviderLocator:
+        arguments:
+            $providers: !tagged_iterator cruding.surface_provider
+
     App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface: '@App\Cruding\Service\Crud\CrudContextResolver'
     App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface: '@App\Cruding\Service\Crud\CrudObjectFinder'
     App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface: '@App\Cruding\Service\Crud\CrudFormHandler'
-    App\Cruding\ServiceInterface\Crud\CrudTemplateResolverInterface: '@App\Cruding\Service\Crud\CrudTemplateResolver'
     App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface: '@App\Cruding\Service\Crud\CrudRouteNameResolver'
     App\Cruding\ServiceInterface\Crud\CrudCapabilityResolverInterface: '@App\Cruding\Service\Crud\CrudCapabilityResolver'
     App\Cruding\ServiceInterface\Crud\CrudOwnershipResolverInterface: '@App\Cruding\Service\Crud\CrudOwnershipResolver'

@@ -2,13 +2,16 @@
 
 Cruding is limited to CRUD route processing, entity resolution, form handling, mutation guards, API responders, and neutral surface payload preparation.
 
-## Browser rendering order
+## Browser rendering boundary
 
-1. `@Interfacing/<resource>/index.html.twig` when a resource-specific Interfacing surface exists.
-2. `@Interfacing/base.html.twig` as the shared Interfacing document fallback.
-3. `@Cruding/crud/index.html.twig` as a minimal self-owned diagnostic/data fallback when Interfacing base is not available.
+Cruding stops at `CrudSurfaceContract`. Viewing owns the browser render decision and may render through Interfacing or return structured JSON. The canonical runtime fallback chain is:
 
-`index.html.twig` is the industrially cleaner concrete surface entry point. `base.html.twig` remains an inheritance/layout document, not the preferred resource render target.
+1. `@Interfacing/<surface-or-resource>/index.html.twig`
+2. `@Interfacing/index.html.twig`
+3. `@<Component>/index.html.twig`
+4. `@Viewing/view/index.html.twig`
+
+Cruding may expose diagnostic folder/index hints, but those hints are not the runtime render contract. Operation tokens such as `briefing`, `show`, or `edit` are provider/view context and must not become required physical Twig files.
 
 ## Bundle/config contract
 
