@@ -195,9 +195,14 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             return;
         }
 
+        $templatesDir = \dirname(__DIR__, 2).'/templates';
+        if (!is_dir($templatesDir)) {
+            return;
+        }
+
         $container->prependExtensionConfig('twig', [
             'paths' => [
-                \dirname(__DIR__, 2).'/templates' => 'Cruding',
+                $templatesDir => 'Cruding',
             ],
         ]);
     }
