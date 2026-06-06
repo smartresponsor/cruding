@@ -3,3 +3,4 @@
 /.phpunit.cache/
 /var/
 /.env.local
+*.zip
