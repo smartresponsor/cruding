@@ -1,5 +1,0 @@
-cruding_api_crud:
-    resource: 'routes/cruding_api_crud.yaml'
-
-cruding_crud:
-    resource: 'routes/cruding_crud.yaml'

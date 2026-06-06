@@ -7,15 +7,18 @@ namespace App\Cruding\Service\Crud;
 use App\Cruding\Exception\Crud\CrudResourceNotFoundException;
 use Doctrine\Persistence\ManagerRegistry;
 
-final readonly class CrudEntityClassResolver
+final class CrudEntityClassResolver
 {
+    /** @var array<string, class-string>|null */
+    private ?array $candidateMap = null;
+
     /**
      * @param array<string, class-string> $entityClassAliasMap
      */
     public function __construct(
-        private ManagerRegistry $managerRegistry,
-        private CrudResourcePathParser $resourcePathParser,
-        private array $entityClassAliasMap = [],
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly CrudResourcePathParser $resourcePathParser,
+        private readonly array $entityClassAliasMap = [],
     ) {
     }
 
@@ -31,7 +34,7 @@ final readonly class CrudEntityClassResolver
 
     public function tryResolve(string $resourcePath): ?string
     {
-        $candidateMap = $this->buildCandidateMap();
+        $candidateMap = $this->candidateMap ??= $this->buildCandidateMap();
 
         foreach ($this->buildLookupKeys($resourcePath) as $lookupKey) {
             $explicitAliasClass = $this->entityClassAliasMap[$lookupKey] ?? null;

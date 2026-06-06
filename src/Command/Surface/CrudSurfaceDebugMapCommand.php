@@ -6,8 +6,8 @@ namespace App\Cruding\Command\Surface;
 
 use App\Cruding\Controller\Surface\CrudSurfaceController;
 use App\Cruding\Dto\Surface\CrudRouteContext;
-use App\Cruding\Service\CrudRouteShapeResolver;
-use App\Cruding\Service\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -142,6 +142,9 @@ final class CrudSurfaceDebugMapCommand extends Command
             'subject' => 'acme-inc',
             'surface' => 'compliance',
             'item' => 'w9-form',
+            'token' => 'show',
+            'surfaceToken' => 'show',
+            'widgetToken' => 'show',
             'action' => 'briefing',
             default => str_ends_with($lower, 'slug') ? $this->sampleSlug($lower) : 'demo-'.$this->tokenize($variable),
         };
@@ -166,6 +169,9 @@ final class CrudSurfaceDebugMapCommand extends Command
         if (null !== $context->surfacePath) {
             $parts[] = $context->surfacePath;
         }
+        if (null !== $context->surfaceToken) {
+            $parts[] = $context->surfaceToken;
+        }
         if (null !== $context->itemValue) {
             $parts[] = '{'.$context->itemIdentifierField().'}';
         }
@@ -176,7 +182,7 @@ final class CrudSurfaceDebugMapCommand extends Command
 
     private function genericRoute(Route $route): bool
     {
-        foreach (['resource', 'surface', 'action'] as $variable) {
+        foreach (['resource', 'surface', 'token', 'action'] as $variable) {
             if (in_array($variable, $route->compile()->getVariables(), true)) {
                 return true;
             }

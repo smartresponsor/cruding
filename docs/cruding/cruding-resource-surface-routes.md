@@ -122,7 +122,7 @@ Producer surface providers should return `CrudSurfaceContract` and should not bu
 
 ```php
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
-use App\Cruding\Service\CrudSurfacePayloadBuilder;
+use App\Cruding\Service\Surface\CrudSurfacePayloadBuilder;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 

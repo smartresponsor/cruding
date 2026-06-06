@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Contract\Capability\SluggableInterface;
+use App\Cruding\Contract\Capability\CrudSluggableInterface;
 use App\Cruding\Service\Crud\CrudCapabilityResolver;
 use PHPUnit\Framework\TestCase;
 
@@ -14,12 +14,12 @@ final class CrudCapabilityResolverTest extends TestCase
     {
         $resolver = new CrudCapabilityResolver([
             'sluggable' => [
-                'interfaces' => [SluggableInterface::class],
+                'interfaces' => [CrudSluggableInterface::class],
                 'methods_any' => ['getSlug'],
             ],
         ]);
 
-        $subject = new class implements SluggableInterface {
+        $subject = new class implements CrudSluggableInterface {
             public function getSlug(): string
             {
                 return 'demo-slug';
@@ -30,7 +30,7 @@ final class CrudCapabilityResolverTest extends TestCase
 
         self::assertTrue($match->supported);
         self::assertSame('explicit_interface', $match->source);
-        self::assertSame(SluggableInterface::class, $match->interfaceName);
+        self::assertSame(CrudSluggableInterface::class, $match->interfaceName);
     }
 
     public function testFallsBackToAliasMethodWhenNoInterfaceExists(): void
@@ -83,14 +83,14 @@ final class CrudCapabilityResolverTest extends TestCase
     {
         $resolver = new CrudCapabilityResolver([
             'sluggable' => [
-                'interfaces' => [SluggableInterface::class],
+                'interfaces' => [CrudSluggableInterface::class],
             ],
             'displayable' => [
                 'methods_any' => ['displayLabel'],
             ],
         ]);
 
-        $subject = new class implements SluggableInterface {
+        $subject = new class implements CrudSluggableInterface {
             public function getSlug(): string
             {
                 return 'demo';

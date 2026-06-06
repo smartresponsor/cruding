@@ -6,9 +6,9 @@ namespace App\Cruding\Controller\Surface;
 
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\CrudRouteShapeResolver;
-use App\Cruding\Service\CrudSurfaceGenericFallback;
-use App\Cruding\Service\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Surface\CrudSurfaceGenericFallback;
+use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

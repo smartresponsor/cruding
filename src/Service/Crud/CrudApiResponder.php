@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Api\ApiProblemResponseFactory;
+use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +16,7 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
 {
     public function __construct(
         private SerializerInterface $serializer,
-        private ApiProblemResponseFactory $problemResponseFactory,
+        private CrudApiProblemResponseFactory $problemResponseFactory,
     ) {
     }
 

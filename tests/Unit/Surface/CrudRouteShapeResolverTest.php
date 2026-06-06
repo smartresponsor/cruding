@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Surface;
 
-use App\Cruding\Service\CrudRouteShapeResolver;
+use App\Cruding\Service\Surface\CrudRouteShapeResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -109,6 +109,39 @@ final class CrudRouteShapeResolverTest extends TestCase
         self::assertSame('slug', $context->itemIdentifierField());
         self::assertSame('slug', $context->identifierField());
         self::assertSame('w9-form', $context->identifierValue());
+    }
+
+    public function testResolvesSurfaceTokenBeforeItemIdentifier(): void
+    {
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
+            'cruding_surface_token_item',
+            '/{resource}/{subject}/{surface}/{token}/{item}',
+        ));
+
+        $request = Request::create('/vendor/attachment/media/show/acme-inc');
+        $request->attributes->set('_route', 'cruding_surface_token_item');
+        $request->attributes->set('resource', 'vendor');
+        $request->attributes->set('subject', 'attachment');
+        $request->attributes->set('surface', 'media');
+        $request->attributes->set('token', 'show');
+        $request->attributes->set('item', 'acme-inc');
+
+        $context = $resolver->resolve($request);
+
+        self::assertNotNull($context);
+        self::assertSame('vendor', $context->resource);
+        self::assertSame('media', $context->surfacePath);
+        self::assertSame('show', $context->surfaceToken);
+        self::assertSame('detail', $context->operation);
+        self::assertSame('item', $context->itemField);
+        self::assertSame('acme-inc', $context->itemValue);
+        self::assertSame('vendor.media.show.detail', $context->primaryProviderKey());
+        self::assertSame([
+            'vendor/media/show/index.html.twig',
+            'vendor/media/index.html.twig',
+            'vendor/index.html.twig',
+            'index.html.twig',
+        ], $context->templateCandidates);
     }
 
     private function routerWithRoute(string $name, string $path): RouterInterface

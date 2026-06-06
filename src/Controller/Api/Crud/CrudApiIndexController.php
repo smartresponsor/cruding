@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Controller\Api\Crud;
 
-use App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface;
-use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
+use App\Cruding\ServiceInterface\Crud\Operation\CrudApiIndexOperationInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,19 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 final class CrudApiIndexController extends AbstractController
 {
     public function __construct(
-        private readonly CrudContextResolverInterface $contextResolver,
-        private readonly CrudObjectFinderInterface $objectFinder,
-        private readonly CrudApiResponderInterface $apiResponder,
+        private readonly CrudApiIndexOperationInterface $operation,
     ) {
     }
 
     public function __invoke(Request $request): Response
     {
-        $context = $this->contextResolver->tryResolve($request);
-        if (null === $context) {
-            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
-        }
-
-        return $this->apiResponder->collection($context, $this->objectFinder->findAll($context));
+        return $this->operation->handle($request);
     }
 }

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
+use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
+use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\HttpKernel\Kernel;
 
 final class CrudingExtension extends Extension implements PrependExtensionInterface
 {
@@ -24,6 +28,18 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $configuration = new Configuration();
         /** @var array{
          *     resource_path_requirement: string,
+         *     route_guard: array{
+         *         runtime_scope_env: string,
+         *         runtime_entity_env: string,
+         *         runtime_surface_token_env: string,
+         *         runtime_reserved_env: string,
+         *         reserved_tokens: list<string>,
+         *         surface_tokens: list<string>,
+         *         runtime_lock_glob: string,
+         *         require_runtime_lock: bool,
+         *         require_composer_packages: bool,
+         *         scope_package_map: array<string, string>
+         *     },
          *     capability_map: array<string, mixed>,
          *     entity_class_alias_map: array<string, string>,
          *     form_type_map: array<string, string>
@@ -31,7 +47,140 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
          */
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('cruding.resource_path_requirement', $config['resource_path_requirement']);
+        $routeGuard = $config['route_guard'];
+        $normalizer = new CrudRuntimeTokenNormalizer();
+        $policyBuilder = new CrudRuntimeRouteGuardPolicyBuilder($normalizer);
+        $appEnv = $this->readAppEnv();
+        $runtimeLock = (new CrudRuntimeLockReader(
+            normalizer: $normalizer,
+            projectDir: (string) $container->getParameter('kernel.project_dir'),
+            appEnv: $appEnv,
+            lockGlob: $routeGuard['runtime_lock_glob'],
+        ))->read();
+
+        $scopeRaw = $this->readEnvironmentValue($routeGuard['runtime_scope_env']);
+        $entityRaw = $this->readEnvironmentValue($routeGuard['runtime_entity_env']);
+        $surfaceTokenRaw = $this->readEnvironmentValue($routeGuard['runtime_surface_token_env']);
+        $reservedRaw = $this->readEnvironmentValue($routeGuard['runtime_reserved_env']);
+
+        $lockScopeTokens = $this->fallbackLockTokens($runtimeLock->scopeTokens, $runtimeLock->path, [
+            'scope',
+            'runtime_scope',
+            'APP_RUNTIME_SCOPE',
+            'runtime.scope.components',
+        ]);
+        $lockEntityTokens = $this->fallbackLockTokens($runtimeLock->entityTokens, $runtimeLock->path, [
+            'entity',
+            'runtime_entity',
+            'APP_RUNTIME_ENTITY',
+            'runtime.routing.entities',
+        ]);
+        $lockSurfaceTokens = $this->fallbackLockTokens($runtimeLock->surfaceTokens, $runtimeLock->path, [
+            'surface_token',
+            'surface_tokens',
+            'runtime_surface_token',
+            'APP_RUNTIME_SURFACE_TOKEN',
+            'runtime.routing.surface_tokens',
+        ]);
+        $lockReservedTokens = $this->fallbackLockTokens($runtimeLock->reservedTokens, $runtimeLock->path, [
+            'reserved',
+            'reserved_tokens',
+            'runtime_reserved',
+            'APP_RUNTIME_RESERVED',
+            'runtime.routing.reserved_roots',
+        ]);
+
+        $effectiveScopeRaw = $this->fallbackCsv($scopeRaw, $lockScopeTokens);
+        $effectiveEntityRaw = $this->fallbackCsv($entityRaw, $lockEntityTokens);
+        $effectiveSurfaceTokenRaw = $this->fallbackCsv($surfaceTokenRaw, $lockSurfaceTokens);
+        $effectiveReservedRaw = $this->fallbackCsv($reservedRaw, $lockReservedTokens);
+
+        $policy = $policyBuilder->build(
+            scopeRaw: $effectiveScopeRaw,
+            entityRaw: $effectiveEntityRaw,
+            surfaceTokenRaw: $effectiveSurfaceTokenRaw,
+            reservedRaw: $effectiveReservedRaw,
+            configuredReservedTokens: $routeGuard['reserved_tokens'],
+            configuredSurfaceTokens: $routeGuard['surface_tokens'],
+        );
+
+        if ([] === $policy->entityTokens && [] !== $lockEntityTokens) {
+            $policy = $policyBuilder->build(
+                scopeRaw: implode(',', $lockScopeTokens),
+                entityRaw: implode(',', $lockEntityTokens),
+                surfaceTokenRaw: implode(',', $lockSurfaceTokens),
+                reservedRaw: implode(',', $lockReservedTokens),
+                configuredReservedTokens: $routeGuard['reserved_tokens'],
+                configuredSurfaceTokens: $routeGuard['surface_tokens'],
+            );
+        }
+
+        $finalScopeTokens = [] !== $policy->scopeTokens ? $policy->scopeTokens : $normalizer->csvToTokenList($effectiveScopeRaw);
+        $finalEntityTokens = [] !== $policy->entityTokens ? $policy->entityTokens : $normalizer->csvToTokenList($effectiveEntityRaw);
+        $finalSurfaceTokens = [] !== $policy->surfaceTokens ? $policy->surfaceTokens : $normalizer->csvToTokenList($effectiveSurfaceTokenRaw);
+        $finalReservedTokens = $policy->reservedRootTokens;
+        $finalConflictingEntityTokens = $policy->conflictingEntityTokens;
+        $finalAllowedResourceTokens = $policy->allowedResourceTokens;
+
+        if ([] === $finalAllowedResourceTokens && [] !== $finalEntityTokens) {
+            $reservedLookup = array_fill_keys($finalReservedTokens, true);
+            $conflicts = [];
+            $allowed = [];
+
+            foreach ($finalEntityTokens as $entityToken) {
+                if (isset($reservedLookup[$entityToken])) {
+                    $conflicts[$entityToken] = $entityToken;
+                    continue;
+                }
+
+                $allowed[$entityToken] = $entityToken;
+            }
+
+            $finalAllowedResourceTokens = array_values($allowed);
+            $finalConflictingEntityTokens = array_values($conflicts);
+        }
+
+        $finalResourceRequirement = $policy->resourceRequirement;
+        if ('(?!)' === $finalResourceRequirement && [] !== $finalAllowedResourceTokens) {
+            $finalResourceRequirement = $normalizer->alternationRequirement($finalAllowedResourceTokens);
+        }
+
+        $finalResourcePathRequirement = $policy->resourcePathRequirement;
+        if ('(?!)(?:/[a-z0-9][a-z0-9_-]*)*' === $finalResourcePathRequirement || str_starts_with($finalResourcePathRequirement, '(?!).*')) {
+            $finalResourcePathRequirement = sprintf(
+                '(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
+                $finalResourceRequirement,
+            );
+        }
+
+        $container->setParameter('cruding.runtime_scope_env', $routeGuard['runtime_scope_env']);
+        $container->setParameter('cruding.runtime_entity_env', $routeGuard['runtime_entity_env']);
+        $container->setParameter('cruding.runtime_surface_token_env', $routeGuard['runtime_surface_token_env']);
+        $container->setParameter('cruding.runtime_reserved_env', $routeGuard['runtime_reserved_env']);
+        $container->setParameter('cruding.runtime_lock_glob', $routeGuard['runtime_lock_glob']);
+        $container->setParameter('cruding.runtime_require_lock', $routeGuard['require_runtime_lock']);
+        $container->setParameter('cruding.runtime_require_composer_packages', $routeGuard['require_composer_packages']);
+        $container->setParameter('cruding.runtime_scope_package_map', $routeGuard['scope_package_map']);
+        $container->setParameter('cruding.app_env', $appEnv);
+        $container->setParameter('cruding.runtime_lock_path', $runtimeLock->path);
+        $container->setParameter('cruding.runtime_lock_found', $runtimeLock->found);
+        $container->setParameter('cruding.runtime_lock_scope_tokens', $lockScopeTokens);
+        $container->setParameter('cruding.runtime_lock_entity_tokens', $lockEntityTokens);
+        $container->setParameter('cruding.runtime_lock_surface_tokens', $lockSurfaceTokens);
+        $container->setParameter('cruding.runtime_lock_reserved_tokens', $lockReservedTokens);
+        $container->setParameter('cruding.runtime_effective_scope_raw', $effectiveScopeRaw);
+        $container->setParameter('cruding.runtime_effective_entity_raw', $effectiveEntityRaw);
+        $container->setParameter('cruding.runtime_effective_surface_token_raw', $effectiveSurfaceTokenRaw);
+        $container->setParameter('cruding.runtime_effective_reserved_raw', $effectiveReservedRaw);
+        $container->setParameter('cruding.runtime_scope_tokens', $finalScopeTokens);
+        $container->setParameter('cruding.runtime_entity_tokens', $finalEntityTokens);
+        $container->setParameter('cruding.runtime_surface_tokens', $finalSurfaceTokens);
+        $container->setParameter('cruding.runtime_reserved_tokens', $finalReservedTokens);
+        $container->setParameter('cruding.runtime_allowed_resource_tokens', $finalAllowedResourceTokens);
+        $container->setParameter('cruding.runtime_conflicting_entity_tokens', $finalConflictingEntityTokens);
+        $container->setParameter('cruding.resource_requirement', $finalResourceRequirement);
+        $container->setParameter('cruding.resource_path_requirement', $finalResourcePathRequirement);
+        $container->setParameter('cruding.surface_token_requirement', $policy->surfaceTokenRequirement);
         $container->setParameter('cruding.capability_map', $config['capability_map']);
         $container->setParameter('cruding.entity_class_alias_map', $config['entity_class_alias_map']);
         $container->setParameter('cruding.form_type_map', $config['form_type_map']);
@@ -56,5 +205,120 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     public function getAlias(): string
     {
         return 'cruding';
+    }
+
+    /**
+     * @param list<string> $primaryTokens
+     * @param list<string> $paths
+     *
+     * @return list<string>
+     */
+    private function fallbackLockTokens(array $primaryTokens, ?string $lockPath, array $paths): array
+    {
+        if ([] !== $primaryTokens || null === $lockPath || !is_file($lockPath)) {
+            return $primaryTokens;
+        }
+
+        $payload = require $lockPath;
+        if (!\is_array($payload)) {
+            return [];
+        }
+
+        foreach ($paths as $path) {
+            $value = $this->readPayloadPath($payload, $path);
+            if (null === $value) {
+                continue;
+            }
+
+            return $this->tokenListFromValue($value);
+        }
+
+        return [];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function readPayloadPath(array $payload, string $path): mixed
+    {
+        if (array_key_exists($path, $payload)) {
+            return $payload[$path];
+        }
+
+        $current = $payload;
+        foreach (explode('.', $path) as $segment) {
+            if (!\is_array($current) || !array_key_exists($segment, $current)) {
+                return null;
+            }
+
+            $current = $current[$segment];
+        }
+
+        return $current;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function tokenListFromValue(mixed $value): array
+    {
+        $normalizer = new CrudRuntimeTokenNormalizer();
+        if (\is_string($value)) {
+            return $normalizer->csvToTokenList($value);
+        }
+
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $tokens = [];
+        foreach ($value as $token) {
+            if (\is_string($token)) {
+                $tokens[] = $token;
+            }
+        }
+
+        return $normalizer->normalizeTokenList($tokens);
+    }
+
+    /**
+     * @param list<string> $fallbackTokens
+     */
+    private function fallbackCsv(string $primaryRaw, array $fallbackTokens): string
+    {
+        if ('' !== trim($primaryRaw)) {
+            return $primaryRaw;
+        }
+
+        return implode(',', $fallbackTokens);
+    }
+
+    private function readAppEnv(): string
+    {
+        if (class_exists(Kernel::class)) {
+            $environment = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV');
+            if (is_string($environment) && '' !== trim($environment)) {
+                return $environment;
+            }
+        }
+
+        return 'dev';
+    }
+
+    private function readEnvironmentValue(string $name): string
+    {
+        $serverValue = $_SERVER[$name] ?? null;
+        if (is_string($serverValue)) {
+            return $serverValue;
+        }
+
+        $envValue = $_ENV[$name] ?? null;
+        if (is_string($envValue)) {
+            return $envValue;
+        }
+
+        $getenvValue = getenv($name);
+
+        return is_string($getenvValue) ? $getenvValue : '';
     }
 }

@@ -43,7 +43,7 @@
   },
   "scripts": {
     "canon:cruding": [
-      "php tools/cruding/interfacing-provider-surface-rendering-guard.php"
+      "php tools/cruding/interfacing-provider-rendering-guard.php"
     ]
   }
 }

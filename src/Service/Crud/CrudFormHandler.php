@@ -6,7 +6,6 @@ namespace App\Cruding\Service\Crud;
 
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,7 @@ final readonly class CrudFormHandler implements CrudFormHandlerInterface
     /**
      * @return FormInterface<mixed>
      */
-    public function createAndHandle(AbstractController $controller, string $formTypeClass, object $object, Request $request): FormInterface
+    public function createAndHandle(string $formTypeClass, object $object, Request $request): FormInterface
     {
         $form = $this->formFactory->create($formTypeClass, $object, [
             'data_class' => $object::class,

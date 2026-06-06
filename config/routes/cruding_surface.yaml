@@ -1,9 +1,32 @@
+cruding_surface_token_item_action:
+    path: /{resource}/{subject}/{surface}/{token}/{item}/{action}
+    controller: App\Cruding\Controller\Surface\CrudSurfaceController
+    methods: [GET]
+    requirements:
+        resource: '%cruding.resource_requirement%'
+        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        surface: '[a-z0-9][a-z0-9_-]*'
+        token: '%cruding.surface_token_requirement%'
+        item: '[A-Za-z0-9][A-Za-z0-9_-]*'
+        action: '[a-z][a-z0-9_-]*'
+
+cruding_surface_token_item:
+    path: /{resource}/{subject}/{surface}/{token}/{item}
+    controller: App\Cruding\Controller\Surface\CrudSurfaceController
+    methods: [GET]
+    requirements:
+        resource: '%cruding.resource_requirement%'
+        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        surface: '[a-z0-9][a-z0-9_-]*'
+        token: '%cruding.surface_token_requirement%'
+        item: '[A-Za-z0-9][A-Za-z0-9_-]*'
+
 cruding_surface_item_action:
     path: /{resource}/{subject}/{surface}/{item}/{action}
     controller: App\Cruding\Controller\Surface\CrudSurfaceController
     methods: [GET]
     requirements:
-        resource: '[a-z0-9][a-z0-9_-]*'
+        resource: '%cruding.resource_requirement%'
         subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
@@ -14,7 +37,7 @@ cruding_surface_action:
     controller: App\Cruding\Controller\Surface\CrudSurfaceController
     methods: [GET]
     requirements:
-        resource: '[a-z0-9][a-z0-9_-]*'
+        resource: '%cruding.resource_requirement%'
         subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         action: '[a-z][a-z0-9_-]*'
@@ -24,6 +47,6 @@ cruding_surface_index:
     controller: App\Cruding\Controller\Surface\CrudSurfaceController
     methods: [GET]
     requirements:
-        resource: '[a-z0-9][a-z0-9_-]*'
+        resource: '%cruding.resource_requirement%'
         subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'

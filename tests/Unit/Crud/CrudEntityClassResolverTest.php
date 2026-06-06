@@ -45,6 +45,36 @@ final class CrudEntityClassResolverTest extends TestCase
         self::assertSame('App\Tests\Fixture\Entity\Resource\ResourceCategoryEntity', $resolver->resolve('resource_item'));
     }
 
+    public function testTryResolveReusesMetadataCandidateMap(): void
+    {
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadataFactory->expects(self::once())
+            ->method('getAllMetadata')
+            ->willReturn([
+                new class('App\Tests\Fixture\Entity\ProductEntity') {
+                    public function __construct(private string $name)
+                    {
+                    }
+
+                    public function getName(): string
+                    {
+                        return $this->name;
+                    }
+                },
+            ]);
+
+        $manager = $this->createStub(ObjectManager::class);
+        $manager->method('getMetadataFactory')->willReturn($metadataFactory);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagers')->willReturn([$manager]);
+
+        $resolver = new CrudEntityClassResolver($registry, new CrudResourcePathParser());
+
+        self::assertSame('App\Tests\Fixture\Entity\ProductEntity', $resolver->tryResolve('product'));
+        self::assertNull($resolver->tryResolve('missing'));
+    }
+
     /**
      * @param list<class-string> $classes
      */
