@@ -1,8 +1,8 @@
 cruding_api_crud:
     resource: 'routes/cruding_api_crud.yaml'
 
-cruding_surface:
-    resource: 'routes/cruding_surface.yaml'
-
 cruding_crud:
     resource: 'routes/cruding_crud.yaml'
+
+cruding_surface:
+    resource: 'routes/cruding_surface.yaml'

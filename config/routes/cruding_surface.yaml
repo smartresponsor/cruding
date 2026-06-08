@@ -4,7 +4,7 @@ cruding_surface_token_item_action:
     methods: [GET]
     requirements:
         resource: '%cruding.resource_requirement%'
-        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         token: '%cruding.surface_token_requirement%'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
@@ -16,7 +16,7 @@ cruding_surface_token_item:
     methods: [GET]
     requirements:
         resource: '%cruding.resource_requirement%'
-        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         token: '%cruding.surface_token_requirement%'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
@@ -27,7 +27,7 @@ cruding_surface_item_action:
     methods: [GET]
     requirements:
         resource: '%cruding.resource_requirement%'
-        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
         action: '[a-z][a-z0-9_-]*'
@@ -38,7 +38,7 @@ cruding_surface_action:
     methods: [GET]
     requirements:
         resource: '%cruding.resource_requirement%'
-        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'
         action: '[a-z][a-z0-9_-]*'
 
@@ -48,5 +48,5 @@ cruding_surface_index:
     methods: [GET]
     requirements:
         resource: '%cruding.resource_requirement%'
-        subject: '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*'
+        subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         surface: '[a-z0-9][a-z0-9_-]*'

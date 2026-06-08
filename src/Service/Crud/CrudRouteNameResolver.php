@@ -23,7 +23,7 @@ final class CrudRouteNameResolver implements CrudRouteNameResolverInterface
     {
         $field = $identifierField ?? $context->identifierField;
 
-        return 'id' === $field ? 'cruding_show_id' : 'cruding_show_slug';
+        return 'id' === $field ? 'cruding_show_operation_id' : 'cruding_show_operation_slug';
     }
 
     public function resolveEdit(CrudContext $context, ?string $identifierField = null): string
