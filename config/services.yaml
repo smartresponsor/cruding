@@ -1,4 +1,14 @@
 parameters:
+    # Route-loader fallbacks.
+    # The bundle extension recomputes and overrides these values from runtime scope/entity
+    # and config/cruding_reserved_token.yaml when the Symfony container is fully built.
+    # They must still exist here because imported route YAML resolves %parameters% before
+    # any CRUD controller/runtime guard can run.
+    cruding.resource_requirement: '[a-z][a-z0-9_-]*'
+    cruding.resource_path_requirement: '(?!.*(?:^|/)(show|card|table|gallery|compact|full|detail|list|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate|audit|visibility|attach|detach)(?:$|/))[a-z][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+    cruding.surface_token_requirement: 'card|table|gallery|compact|full|detail|list'
+    cruding.identity_slug_requirement: '(?!(?:show|card|table|gallery|compact|full|detail|list|index|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate)$)[A-Za-z0-9][A-Za-z0-9_-]*'
+
     cruding.capability_map:
         identifiable:
             interfaces:
@@ -26,6 +36,20 @@ services:
     App\Cruding\Controller\Surface\:
         resource: '../src/Controller/Surface/'
         tags: ['controller.service_arguments']
+        bind:
+            $debug: '%kernel.debug%'
+
+    App\Cruding\Controller\Surface\CrudSurfaceController:
+        tags: ['controller.service_arguments']
+        arguments:
+            $routeShapeResolver: '@App\Cruding\Service\Surface\CrudRouteShapeResolver'
+            $serviceResolver: '@App\Cruding\Service\Surface\CrudSurfaceServiceResolver'
+            $serviceInvoker: '@App\Cruding\Service\Surface\CrudSurfaceServiceInvoker'
+            $providerLocator: '@App\Cruding\Service\Surface\CrudSurfaceProviderLocator'
+            $genericFallback: '@App\Cruding\Service\Surface\CrudSurfaceGenericFallback'
+            $notFoundResponseFactory: '@App\Cruding\Service\Crud\CrudNotFoundResponseFactory'
+            $debug: '%kernel.debug%'
+            $logger: '@?logger'
 
     App\Cruding\Controller\Api\Crud\:
         resource: '../src/Controller/Api/Crud/'
@@ -40,6 +64,11 @@ services:
             $capabilityMap: '%cruding.capability_map%'
             $entityClassAliasMap: '%cruding.entity_class_alias_map%'
             $formTypeMap: '%cruding.form_type_map%'
+
+    App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy:
+        arguments:
+            $surfaceTokens: '%cruding.runtime_surface_tokens%'
+            $operationTokens: '%cruding.runtime_operation_tokens%'
 
     App\Cruding\Service\:
         resource: '../src/Service/'
@@ -82,11 +111,14 @@ services:
             $entityTokens: '%cruding.runtime_entity_tokens%'
             $surfaceTokens: '%cruding.runtime_surface_tokens%'
             $reservedRootTokens: '%cruding.runtime_reserved_tokens%'
+            $operationTokens: '%cruding.runtime_operation_tokens%'
+            $resourcePathReservedTokens: '%cruding.runtime_resource_path_reserved_tokens%'
             $allowedResourceTokens: '%cruding.runtime_allowed_resource_tokens%'
             $conflictingEntityTokens: '%cruding.runtime_conflicting_entity_tokens%'
             $resourceRequirement: '%cruding.resource_requirement%'
             $resourcePathRequirement: '%cruding.resource_path_requirement%'
             $surfaceTokenRequirement: '%cruding.surface_token_requirement%'
+            $identitySlugRequirement: '%cruding.identity_slug_requirement%'
 
     App\Cruding\Service\Runtime\CrudRuntimeLockReader:
         arguments:
@@ -120,3 +152,8 @@ services:
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiCreateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiCreateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiUpdateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiUpdateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiDeleteOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiDeleteOperation'
+
+    App\Cruding\Service\Surface\CrudRouteMapLoader:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $relativeDirectory: 'config/platform/routes'

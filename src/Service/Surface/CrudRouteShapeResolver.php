@@ -20,6 +20,7 @@ final readonly class CrudRouteShapeResolver
     private CrudRouteProviderKeyResolver $providerKeyResolver;
     private CrudRouteTemplateCandidateResolver $templateCandidateResolver;
     private CrudRouteParameterExtractor $parameterExtractor;
+    private ?CrudRouteMapMatcher $routeMapMatcher;
 
     public function __construct(
         private RouterInterface $router,
@@ -30,6 +31,7 @@ final readonly class CrudRouteShapeResolver
         ?CrudRouteProviderKeyResolver $providerKeyResolver = null,
         ?CrudRouteTemplateCandidateResolver $templateCandidateResolver = null,
         ?CrudRouteParameterExtractor $parameterExtractor = null,
+        ?CrudRouteMapMatcher $routeMapMatcher = null,
     ) {
         $normalizer = new CrudRouteValueNormalizer();
 
@@ -40,6 +42,7 @@ final readonly class CrudRouteShapeResolver
         $this->providerKeyResolver = $providerKeyResolver ?? new CrudRouteProviderKeyResolver();
         $this->templateCandidateResolver = $templateCandidateResolver ?? new CrudRouteTemplateCandidateResolver();
         $this->parameterExtractor = $parameterExtractor ?? new CrudRouteParameterExtractor();
+        $this->routeMapMatcher = $routeMapMatcher;
     }
 
     public function resolve(Request $request): ?CrudRouteContext
@@ -58,6 +61,16 @@ final readonly class CrudRouteShapeResolver
             return null;
         }
 
+        $providerKeys = $this->providerKeyResolver->providerKeys($shape->resource, $shape->surfacePath, $shape->surfaceToken, $shape->operation, $shape->subjectField, $shape->subjectValue);
+        $templateCandidates = $this->templateCandidateResolver->templateCandidates($shape->resource, $shape->surfacePath, $shape->surfaceToken);
+        $routeMapEntry = $this->routeMapMatcher?->match($request);
+        if (null !== $routeMapEntry) {
+            $providerKeys = array_values(array_unique(array_merge([$routeMapEntry->canonicalKey()], $providerKeys)));
+            if (null !== $routeMapEntry->template && '' !== $routeMapEntry->template) {
+                $templateCandidates = array_values(array_unique(array_merge([$routeMapEntry->template], $templateCandidates)));
+            }
+        }
+
         return new CrudRouteContext(
             resource: $shape->resource,
             resourcePath: $shape->resource,
@@ -72,8 +85,9 @@ final readonly class CrudRouteShapeResolver
             routeName: $routeName,
             routeTemplate: $routeTemplate,
             routeParameters: $this->parameterExtractor->routeParameters($request),
-            providerKeys: $this->providerKeyResolver->providerKeys($shape->resource, $shape->surfacePath, $shape->surfaceToken, $shape->operation),
-            templateCandidates: $this->templateCandidateResolver->templateCandidates($shape->resource, $shape->surfacePath, $shape->surfaceToken),
+            providerKeys: $providerKeys,
+            templateCandidates: $templateCandidates,
+            routeMapEntry: $routeMapEntry?->toArray(),
         );
     }
 

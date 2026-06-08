@@ -23,6 +23,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
+        $loader->load('cruding_reserved_token.yaml');
         $loader->load('services.yaml');
 
         $configuration = new Configuration();
@@ -35,6 +36,8 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
          *         runtime_reserved_env: string,
          *         reserved_tokens: list<string>,
          *         surface_tokens: list<string>,
+         *         operation_tokens: list<string>,
+         *         resource_path_reserved_tokens: list<string>,
          *         runtime_lock_glob: string,
          *         require_runtime_lock: bool,
          *         require_composer_packages: bool,
@@ -49,7 +52,17 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $routeGuard = $config['route_guard'];
         $normalizer = new CrudRuntimeTokenNormalizer();
-        $policyBuilder = new CrudRuntimeRouteGuardPolicyBuilder($normalizer);
+        $defaultReservedRootTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.root');
+        $defaultSurfaceTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.surface');
+        $defaultOperationTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.operation');
+        $defaultResourcePathReservedTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.resource_path_only');
+        $policyBuilder = new CrudRuntimeRouteGuardPolicyBuilder(
+            normalizer: $normalizer,
+            defaultReservedRootTokens: $defaultReservedRootTokens,
+            defaultSurfaceTokens: $defaultSurfaceTokens,
+            defaultOperationTokens: $defaultOperationTokens,
+            defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
+        );
         $appEnv = $this->readAppEnv();
         $runtimeLock = (new CrudRuntimeLockReader(
             normalizer: $normalizer,
@@ -102,6 +115,8 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             reservedRaw: $effectiveReservedRaw,
             configuredReservedTokens: $routeGuard['reserved_tokens'],
             configuredSurfaceTokens: $routeGuard['surface_tokens'],
+            configuredOperationTokens: $routeGuard['operation_tokens'],
+            configuredResourcePathReservedTokens: $routeGuard['resource_path_reserved_tokens'],
         );
 
         if ([] === $policy->entityTokens && [] !== $lockEntityTokens) {
@@ -112,6 +127,8 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
                 reservedRaw: implode(',', $lockReservedTokens),
                 configuredReservedTokens: $routeGuard['reserved_tokens'],
                 configuredSurfaceTokens: $routeGuard['surface_tokens'],
+                configuredOperationTokens: $routeGuard['operation_tokens'],
+                configuredResourcePathReservedTokens: $routeGuard['resource_path_reserved_tokens'],
             );
         }
 
@@ -147,8 +164,14 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $finalResourcePathRequirement = $policy->resourcePathRequirement;
         if ('(?!)(?:/[a-z0-9][a-z0-9_-]*)*' === $finalResourcePathRequirement || str_starts_with($finalResourcePathRequirement, '(?!).*')) {
+            $reservedSegmentRequirement = $normalizer->alternationRequirement(array_merge(
+                $finalSurfaceTokens,
+                $policy->operationTokens,
+                $policy->resourcePathReservedTokens,
+            ));
             $finalResourcePathRequirement = sprintf(
-                '(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
+                '(?!.*(?:^|/)%s(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
+                $reservedSegmentRequirement,
                 $finalResourceRequirement,
             );
         }
@@ -175,12 +198,15 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('cruding.runtime_scope_tokens', $finalScopeTokens);
         $container->setParameter('cruding.runtime_entity_tokens', $finalEntityTokens);
         $container->setParameter('cruding.runtime_surface_tokens', $finalSurfaceTokens);
+        $container->setParameter('cruding.runtime_operation_tokens', $policy->operationTokens);
+        $container->setParameter('cruding.runtime_resource_path_reserved_tokens', $policy->resourcePathReservedTokens);
         $container->setParameter('cruding.runtime_reserved_tokens', $finalReservedTokens);
         $container->setParameter('cruding.runtime_allowed_resource_tokens', $finalAllowedResourceTokens);
         $container->setParameter('cruding.runtime_conflicting_entity_tokens', $finalConflictingEntityTokens);
         $container->setParameter('cruding.resource_requirement', $finalResourceRequirement);
         $container->setParameter('cruding.resource_path_requirement', $finalResourcePathRequirement);
         $container->setParameter('cruding.surface_token_requirement', $policy->surfaceTokenRequirement);
+        $container->setParameter('cruding.identity_slug_requirement', $policy->identitySlugRequirement);
         $container->setParameter('cruding.capability_map', $config['capability_map']);
         $container->setParameter('cruding.entity_class_alias_map', $config['entity_class_alias_map']);
         $container->setParameter('cruding.form_type_map', $config['form_type_map']);
@@ -210,6 +236,30 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     public function getAlias(): string
     {
         return 'cruding';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parameterTokenList(ContainerBuilder $container, string $name): array
+    {
+        if (!$container->hasParameter($name)) {
+            return [];
+        }
+
+        $value = $container->getParameter($name);
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $tokens = [];
+        foreach ($value as $token) {
+            if (\is_string($token)) {
+                $tokens[] = $token;
+            }
+        }
+
+        return (new CrudRuntimeTokenNormalizer())->normalizeTokenList($tokens);
     }
 
     /**

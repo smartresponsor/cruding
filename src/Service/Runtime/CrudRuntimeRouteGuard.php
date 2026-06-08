@@ -16,6 +16,8 @@ final readonly class CrudRuntimeRouteGuard
      * @param list<string> $entityTokens
      * @param list<string> $surfaceTokens
      * @param list<string> $reservedRootTokens
+     * @param list<string> $operationTokens
+     * @param list<string> $resourcePathReservedTokens
      * @param list<string> $allowedResourceTokens
      * @param list<string> $conflictingEntityTokens
      */
@@ -24,11 +26,14 @@ final readonly class CrudRuntimeRouteGuard
         private array $entityTokens,
         private array $surfaceTokens,
         private array $reservedRootTokens,
+        private array $operationTokens,
+        private array $resourcePathReservedTokens,
         private array $allowedResourceTokens,
         private array $conflictingEntityTokens,
         private string $resourceRequirement,
         private string $resourcePathRequirement,
         private string $surfaceTokenRequirement,
+        private string $identitySlugRequirement,
     ) {
     }
 
@@ -39,11 +44,14 @@ final readonly class CrudRuntimeRouteGuard
             entityTokens: $this->entityTokens,
             surfaceTokens: $this->surfaceTokens,
             reservedRootTokens: $this->reservedRootTokens,
+            operationTokens: $this->operationTokens,
+            resourcePathReservedTokens: $this->resourcePathReservedTokens,
             allowedResourceTokens: $this->allowedResourceTokens,
             conflictingEntityTokens: $this->conflictingEntityTokens,
             resourceRequirement: $this->resourceRequirement,
             resourcePathRequirement: $this->resourcePathRequirement,
             surfaceTokenRequirement: $this->surfaceTokenRequirement,
+            identitySlugRequirement: $this->identitySlugRequirement,
         );
     }
 }

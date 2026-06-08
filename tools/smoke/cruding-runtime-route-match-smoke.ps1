@@ -1,7 +1,7 @@
 param(
     [string]$RuntimeScope = "cruding,viewing,interfacing,administering,accessing",
     [string]$RuntimeEntity = "vendor,attachment,media,product,category",
-    [string]$RuntimeSurfaceToken = "show,index,card,table,gallery,compact,full,detail,list",
+    [string]$RuntimeSurfaceToken = "show,card,table,gallery,compact,full,detail,list",
     [string]$RuntimeReserved = "",
     [switch]$SkipCacheClear,
     [switch]$FailOnEmptyEntity

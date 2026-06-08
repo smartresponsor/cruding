@@ -45,6 +45,17 @@ final class CrudEntityClassResolverTest extends TestCase
         self::assertSame('App\Tests\Fixture\Entity\Resource\ResourceCategoryEntity', $resolver->resolve('resource_item'));
     }
 
+    public function testVendorAliasResolvesCanonicalVendorEntity(): void
+    {
+        $resolver = new CrudEntityClassResolver(
+            $this->buildRegistry(['App\Tests\Fixture\Entity\ProductEntity']),
+            new CrudResourcePathParser(),
+            ['vendor' => 'App\Vendoring\Entity\Vendor\VendorEntity'],
+        );
+
+        self::assertSame('App\Vendoring\Entity\Vendor\VendorEntity', $resolver->resolve('vendor'));
+    }
+
     public function testTryResolveReusesMetadataCandidateMap(): void
     {
         $metadataFactory = $this->createMock(ClassMetadataFactory::class);

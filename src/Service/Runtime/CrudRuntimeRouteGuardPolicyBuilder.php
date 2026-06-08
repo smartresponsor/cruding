@@ -11,44 +11,26 @@ use App\Cruding\Dto\Runtime\CrudRuntimeRouteGuardPolicy;
  */
 final class CrudRuntimeRouteGuardPolicyBuilder
 {
-    private const DEFAULT_RESERVED_ROOT_TOKENS = [
-        'admin',
-        'api',
-        'assets',
-        'dashboard',
-        'debug',
-        'health',
-        'interfacing',
-        'login',
-        'logout',
-        'metrics',
-        'profile',
-        'viewing',
-        'accessing',
-        'administering',
-        'cruding',
-    ];
-
-    private const DEFAULT_SURFACE_TOKENS = [
-        'show',
-        'index',
-        'card',
-        'table',
-        'gallery',
-        'compact',
-        'full',
-        'detail',
-        'list',
-    ];
-
+    /**
+     * @param list<string> $defaultReservedRootTokens
+     * @param list<string> $defaultSurfaceTokens
+     * @param list<string> $defaultOperationTokens
+     * @param list<string> $defaultResourcePathReservedTokens
+     */
     public function __construct(
         private readonly CrudRuntimeTokenNormalizer $normalizer,
+        private readonly array $defaultReservedRootTokens = [],
+        private readonly array $defaultSurfaceTokens = [],
+        private readonly array $defaultOperationTokens = [],
+        private readonly array $defaultResourcePathReservedTokens = [],
     ) {
     }
 
     /**
      * @param list<string> $configuredReservedTokens
      * @param list<string> $configuredSurfaceTokens
+     * @param list<string> $configuredOperationTokens
+     * @param list<string> $configuredResourcePathReservedTokens
      */
     public function build(
         string $scopeRaw,
@@ -57,15 +39,19 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         string $reservedRaw,
         array $configuredReservedTokens = [],
         array $configuredSurfaceTokens = [],
+        array $configuredOperationTokens = [],
+        array $configuredResourcePathReservedTokens = [],
     ): CrudRuntimeRouteGuardPolicy {
         $scopeTokens = $this->normalizer->csvToTokenList($scopeRaw);
         $entityTokens = $this->normalizer->csvToTokenList($entityRaw);
         $runtimeSurfaceTokens = $this->normalizer->csvToTokenList($surfaceTokenRaw);
         $runtimeReservedTokens = $this->normalizer->csvToTokenList($reservedRaw);
 
-        $surfaceTokens = $this->mergeTokenLists(self::DEFAULT_SURFACE_TOKENS, $configuredSurfaceTokens, $runtimeSurfaceTokens);
+        $surfaceTokens = $this->mergeTokenLists($this->defaultSurfaceTokens, $configuredSurfaceTokens, $runtimeSurfaceTokens);
+        $operationTokens = $this->mergeTokenLists($this->defaultOperationTokens, $configuredOperationTokens);
+        $resourcePathReservedTokens = $this->mergeTokenLists($this->defaultResourcePathReservedTokens, $configuredResourcePathReservedTokens);
         $reservedRootTokens = $this->mergeTokenLists(
-            self::DEFAULT_RESERVED_ROOT_TOKENS,
+            $this->defaultReservedRootTokens,
             $configuredReservedTokens,
             $runtimeReservedTokens,
             $scopeTokens,
@@ -87,22 +73,68 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         $allowedResourceTokens = array_values($allowed);
         $resourceRequirement = $this->normalizer->alternationRequirement($allowedResourceTokens);
         $surfaceTokenRequirement = $this->normalizer->alternationRequirement($surfaceTokens);
-        $resourcePathRequirement = sprintf(
-            '(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
-            $resourceRequirement,
-        );
+        $identitySlugRequirement = $this->identitySlugRequirement($surfaceTokens, $operationTokens);
+        $resourcePathRequirement = $this->resourcePathRequirement($resourceRequirement, $surfaceTokens, $operationTokens, $resourcePathReservedTokens);
 
         return new CrudRuntimeRouteGuardPolicy(
             scopeTokens: $scopeTokens,
             entityTokens: $entityTokens,
             surfaceTokens: $surfaceTokens,
             reservedRootTokens: $reservedRootTokens,
+            operationTokens: $operationTokens,
+            resourcePathReservedTokens: $resourcePathReservedTokens,
             allowedResourceTokens: $allowedResourceTokens,
             conflictingEntityTokens: array_values($conflicts),
             resourceRequirement: $resourceRequirement,
             resourcePathRequirement: $resourcePathRequirement,
             surfaceTokenRequirement: $surfaceTokenRequirement,
+            identitySlugRequirement: $identitySlugRequirement,
         );
+    }
+
+    /**
+     * @param list<string> $surfaceTokens
+     * @param list<string> $operationTokens
+     * @param list<string> $resourcePathReservedTokens
+     */
+    private function resourcePathRequirement(
+        string $resourceRequirement,
+        array $surfaceTokens,
+        array $operationTokens,
+        array $resourcePathReservedTokens,
+    ): string {
+        $reservedTokens = array_values(array_filter(
+            $this->mergeTokenLists($surfaceTokens, $operationTokens, $resourcePathReservedTokens),
+            static fn (string $token): bool => 'index' !== $token,
+        ));
+
+        if ([] === $reservedTokens) {
+            return sprintf('%s(?:/[a-z0-9][a-z0-9_-]*)*', $resourceRequirement);
+        }
+
+        $reservedRequirement = $this->normalizer->alternationRequirement($reservedTokens);
+
+        return sprintf(
+            '(?!.*(?:^|/)%s(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
+            $reservedRequirement,
+            $resourceRequirement,
+        );
+    }
+
+    /**
+     * @param list<string> $surfaceTokens
+     * @param list<string> $operationTokens
+     */
+    private function identitySlugRequirement(array $surfaceTokens, array $operationTokens): string
+    {
+        $reservedTokens = $this->mergeTokenLists($surfaceTokens, $operationTokens);
+        if ([] === $reservedTokens) {
+            return '[A-Za-z0-9][A-Za-z0-9_-]*';
+        }
+
+        $reservedRequirement = $this->normalizer->alternationRequirement($reservedTokens);
+
+        return sprintf('(?!%s$)[A-Za-z0-9][A-Za-z0-9_-]*', $reservedRequirement);
     }
 
     /**

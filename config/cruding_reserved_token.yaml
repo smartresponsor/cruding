@@ -1,0 +1,47 @@
+parameters:
+    cruding.reserved_route_token.root:
+        - admin
+        - api
+        - assets
+        - dashboard
+        - debug
+        - health
+        - interfacing
+        - login
+        - logout
+        - metrics
+        - profile
+        - viewing
+        - accessing
+        - administering
+        - cruding
+
+    cruding.reserved_route_token.surface:
+        - card
+        - table
+        - gallery
+        - compact
+        - full
+        - detail
+        - list
+
+    cruding.reserved_route_token.operation:
+        - index
+        - show
+        - new
+        - create
+        - edit
+        - update
+        - delete
+        - bulk
+        - import
+        - export
+        - archive
+        - restore
+        - duplicate
+
+    cruding.reserved_route_token.resource_path_only:
+        - audit
+        - visibility
+        - attach
+        - detach

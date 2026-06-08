@@ -135,13 +135,70 @@ final class CrudRouteShapeResolverTest extends TestCase
         self::assertSame('detail', $context->operation);
         self::assertSame('item', $context->itemField);
         self::assertSame('acme-inc', $context->itemValue);
-        self::assertSame('vendor.media.show.detail', $context->primaryProviderKey());
+        self::assertSame('vendor.attachment.media.show.detail', $context->primaryProviderKey());
         self::assertSame([
             'vendor/media/show/index.html.twig',
             'vendor/media/index.html.twig',
             'vendor/index.html.twig',
             'index.html.twig',
         ], $context->templateCandidates);
+    }
+
+    public function testRouteMapEntryPreservesFullBusinessChainAndTemplateOverride(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-route-shape-map-'.bin2hex(random_bytes(4));
+        $directory = $projectDir.'/config/platform/routes/ecommerce';
+        self::assertTrue(mkdir($directory, 0777, true));
+        file_put_contents($directory.'/vendor.yaml', "vendor.attachment.document.show_slug: { path: /vendor/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: vendor.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentShowService }\n");
+
+        $matcher = new \App\Cruding\Service\Surface\CrudRouteMapMatcher(new \App\Cruding\Service\Surface\CrudRouteMapLoader($projectDir));
+        $resolver = new CrudRouteShapeResolver(
+            $this->routerWithRoute('cruding_surface_token_item', '/{resource}/{subject}/{surface}/{token}/{item}'),
+            routeMapMatcher: $matcher,
+        );
+
+        $request = Request::create('/vendor/attachment/document/show/w9-form');
+        $request->attributes->set('_route', 'cruding_surface_token_item');
+        $request->attributes->set('resource', 'vendor');
+        $request->attributes->set('subject', 'attachment');
+        $request->attributes->set('surface', 'document');
+        $request->attributes->set('token', 'show');
+        $request->attributes->set('item', 'w9-form');
+
+        $context = $resolver->resolve($request);
+
+        self::assertNotNull($context);
+        self::assertSame('vendor.attachment.document.show', $context->primaryProviderKey());
+        self::assertSame('document/show/index.html.twig', $context->templateCandidates[0]);
+        self::assertIsArray($context->routeMapEntry);
+        self::assertSame('attachment.document', $context->routeMapEntry['object']);
+        self::assertSame('slug', $context->routeMapEntry['resolver']);
+    }
+
+    public function testProviderKeysPreserveGenericSubjectBusinessToken(): void
+    {
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
+            'cruding_surface_action',
+            '/{resource}/{subject}/{surface}/{action}',
+        ));
+
+        $request = Request::create('/vendor/attachment/document/index');
+        $request->attributes->set('_route', 'cruding_surface_action');
+        $request->attributes->set('resource', 'vendor');
+        $request->attributes->set('subject', 'attachment');
+        $request->attributes->set('surface', 'document');
+        $request->attributes->set('action', 'index');
+
+        $context = $resolver->resolve($request);
+
+        self::assertNotNull($context);
+        self::assertSame([
+            'vendor.attachment.document.index',
+            'vendor.attachment.document',
+            'vendor.document.index',
+            'vendor.document',
+            'vendor.index',
+        ], $context->providerKeys);
     }
 
     private function routerWithRoute(string $name, string $path): RouterInterface

@@ -35,6 +35,7 @@ final readonly class CrudRouteContext
         public array $routeParameters,
         public array $providerKeys,
         public array $templateCandidates,
+        public ?array $routeMapEntry = null,
     ) {
     }
 
@@ -102,6 +103,7 @@ final readonly class CrudRouteContext
             'routeParameters' => $this->routeParameters,
             'providerKeys' => $this->providerKeys,
             'templateCandidates' => $this->templateCandidates,
+            'routeMapEntry' => $this->routeMapEntry,
         ];
     }
 
