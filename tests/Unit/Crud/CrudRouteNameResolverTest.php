@@ -10,54 +10,27 @@ use PHPUnit\Framework\TestCase;
 
 final class CrudRouteNameResolverTest extends TestCase
 {
-    public function testResolveNewReturnsCreateRoute(): void
+    public function testAllUiLinksUseTokenizedCatchAllRoute(): void
     {
         $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'new', 'product', 'App\Cruding\Entity\Product', 'slug', null, null, 'product/product');
+        $context = new CrudContext('public', 'index', 'product', 'App\Cruding\Entity\Product', 'slug', null, null);
 
-        self::assertSame('cruding_new', $resolver->resolveNew($context));
+        self::assertSame('cruding_tokenized_catch_all', $resolver->resolveIndex($context));
+        self::assertSame('cruding_tokenized_catch_all', $resolver->resolveNew($context));
+        self::assertSame('cruding_tokenized_catch_all', $resolver->resolveShow($context));
+        self::assertSame('cruding_tokenized_catch_all', $resolver->resolveEdit($context));
+        self::assertSame('cruding_tokenized_catch_all', $resolver->resolveDelete($context));
     }
 
-    public function testResolveShowUsesSlugByDefault(): void
+    public function testParametersCarryTokenizedCrudPath(): void
     {
         $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'show', 'product', 'App\Cruding\\Entity\\Product', 'slug', 'demo', null, 'product/product');
+        $context = new CrudContext('public', 'show', 'product/price', 'App\Cruding\Entity\Price', 'slug', 'gold', null);
 
-        self::assertSame('cruding_show_slug', $resolver->resolveShow($context));
-    }
-
-    public function testResolveShowUsesIdWhenRequested(): void
-    {
-        $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('admin', 'show', 'product', 'App\Cruding\\Entity\\Product', 'id', 15, null, 'product/product');
-
-        self::assertSame('cruding_show_id', $resolver->resolveShow($context));
-    }
-
-    public function testResolveEditUsesSlugByDefault(): void
-    {
-        $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'edit', 'product', 'App\Cruding\\Entity\\Product', 'slug', 'demo', null, 'product/product');
-
-        self::assertSame('cruding_edit_slug', $resolver->resolveEdit($context));
-    }
-
-    public function testResolveDeleteUsesIdWhenRequested(): void
-    {
-        $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('admin', 'delete', 'product', 'App\Cruding\\Entity\\Product', 'id', 15, null, 'product/product');
-
-        self::assertSame('cruding_delete_id', $resolver->resolveDelete($context));
-    }
-
-    public function testParametersCarryResourcePathAndIdentifier(): void
-    {
-        $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'show', 'product/price', 'App\Cruding\\Entity\\Price', 'slug', 'gold', null, 'product/price');
-
-        self::assertSame([
-            'resourcePath' => 'product/price',
-            'slug' => 'gold',
-        ], $resolver->parameters($context));
+        self::assertSame(['crudPath' => 'product/price'], $resolver->parameters($context, null, null, 'index'));
+        self::assertSame(['crudPath' => 'product/price/new'], $resolver->parameters($context, null, null, 'new'));
+        self::assertSame(['crudPath' => 'product/price/gold'], $resolver->parameters($context, 'gold', 'slug', 'show'));
+        self::assertSame(['crudPath' => 'product/price/edit/gold'], $resolver->parameters($context, 'gold', 'slug', 'edit'));
+        self::assertSame(['crudPath' => 'product/price/delete/gold'], $resolver->parameters($context, 'gold', 'slug', 'delete'));
     }
 }

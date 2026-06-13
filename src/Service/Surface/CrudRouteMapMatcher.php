@@ -49,8 +49,8 @@ final class CrudRouteMapMatcher
             foreach ($matches[0] as $index => $match) {
                 [$placeholder, $position] = $match;
                 $pattern .= preg_quote(substr($template, $offset, $position - $offset), '#');
-                $name = $matches[1][$index][0];
-                $pattern .= $this->placeholderRegex($name);
+                $nameEntity = $matches[1][$index][0];
+                $pattern .= $this->placeholderRegex($nameEntity);
                 $offset = $position + strlen($placeholder);
             }
         }
@@ -59,9 +59,9 @@ final class CrudRouteMapMatcher
         return '#^'.$pattern.'$#';
     }
 
-    private function placeholderRegex(string $name): string
+    private function placeholderRegex(string $nameEntity): string
     {
-        $lower = strtolower($name);
+        $lower = strtolower($nameEntity);
         if ('id' === $lower || str_ends_with($lower, 'id')) {
             return '\d+';
         }

@@ -1,0 +1,127 @@
+= Cruding My Actor Scope Tokenized Resolver
+:revdate: 2026-06-10
+
+== Summary
+
+Implemented `/my/` as a tokenized actor-scope prefix in Cruding.
+
+The new rule is:
+
+[source,text]
+----
+/api/  = optional transport prefix
+/my/   = optional actor/current-user scope prefix after /api/
+rest   = existing tokenized CRUD grammar
+----
+
+`my` is not part of `resourcePath`, not a slug, and not an operation token.
+
+== Canonical examples
+
+[source,text]
+----
+/my/vendor/index
+  actorScope= my
+  resourcePath=vendor
+  operation=index
+
+/my/vendor/attachment/index
+  actorScope=my
+  resourcePath=vendor/attachment
+  operation=index
+
+/my/vendor/attachment/document/index
+  actorScope=my
+  resourcePath=vendor/attachment/document
+  operation=index
+
+/api/my/vendor/attachment/document/verify/acme-file
+  routeFamily=tokenized_api_crud
+  actorScope=my
+  resourcePath=vendor/attachment/document
+  operation=verify
+  slug=acme-file
+----
+
+== FQCN policy
+
+No mandatory `*My*` FQCN class explosion was introduced.
+
+[source,text]
+----
+/my/vendor/attachment/index
+  -> App\Service\Http\Vendor\Attachment\VendorAttachmentIndexService
+----
+
+`my` is passed through `CrudEntrypointContext` as context. Existing URI-derived entrypoints may branch internally if they need current-user scoped behavior.
+
+== Actor scope context
+
+`CrudEntrypointContext` now exposes:
+
+[source,text]
+----
+isActorScoped()
+actorScope()
+isMyScoped()
+isActorGrounded()
+actorUserId()
+actorUserSlug()
+actorUserIdentifier()
+actorIdentityField()
+actorIdentityValue()
+actorAdminIdentityField()
+actorAdminIdentityValue()
+actorIsAdmin()
+----
+
+Frontend identity prefers `user_slug`, then `user_identifier`.
+Internal/admin identity exposes `user_id` only when `ROLE_ADMIN` or `ROLE_SUPER_ADMIN` is granted.
+
+== Changed files
+
+[source,text]
+----
+Added:
+  docs/cruding/cruding-my-actor-scope-tokenized-resolver.md
+  src/Service/Crud/CrudActorScopeContextResolver.php
+  tools/smoke/cruding-my-actor-scope-tokenized-resolver-smoke.php
+
+Changed:
+  src/Controller/Api/Crud/CrudApiTokenizedController.php
+  src/Controller/Crud/CrudTokenizedController.php
+  src/Dto/Crud/CrudTokenizedRouteIntent.php
+  src/Dto/Crud/Entrypoint/CrudEntrypointContext.php
+  src/Service/Crud/CrudTokenizedRouteIntentResolver.php
+  src/Service/Crud/Entrypoint/CrudEntrypointOperationRunner.php
+  tools/cruding/entrypoint-map-audit.php
+  tools/cruding/entrypoint-skeleton-preview.php
+  tools/smoke/cruding-entrypoint-migration-contract-smoke.php
+  tools/smoke/cruding-tokenized-route-resolver-smoke.php
+
+Deleted:
+  none
+----
+
+== Validation
+
+[source,text]
+----
+PHP lint over src/tests/tools PHP files: PASS
+all tools/smoke/*.php: PASS
+php tools/cruding/interfacing-provider-rendering-guard.php: PASS
+----
+
+== No regressions
+
+[source,text]
+----
+No VendorCrudService mega-contract
+No required VendorMy*Service classes
+No /vendor/index hardcode
+No route regex grammar engine reintroduced
+No Vendoring shield
+No business/public route publication workaround
+No Port/Adapter
+No src/Domain
+----

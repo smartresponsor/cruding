@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -32,6 +33,7 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudIdentifierReader $identifierReader,
         private UrlGeneratorInterface $urlGenerator,
+        private CrudEntrypointOperationRunner $entrypointRunner,
     ) {
     }
 
@@ -44,6 +46,11 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
 
         $object = $this->objectFactory->create($context->entityClass);
         $this->accessContextBuilder->build($context, $object);
+
+        $entrypointResult = $this->entrypointRunner->tryRun($request, $context, $object);
+        if (null !== $entrypointResult) {
+            return $entrypointResult;
+        }
 
         if (null === $context->formTypeClass) {
             return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
@@ -58,13 +65,13 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
             if (null === $identifierValue) {
                 return new RedirectResponse($this->urlGenerator->generate(
                     $this->routeNameResolver->resolveIndex($context),
-                    $this->routeNameResolver->parameters($context, null, null),
+                    $this->routeNameResolver->parameters($context, null, null, 'index'),
                 ));
             }
 
             return new RedirectResponse($this->urlGenerator->generate(
                 $this->routeNameResolver->resolveShow($context, $identifierField),
-                $this->routeNameResolver->parameters($context, $identifierValue, $identifierField),
+                $this->routeNameResolver->parameters($context, $identifierValue, $identifierField, 'show'),
             ));
         }
 

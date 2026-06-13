@@ -24,7 +24,7 @@ final class CrudObjectFactoryTest extends TestCase
 
         $object = $factory->create(ObjectFactoryScalarConstructorFixture::class);
 
-        self::assertSame('', $object->name);
+        self::assertSame('', $object->nameEntity);
         self::assertSame(0, $object->count);
         self::assertFalse($object->enabled);
         self::assertSame([], $object->meta);
@@ -51,7 +51,7 @@ final readonly class ObjectFactoryScalarConstructorFixture
      * @param array<string, mixed> $meta
      */
     public function __construct(
-        public string $name,
+        public string $nameEntity,
         public int $count,
         public bool $enabled,
         public array $meta,

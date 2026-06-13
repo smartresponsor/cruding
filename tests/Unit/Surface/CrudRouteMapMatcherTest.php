@@ -14,15 +14,15 @@ final class CrudRouteMapMatcherTest extends TestCase
     public function testLoadsAndMatchesOneLineRouteMapEntry(): void
     {
         $projectDir = $this->createProjectDir([
-            'vendor.attachment.document.show_slug: { path: /vendor/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: vendor.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentShowService }',
+            'alpha.attachment.document.show_slug: { path: /alpha/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: alpha.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\\Service\\Http\\Alpha\\Attachment\\Document\\AlphaAttachmentDocumentShowService }',
         ]);
 
         $matcher = new CrudRouteMapMatcher(new CrudRouteMapLoader($projectDir));
-        $entry = $matcher->match(Request::create('/vendor/attachment/document/show/w9-form'));
+        $entry = $matcher->match(Request::create('/alpha/attachment/document/show/w9-form'));
 
         self::assertNotNull($entry);
-        self::assertSame('vendor.attachment.document.show_slug', $entry->name);
-        self::assertSame('vendor.attachment.document.show', $entry->canonicalKey());
+        self::assertSame('alpha.attachment.document.show_slug', $entry->nameEntity);
+        self::assertSame('alpha.attachment.document.show', $entry->canonicalKey());
         self::assertSame('attachment.document', $entry->object);
         self::assertSame('document/show/index.html.twig', $entry->template);
         self::assertSame('slug', $entry->identifierResolver());
@@ -39,7 +39,7 @@ final class CrudRouteMapMatcherTest extends TestCase
         $entry = $matcher->match(Request::create('/catalog/product/show/iphone-15'));
 
         self::assertNotNull($entry);
-        self::assertSame('catalog.product.show_slug', $entry->name);
+        self::assertSame('catalog.product.show_slug', $entry->nameEntity);
         self::assertSame('slug', $entry->identifierResolver());
     }
 
@@ -51,7 +51,7 @@ final class CrudRouteMapMatcherTest extends TestCase
         $projectDir = sys_get_temp_dir().'/cruding-route-map-'.bin2hex(random_bytes(4));
         $directory = $projectDir.'/config/platform/routes/ecommerce';
         self::assertTrue(mkdir($directory, 0777, true));
-        file_put_contents($directory.'/vendor.yaml', implode("\n", $lines)."\n");
+        file_put_contents($directory.'/alpha.yaml', implode("\n", $lines)."\n");
 
         return $projectDir;
     }

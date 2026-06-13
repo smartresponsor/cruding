@@ -18,13 +18,13 @@ final readonly class CrudRouteValueNormalizer
         return $matches[1];
     }
 
-    public function placeholderField(?string $name): ?string
+    public function placeholderField(?string $nameEntity): ?string
     {
-        if (null === $name || '' === $name) {
+        if (null === $nameEntity || '' === $nameEntity) {
             return null;
         }
 
-        return $name;
+        return $nameEntity;
     }
 
     public function scalarValue(mixed $value): string|int|null

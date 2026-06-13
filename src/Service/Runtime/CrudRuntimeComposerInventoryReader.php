@@ -71,9 +71,9 @@ final readonly class CrudRuntimeComposerInventoryReader
                     continue;
                 }
 
-                $name = $package['name'] ?? null;
-                if (\is_string($name) && str_contains($name, '/')) {
-                    $packages[$name] = $name;
+                $nameEntity = $package['nameEntity'] ?? null;
+                if (\is_string($nameEntity) && str_contains($nameEntity, '/')) {
+                    $packages[$nameEntity] = $nameEntity;
                 }
             }
         }

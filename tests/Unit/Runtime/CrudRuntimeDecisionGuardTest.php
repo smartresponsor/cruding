@@ -17,7 +17,7 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
     {
         $projectDir = $this->createProjectDir([
             'scope' => ['cruding', 'viewing'],
-            'entity' => ['vendor'],
+            'entity' => ['alpha'],
             'packages' => ['cruding/crud', 'viewing/view'],
         ], [
             'require' => [
@@ -28,13 +28,13 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
         $guard = new CrudRuntimeDecisionGuard(
             routeGuard: new CrudRuntimeRouteGuard(
                 scopeTokens: ['cruding', 'viewing'],
-                entityTokens: ['vendor'],
+                entityTokens: ['alpha'],
                 surfaceTokens: ['card'],
                 reservedRootTokens: ['cruding', 'viewing'],
-                allowedResourceTokens: ['vendor'],
+                allowedResourceTokens: ['alpha'],
                 conflictingEntityTokens: [],
-                resourceRequirement: '(?:vendor)',
-                resourcePathRequirement: '(?:vendor)(?:/[a-z0-9][a-z0-9_-]*)*',
+                resourceRequirement: '(?:alpha)',
+                resourcePathRequirement: '(?:alpha)(?:/[a-z0-9][a-z0-9_-]*)*',
                 surfaceTokenRequirement: '(?:card)',
                 operationTokens: ['show'],
                 resourcePathReservedTokens: [],
@@ -60,7 +60,7 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
     {
         $projectDir = $this->createProjectDir([
             'scope' => ['cruding'],
-            'entity' => ['vendor'],
+            'entity' => ['alpha'],
             'packages' => ['cruding/crud'],
         ], [
             'require' => [
@@ -71,13 +71,13 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
         $guard = new CrudRuntimeDecisionGuard(
             routeGuard: new CrudRuntimeRouteGuard(
                 scopeTokens: ['cruding'],
-                entityTokens: ['vendor'],
+                entityTokens: ['alpha'],
                 surfaceTokens: ['card'],
                 reservedRootTokens: ['cruding'],
-                allowedResourceTokens: ['vendor'],
+                allowedResourceTokens: ['alpha'],
                 conflictingEntityTokens: [],
-                resourceRequirement: '(?:vendor)',
-                resourcePathRequirement: '(?:vendor)(?:/[a-z0-9][a-z0-9_-]*)*',
+                resourceRequirement: '(?:alpha)',
+                resourcePathRequirement: '(?:alpha)(?:/[a-z0-9][a-z0-9_-]*)*',
                 surfaceTokenRequirement: '(?:card)',
                 operationTokens: ['show'],
                 resourcePathReservedTokens: [],

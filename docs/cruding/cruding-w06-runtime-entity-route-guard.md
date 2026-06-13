@@ -18,27 +18,27 @@ APP_RUNTIME_SURFACE_TOKEN  = surface grammar tokens used inside resource-bound s
 
 ```env
 APP_RUNTIME_SCOPE="cruding,viewing,interfacing,administering,accessing"
-APP_RUNTIME_ENTITY="vendor,attachment,media,product,category"
+APP_RUNTIME_ENTITY="alpha,attachment,media,beta,gamma"
 APP_RUNTIME_SURFACE_TOKEN="show,index,card,table,gallery"
 ```
 
 Generated resource requirement:
 
 ```text
-(?:attachment|category|product|vendor|media)
+(?:alpha|attachment|media|beta|gamma)
 ```
 
 Generated resource path requirement:
 
 ```text
-(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))(?:attachment|category|product|vendor|media)(?:/[a-z0-9][a-z0-9_-]*)*
+(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))(?:alpha|attachment|media|beta|gamma)(?:/[a-z0-9][a-z0-9_-]*)*
 ```
 
 The following paths may match Cruding when the entity list allows them:
 
 ```text
-/vendor
-/vendor/attachment/media/show/123
+/alpha
+/alpha/attachment/media/show/123
 /product
 /category
 ```
@@ -63,7 +63,7 @@ Example:
 
 ```env
 APP_RUNTIME_SCOPE="cruding,viewing"
-APP_RUNTIME_ENTITY="vendor,viewing"
+APP_RUNTIME_ENTITY="alpha,viewing"
 ```
 
 The guard command fails because `viewing` is a reserved runtime component token and cannot also be a Cruding business root token.

@@ -12,7 +12,7 @@ $root = dirname(__DIR__, 2);
 $requiredFiles = [
     'src/DependencyInjection/CrudingExtension.php',
     'src/DependencyInjection/Configuration.php',
-    'src/Service/Crud/CrudSurfaceContractFactory.php',
+    'src/Service/Crud/Surface/CrudSurfaceContractFactory.php',
     'config/routes/cruding_crud.yaml',
     'config/routes/cruding_api_crud.yaml',
 ];
@@ -35,9 +35,9 @@ foreach ([
     }
 }
 
-$factory = file_get_contents($root . '/src/Service/Crud/CrudSurfaceContractFactory.php') ?: '';
+$factory = file_get_contents($root . '/src/Service/Crud/Surface/CrudSurfaceContractFactory.php') ?: '';
 $surfaceContract = file_get_contents($root . '/src/Value/Surface/CrudSurfaceContract.php') ?: '';
-$builder = file_get_contents($root . '/src/Service/Crud/CrudInterfacingProviderSurfaceBuilder.php') ?: '';
+$builder = file_get_contents($root . '/src/Service/Crud/Surface/CrudInterfacingProviderSurfaceBuilder.php') ?: '';
 $pageProvider = file_get_contents($root . '/src/Service/Crud/CrudPageDefinitionProvider.php') ?: '';
 $extension = file_get_contents($root . '/src/DependencyInjection/CrudingExtension.php') ?: '';
 $configuration = file_get_contents($root . '/src/DependencyInjection/Configuration.php') ?: '';
@@ -124,8 +124,8 @@ $forbiddenConfigNeedles = [
     'app.cruding.entity_class_alias_map',
     'app.cruding.form_type_map',
     'KERNEL_CLASS" value="App\\Messaging',
-    'testsuite name="Catalog"',
-    'testsuite name="Panther"',
+    'testsuite nameEntity="Catalog"',
+    'testsuite nameEntity="Panther"',
 ];
 
 foreach ($forbiddenConfigNeedles as $needle) {

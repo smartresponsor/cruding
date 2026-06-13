@@ -10,7 +10,7 @@ final readonly class CrudPageActionDefinition
      * @param array<string, string|int> $routeParameters
      */
     public function __construct(
-        public string $name,
+        public string $nameEntity,
         public string $label,
         public string $routeName,
         public array $routeParameters,

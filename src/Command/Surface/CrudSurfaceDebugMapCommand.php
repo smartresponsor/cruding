@@ -51,21 +51,21 @@ final class CrudSurfaceDebugMapCommand extends Command
         }
 
         $rows = [];
-        foreach ($this->router->getRouteCollection()->all() as $name => $route) {
+        foreach ($this->router->getRouteCollection()->all() as $nameEntity => $route) {
             if (true !== $input->getOption('all') && !$this->isSurfaceControllerRoute($route)) {
                 continue;
             }
 
-            $request = $this->requestForRoute($name, $route);
+            $request = $this->requestForRoute($nameEntity, $route);
             $context = $this->routeShapeResolver->resolve($request);
             if (!$context instanceof CrudRouteContext) {
-                $rows[] = [$name, $route->getPath(), 'unparsed', '-', '-', '-', '-'];
+                $rows[] = [$nameEntity, $route->getPath(), 'unparsed', '-', '-', '-', '-'];
                 continue;
             }
 
             $provider = $this->providerLocator->locate($context);
             $rows[] = [
-                $name,
+                $nameEntity,
                 $route->getPath(),
                 $this->contextLabel($context),
                 $context->primaryProviderKey(),
@@ -111,10 +111,10 @@ final class CrudSurfaceDebugMapCommand extends Command
             || str_starts_with($controller, CrudSurfaceController::class.'::');
     }
 
-    private function requestForRoute(string $name, Route $route): Request
+    private function requestForRoute(string $nameEntity, Route $route): Request
     {
         $path = $route->getPath();
-        $attributes = ['_route' => $name];
+        $attributes = ['_route' => $nameEntity];
 
         foreach ($route->compile()->getVariables() as $variable) {
             $value = $this->sampleValue($variable);
@@ -138,10 +138,10 @@ final class CrudSurfaceDebugMapCommand extends Command
         }
 
         return match ($lower) {
-            'resource' => 'vendor',
-            'subject' => 'acme-inc',
+            'resource' => 'alpha',
+            'subject' => 'sample-subject',
             'surface' => 'compliance',
-            'item' => 'w9-form',
+            'item' => 'sample-item',
             'token' => 'show',
             'surfaceToken' => 'show',
             'widgetToken' => 'show',

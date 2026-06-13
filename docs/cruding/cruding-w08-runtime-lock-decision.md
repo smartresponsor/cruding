@@ -21,7 +21,7 @@ W08 adds a verification layer above the W06/W07 route matcher protection.
 
 return [
     'scope' => ['cruding', 'viewing', 'interfacing'],
-    'entity' => ['vendor', 'attachment', 'media', 'product', 'category'],
+    'entity' => ['alpha', 'attachment', 'media', 'product', 'category'],
     'surface_token' => ['show', 'index', 'card', 'table', 'gallery', 'compact', 'full', 'detail', 'list'],
     'packages' => [
         'cruding/crud',

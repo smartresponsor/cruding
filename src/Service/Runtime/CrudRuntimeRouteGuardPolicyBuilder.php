@@ -103,10 +103,7 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         array $operationTokens,
         array $resourcePathReservedTokens,
     ): string {
-        $reservedTokens = array_values(array_filter(
-            $this->mergeTokenLists($surfaceTokens, $operationTokens, $resourcePathReservedTokens),
-            static fn (string $token): bool => 'index' !== $token,
-        ));
+        $reservedTokens = $this->mergeTokenLists($surfaceTokens, $operationTokens, $resourcePathReservedTokens);
 
         if ([] === $reservedTokens) {
             return sprintf('%s(?:/[a-z0-9][a-z0-9_-]*)*', $resourceRequirement);
@@ -115,9 +112,9 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         $reservedRequirement = $this->normalizer->alternationRequirement($reservedTokens);
 
         return sprintf(
-            '(?!.*(?:^|/)%s(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
-            $reservedRequirement,
+            '%s(?:/(?!(?:%s)$)[a-z0-9][a-z0-9_-]*)*',
             $resourceRequirement,
+            $reservedRequirement,
         );
     }
 

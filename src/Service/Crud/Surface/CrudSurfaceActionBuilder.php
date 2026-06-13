@@ -20,8 +20,8 @@ final class CrudSurfaceActionBuilder
             $items[] = [
                 'label' => $action->label,
                 'href' => $this->hrefForAction($action),
-                'variant' => 'danger' === $action->scope ? 'danger' : ('new' === $action->name ? 'primary' : 'default'),
-                'operation' => $action->name,
+                'variant' => 'danger' === $action->scope ? 'danger' : ('new' === $action->nameEntity ? 'primary' : 'default'),
+                'operation' => $action->nameEntity,
                 'enabled' => $action->enabled,
                 'visibility' => $action->enabled ? 'visible' : 'disabled',
             ];
@@ -34,7 +34,7 @@ final class CrudSurfaceActionBuilder
     {
         $resourcePath = (string) ($action->routeParameters['resourcePath'] ?? 'resource');
 
-        return match ($action->name) {
+        return match ($action->nameEntity) {
             'new' => '/'.trim($resourcePath, '/').'/new/',
             'index' => '/'.trim($resourcePath, '/').'/',
             'edit' => '/'.trim($resourcePath, '/').'/edit/'.(string) ($action->routeParameters['slug'] ?? $action->routeParameters['id'] ?? 'sample'),

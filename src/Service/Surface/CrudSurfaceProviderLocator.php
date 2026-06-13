@@ -8,7 +8,7 @@ use App\Cruding\Dto\Surface\CrudRouteContext;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 
 /**
- * Locates producer surface providers by class-name convention.
+ * Locates producer surface providers by class-nameEntity convention.
  */
 final class CrudSurfaceProviderLocator
 {

@@ -7,7 +7,7 @@ namespace App\Cruding\Service\Surface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Reads the Symfony route path template for a route name when the router exposes a route collection.
+ * Reads the Symfony route path template for a route nameEntity when the router exposes a route collection.
  */
 final readonly class CrudRouteTemplateResolver
 {

@@ -45,14 +45,22 @@ final class CrudEntityClassResolver
             if (isset($candidateMap[$lookupKey])) {
                 return $candidateMap[$lookupKey];
             }
-
-            $tail = $this->resourcePathParser->tail($lookupKey);
-            if ('' !== $tail && isset($candidateMap[$tail])) {
-                return $candidateMap[$tail];
-            }
         }
 
         return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function canonicalEntityShortName(string $resourcePath): string
+    {
+        $segments = $this->resourcePathParser->segments($resourcePath);
+        if ([] === $segments) {
+            return '';
+        }
+
+        return implode('', array_map($this->studly(...), $segments)).'Entity';
     }
 
     /**
@@ -94,69 +102,32 @@ final class CrudEntityClassResolver
      */
     private function buildKeys(string $class): array
     {
-        $parts = explode('\\Entity\\', $class, 2);
-        $tail = $parts[1] ?? preg_replace('{^.*\\\\}', '', $class) ?? $class;
-        $rawSegments = array_values(array_filter(explode('\\', $tail)));
-
-        if ([] === $rawSegments) {
-            return [];
-        }
-
-        $segments = $this->buildResourceSegments($rawSegments);
-        if ([] === $segments) {
-            return [];
-        }
-
-        $keys = [];
-        $keys[] = implode('/', $segments);
-        $keys[] = (string) end($segments);
-        $keys[] = $this->normalizeEntityAlias($class);
-
-        return array_values(array_unique(array_filter($keys, static fn (mixed $value): bool => is_string($value) && '' !== $value)));
-    }
-
-    /**
-     * @param list<string> $rawSegments
-     *
-     * @return list<string>
-     */
-    private function buildResourceSegments(array $rawSegments): array
-    {
-        $lastIndex = array_key_last($rawSegments);
-        $segments = [];
-
-        foreach ($rawSegments as $index => $segment) {
-            if ($index !== $lastIndex) {
-                $segments[] = $this->normalizeSegment($segment);
-                continue;
-            }
-
-            $shortName = preg_replace('/Entity$/', '', $segment) ?? $segment;
-            $parentName = [] === $segments ? '' : (string) end($segments);
-            $parentStudly = str_replace(' ', '', ucwords(str_replace('-', ' ', $parentName)));
-
-            if ('' !== $parentStudly && str_starts_with($shortName, $parentStudly) && $shortName !== $parentStudly) {
-                $shortName = substr($shortName, strlen($parentStudly));
-            }
-
-            $segments[] = $this->normalizeSegment($shortName);
-        }
-
-        return array_values(array_filter($segments, static fn (string $segment): bool => '' !== $segment));
-    }
-
-    private function normalizeEntityAlias(string $class): string
-    {
         $base = preg_replace('{^.*\\\\}', '', $class) ?? $class;
         $base = preg_replace('/Entity$/', '', $base) ?? $base;
 
-        return $this->normalizeSegment($base);
+        $key = $this->normalizeStudlyPath($base);
+        if ('' === $key) {
+            return [];
+        }
+
+        return [$key];
     }
 
-    private function normalizeSegment(string $segment): string
+    private function normalizeStudlyPath(string $value): string
     {
-        $withHyphen = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '-$0', $segment));
+        $tokens = preg_split('/(?=[A-Z])/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        if (!is_array($tokens)) {
+            return '';
+        }
 
-        return str_replace('_', '-', $withHyphen);
+        return implode('/', array_map(
+            static fn (string $token): string => str_replace('_', '-', strtolower($token)),
+            $tokens,
+        ));
+    }
+
+    private function studly(string $segment): string
+    {
+        return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $segment)));
     }
 }

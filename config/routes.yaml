@@ -1,6 +1,13 @@
 cruding_api_crud:
     resource: 'routes/cruding_api_crud.yaml'
 
+# Tokenized CRUD must be imported before legacy surface routes.
+# Symfony routing remains only a delivery layer; Cruding resolves URI grammar
+# from tokens in PHP. Legacy surface routes are intentionally kept as fallback
+# compatibility routes, but they must not steal canonical CRUD entrypoints such as:
+#   /vendor/attachment/index
+#   /vendor/attachment/document/index
+#   /vendor/attachment/media/edit/123
 cruding_crud:
     resource: 'routes/cruding_crud.yaml'
 

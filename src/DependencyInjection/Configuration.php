@@ -16,7 +16,7 @@ final class Configuration implements ConfigurationInterface
         $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('resource_path_requirement')
-                    ->defaultValue('(?!.*(?:^|/)(?:new|edit|delete|audit|visibility|attach|detach)(?:$|/))[a-z0-9](?:[a-z0-9/_-]*[a-z0-9])?')
+                    ->defaultValue('[a-z][a-z0-9_-]*(?:/(?!(?:new|edit|delete|audit|visibility|attach|detach)$)[a-z0-9][a-z0-9_-]*)*')
                 ->end()
                 ->arrayNode('route_guard')
                     ->addDefaultsIfNotSet()
@@ -58,7 +58,7 @@ final class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('capability_map')
-                    ->useAttributeAsKey('name')
+                    ->useAttributeAsKey('nameEntity')
                     ->variablePrototype()->end()
                     ->defaultValue([
                         'identifiable' => [

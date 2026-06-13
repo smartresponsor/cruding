@@ -53,21 +53,21 @@ final class CrudSurfaceRouteLintCommand extends Command
         $warningList = [];
         $checked = 0;
 
-        foreach ($this->router->getRouteCollection()->all() as $name => $route) {
+        foreach ($this->router->getRouteCollection()->all() as $nameEntity => $route) {
             if (!$this->isSurfaceControllerRoute($route)) {
                 continue;
             }
 
             ++$checked;
-            $request = $this->requestForRoute($name, $route);
+            $request = $this->requestForRoute($nameEntity, $route);
             $context = $this->routeShapeResolver->resolve($request);
             if (!$context instanceof CrudRouteContext) {
-                $errorList[] = sprintf('%s: route path "%s" cannot be parsed into a Cruding route context.', $name, $route->getPath());
+                $errorList[] = sprintf('%s: route path "%s" cannot be parsed into a Cruding route context.', $nameEntity, $route->getPath());
                 continue;
             }
 
             if ('' === $context->resource || '' === $context->operation || [] === $context->providerKeys) {
-                $errorList[] = sprintf('%s: parsed route context is incomplete.', $name);
+                $errorList[] = sprintf('%s: parsed route context is incomplete.', $nameEntity);
                 continue;
             }
 
@@ -79,7 +79,7 @@ final class CrudSurfaceRouteLintCommand extends Command
             if ($this->genericRoute($route)) {
                 $warningList[] = sprintf(
                     '%s: generic route resolves providers at runtime; sample key is "%s"%s.',
-                    $name,
+                    $nameEntity,
                     $context->primaryProviderKey(),
                     $strictProvider ? '; strict-provider is intentionally skipped for generic declarations' : ''
                 );
@@ -87,11 +87,11 @@ final class CrudSurfaceRouteLintCommand extends Command
             }
 
             if (in_array($context->operation, self::FALLBACK_OPERATION_LIST, true)) {
-                $warningList[] = sprintf('%s: no provider for "%s"; generic Doctrine fallback may handle it if the entity exists.', $name, $context->primaryProviderKey());
+                $warningList[] = sprintf('%s: no provider for "%s"; generic Doctrine fallback may handle it if the entity exists.', $nameEntity, $context->primaryProviderKey());
                 continue;
             }
 
-            $message = sprintf('%s: concrete route "%s" needs a provider for "%s".', $name, $route->getPath(), $context->primaryProviderKey());
+            $message = sprintf('%s: concrete route "%s" needs a provider for "%s".', $nameEntity, $route->getPath(), $context->primaryProviderKey());
             if ($strictProvider) {
                 $errorList[] = $message;
             } else {
@@ -129,10 +129,10 @@ final class CrudSurfaceRouteLintCommand extends Command
             || str_starts_with($controller, CrudSurfaceController::class.'::');
     }
 
-    private function requestForRoute(string $name, Route $route): Request
+    private function requestForRoute(string $nameEntity, Route $route): Request
     {
         $path = $route->getPath();
-        $attributes = ['_route' => $name];
+        $attributes = ['_route' => $nameEntity];
 
         foreach ($route->compile()->getVariables() as $variable) {
             $value = $this->sampleValue($variable);
@@ -156,10 +156,10 @@ final class CrudSurfaceRouteLintCommand extends Command
         }
 
         return match ($lower) {
-            'resource' => 'vendor',
-            'subject' => 'acme-inc',
+            'resource' => 'alpha',
+            'subject' => 'sample-subject',
             'surface' => 'compliance',
-            'item' => 'w9-form',
+            'item' => 'sample-item',
             'token' => 'show',
             'surfaceToken' => 'show',
             'widgetToken' => 'show',

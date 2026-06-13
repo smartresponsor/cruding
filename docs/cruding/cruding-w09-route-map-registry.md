@@ -6,17 +6,17 @@ The goal is not to replace Symfony routing. The goal is to let Cruding keep its
 existing catch-all parser routes while loading host-level route-map metadata:
 
 ```yaml
-vendor.attachment.document.show_slug: { path: /vendor/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: vendor.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\Service\Http\Vendor\Attachment\Document\VendorAttachmentDocumentShowService }
+alpha.attachment.document.show_slug: { path: /alpha/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: alpha.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\Service\Http\Alpha\Attachment\Document\AlphaAttachmentDocumentShowService }
 ```
 
 ## Why
 
-Current surface grammar can match `/vendor/attachment/document/show/acme`, but
+Current surface grammar can match `/alpha/attachment/document/show/sample-entry`, but
 without a route-map override the provider key is reduced to the parsed shape.
 The route-map keeps the full business chain:
 
 ```text
-vendor.attachment.document.show
+alpha.attachment.document.show
 ```
 
 while still allowing a short Twig target:

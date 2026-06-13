@@ -16,8 +16,8 @@ final class CrudSurfaceFilterBuilder
     public function build(string $resourcePath): array
     {
         return [
-            ['name' => 'q', 'label' => 'Search', 'type' => 'text', 'value' => null, 'placeholder' => 'Search '.$this->labelFormatter->humanize($resourcePath), 'options' => []],
-            ['name' => 'status', 'label' => 'Status', 'type' => 'select', 'value' => null, 'placeholder' => 'Any status', 'options' => []],
+            ['nameEntity' => 'q', 'label' => 'Search', 'type' => 'text', 'value' => null, 'placeholder' => 'Search '.$this->labelFormatter->humanize($resourcePath), 'options' => []],
+            ['nameEntity' => 'status', 'label' => 'Status', 'type' => 'select', 'value' => null, 'placeholder' => 'Any status', 'options' => []],
         ];
     }
 }

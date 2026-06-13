@@ -6,6 +6,7 @@ namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
+use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -27,6 +28,7 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
         private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
+        private CrudEntrypointOperationRunner $entrypointRunner,
     ) {
     }
 
@@ -61,6 +63,11 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
         $access = $this->accessContextBuilder->build($context, $object);
         if (!$access->canView) {
             throw new AccessDeniedHttpException('You are not allowed to view this object.');
+        }
+
+        $entrypointResult = $this->entrypointRunner->tryRun($request, $context, $object);
+        if (null !== $entrypointResult) {
+            return $entrypointResult;
         }
 
         return $this->surfaceContractFactory->create($this->pageDefinitionProvider->provideShow($context, $object), $object);

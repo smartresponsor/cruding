@@ -43,7 +43,7 @@ final readonly class CrudRouteSegmentReader
                 $values[] = [
                     'value' => $this->normalizer->scalarValue($request->attributes->get($placeholder)),
                     'dynamic' => true,
-                    'name' => $placeholder,
+                    'nameEntity' => $placeholder,
                 ];
                 continue;
             }
@@ -51,7 +51,7 @@ final readonly class CrudRouteSegmentReader
             $values[] = [
                 'value' => $segment,
                 'dynamic' => false,
-                'name' => null,
+                'nameEntity' => null,
             ];
         }
 

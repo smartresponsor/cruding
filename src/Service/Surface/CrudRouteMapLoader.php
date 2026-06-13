@@ -73,9 +73,9 @@ final readonly class CrudRouteMapLoader
             return null;
         }
 
-        [$name, $payload] = explode(':', $line, 2);
-        $name = trim($name);
-        if ('' === $name || str_contains($name, ' ')) {
+        [$nameEntity, $payload] = explode(':', $line, 2);
+        $nameEntity = trim($nameEntity);
+        if ('' === $nameEntity || str_contains($nameEntity, ' ')) {
             return null;
         }
 
@@ -91,7 +91,7 @@ final readonly class CrudRouteMapLoader
         }
 
         return new CrudRouteMapEntry(
-            name: $name,
+            name: $nameEntity,
             path: $path,
             parser: $this->string($data['parser'] ?? null),
             routeKey: $this->string($data['routeKey'] ?? null),

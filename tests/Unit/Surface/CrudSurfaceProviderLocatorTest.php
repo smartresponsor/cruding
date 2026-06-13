@@ -15,33 +15,33 @@ final class CrudSurfaceProviderLocatorTest extends TestCase
 {
     public function testLocatesProviderByClassNameConvention(): void
     {
-        $provider = new VendorComplianceBriefingSurface();
+        $provider = new AlphaComplianceBriefingSurface();
         $locator = new CrudSurfaceProviderLocator([$provider]);
 
         $context = new CrudRouteContext(
-            resource: 'vendor',
-            resourcePath: 'vendor',
+            resource: 'alpha',
+            resourcePath: 'alpha',
             operation: 'briefing',
             view: 'briefing',
             surfacePath: 'compliance',
-            subjectField: 'vendorSlug',
-            subjectValue: 'acme-inc',
+            subjectField: 'alphaSlug',
+            subjectValue: 'sample-subject',
             itemField: null,
             itemValue: null,
-            routeName: 'vendor_compliance_briefing',
-            routeTemplate: '/vendor/{vendorSlug}/compliance/briefing',
-            routeParameters: ['vendorSlug' => 'acme-inc'],
-            providerKeys: ['vendor.compliance.briefing'],
-            templateCandidates: ['vendor/compliance/index.html.twig'],
+            routeName: 'alpha_compliance_briefing',
+            routeTemplate: '/alpha/{alphaSlug}/compliance/briefing',
+            routeParameters: ['alphaSlug' => 'sample-subject'],
+            providerKeys: ['alpha.compliance.briefing'],
+            templateCandidates: ['alpha/compliance/index.html.twig'],
         );
 
         self::assertSame($provider, $locator->locate($context));
-        self::assertContains('vendor.compliance.briefing', $locator->keys());
-        self::assertSame(VendorComplianceBriefingSurface::class, $locator->entries()['vendor.compliance.briefing']);
+        self::assertContains('alpha.compliance.briefing', $locator->keys());
+        self::assertSame(AlphaComplianceBriefingSurface::class, $locator->entries()['alpha.compliance.briefing']);
     }
 }
 
-final class VendorComplianceBriefingSurface implements CrudSurfaceProviderInterface
+final class AlphaComplianceBriefingSurface implements CrudSurfaceProviderInterface
 {
     public function provide(CrudSurfaceRequest $request): CrudSurfaceContract
     {

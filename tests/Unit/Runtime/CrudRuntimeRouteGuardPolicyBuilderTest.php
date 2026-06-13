@@ -7,7 +7,6 @@ namespace App\Cruding\Tests\Unit\Runtime;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
 use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
@@ -44,124 +43,73 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
         );
     }
 
-    public function testScopeTokensAreReservedAndEntityTokensBecomeRouteRequirements(): void
+    public function testScopeTokensAreReservedAndEntityTokensRemainPolicyData(): void
     {
         $policy = $this->builder->build(
             scopeRaw: 'cruding,viewing,interfacing,administering,accessing',
-            entityRaw: 'vendor,attachment,media,product,category',
+            entityRaw: 'alpha,attachment,media,product,category',
             surfaceTokenRaw: 'card,table,gallery',
             reservedRaw: '',
         );
 
-        self::assertSame(['vendor', 'attachment', 'media', 'product', 'category'], $policy->allowedResourceTokens);
+        self::assertSame(['alpha', 'attachment', 'media', 'product', 'category'], $policy->allowedResourceTokens);
         self::assertContains('viewing', $policy->reservedRootTokens);
         self::assertContains('interfacing', $policy->reservedRootTokens);
         self::assertFalse($policy->hasConflicts());
+        self::assertContains('index', $policy->operationTokens);
+        self::assertContains('card', $policy->surfaceTokens);
 
-        $matcher = $this->matcher($policy->resourceRequirement, $policy->resourcePathRequirement, $policy->surfaceTokenRequirement, $policy->identitySlugRequirement);
-
-        self::assertSame('cruding_surface_token_item', $matcher->match('/vendor/attachment/media/card/123')['_route']);
-        self::assertSame('cruding_index_root', $matcher->match('/vendor')['_route']);
-        self::assertSame('cruding_show_slug', $matcher->match('/vendor/acme-inc')['_route']);
-        self::assertSame('cruding_index_token_no_slash', $matcher->match('/vendor/index')['_route']);
-        $this->assertRouteDoesNotMatch($matcher, '/vendor/show');
-        $this->assertRouteDoesNotMatch($matcher, '/vendor/new');
-        $this->assertRouteDoesNotMatch($matcher, '/vendor/import');
-        $this->assertRouteDoesNotMatch($matcher, '/admin');
-        $this->assertRouteDoesNotMatch($matcher, '/login');
-        $this->assertRouteDoesNotMatch($matcher, '/viewing');
-        $this->assertRouteDoesNotMatch($matcher, '/interfacing');
+        $matcher = $this->tokenizedMatcher();
+        self::assertSame('cruding_surface_token_item', $matcher->match('/alpha/attachment/media/card/123')['_route']);
+        self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha')['_route']);
+        self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/index')['_route']);
+        self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/attachment/media/edit/123')['_route']);
     }
 
     public function testEntityTokenConflictingWithRuntimeScopeIsRejected(): void
     {
         $policy = $this->builder->build(
             scopeRaw: 'cruding,viewing',
-            entityRaw: 'vendor,viewing',
+            entityRaw: 'alpha,viewing',
             surfaceTokenRaw: 'card',
             reservedRaw: '',
         );
 
         self::assertTrue($policy->hasConflicts());
         self::assertSame(['viewing'], $policy->conflictingEntityTokens);
-        self::assertSame(['vendor'], $policy->allowedResourceTokens);
-        self::assertStringContainsString('vendor', $policy->resourceRequirement);
+        self::assertSame(['alpha'], $policy->allowedResourceTokens);
+        self::assertStringContainsString('alpha', $policy->resourceRequirement);
         self::assertStringNotContainsString('viewing', $policy->resourceRequirement);
     }
 
-    public function testSurfaceTokensAreNotRuntimeEntities(): void
+    public function testSurfaceTokensRemainBeforeTokenizedCatchAllRoutes(): void
     {
-        $policy = $this->builder->build(
-            scopeRaw: 'cruding,viewing',
-            entityRaw: 'vendor',
-            surfaceTokenRaw: 'card',
-            reservedRaw: '',
-        );
+        $matcher = $this->tokenizedMatcher();
 
-        $matcher = $this->matcher($policy->resourceRequirement, $policy->resourcePathRequirement, $policy->surfaceTokenRequirement, $policy->identitySlugRequirement);
-
-        self::assertSame('cruding_surface_token_item', $matcher->match('/vendor/attachment/media/card/acme-inc')['_route']);
-        $this->assertRouteDoesNotMatch($matcher, '/show');
-        $this->assertRouteDoesNotMatch($matcher, '/vendor/card');
+        self::assertSame('cruding_surface_token_item', $matcher->match('/alpha/attachment/media/card/acme-inc')['_route']);
+        self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/card')['_route']);
     }
 
-    private function matcher(string $resourceRequirement, string $resourcePathRequirement, string $surfaceTokenRequirement, string $identitySlugRequirement): UrlMatcher
+    private function tokenizedMatcher(): UrlMatcher
     {
         $collection = new RouteCollection();
         $collection->add('cruding_surface_token_item', new Route(
             '/{resource}/{subject}/{surface}/{token}/{item}',
             [],
             [
-                'resource' => $resourceRequirement,
-                'subject' => '(?!new$|edit$|delete$)[A-Za-z0-9][A-Za-z0-9_-]*',
+                'resource' => '[a-z][a-z0-9_-]*',
+                'subject' => '[A-Za-z0-9][A-Za-z0-9_-]*',
                 'surface' => '[a-z0-9][a-z0-9_-]*',
-                'token' => $surfaceTokenRequirement,
+                'token' => 'card|table|gallery',
                 'item' => '[A-Za-z0-9][A-Za-z0-9_-]*',
             ],
         ));
-        $collection->add('cruding_index_token_no_slash', new Route(
-            '/{resourcePath}/index',
+        $collection->add('cruding_tokenized_catch_all', new Route(
+            '/{crudPath}',
             [],
-            [
-                'resourcePath' => $resourcePathRequirement,
-            ],
-        ));
-        $collection->add('cruding_index_token', new Route(
-            '/{resourcePath}/index/',
-            [],
-            [
-                'resourcePath' => $resourcePathRequirement,
-            ],
-        ));
-        $collection->add('cruding_show_slug', new Route(
-            '/{resourcePath}/{slug}',
-            [],
-            [
-                'resourcePath' => $resourcePathRequirement,
-                'slug' => $identitySlugRequirement,
-            ],
-        ));
-        $collection->add('cruding_index_root', new Route(
-            '/{resourcePath}',
-            [],
-            [
-                'resourcePath' => $resourcePathRequirement,
-            ],
+            ['crudPath' => '.+'],
         ));
 
         return new UrlMatcher($collection, new RequestContext());
-    }
-
-    private function assertRouteDoesNotMatch(UrlMatcher $matcher, string $path): void
-    {
-        try {
-            $matcher->match($path);
-        } catch (ResourceNotFoundException) {
-            self::assertTrue(true);
-
-            return;
-        }
-
-        self::fail(sprintf('Expected route path "%s" not to match Cruding routes.', $path));
     }
 }

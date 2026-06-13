@@ -29,7 +29,7 @@ Default env values used by the script:
 
 ```env
 APP_RUNTIME_SCOPE="cruding,viewing,interfacing,administering,accessing"
-APP_RUNTIME_ENTITY="vendor,attachment,media,product,category"
+APP_RUNTIME_ENTITY="alpha,attachment,media,beta,gamma"
 APP_RUNTIME_SURFACE_TOKEN="show,index,card,table,gallery,compact,full,detail,list"
 ```
 
@@ -94,13 +94,13 @@ php bin/console crud:runtime:route-match-smoke --reserved-path=/custom-admin
 Additional paths that must match Cruding:
 
 ```bash
-php bin/console crud:runtime:route-match-smoke --cruding-path=/vendor/attachment/media/show/123
+php bin/console crud:runtime:route-match-smoke --cruding-path=/alpha/attachment/media/show/123
 ```
 
 Disable built-in paths:
 
 ```bash
-php bin/console crud:runtime:route-match-smoke --skip-defaults --reserved-path=/admin --cruding-path=/vendor
+php bin/console crud:runtime:route-match-smoke --skip-defaults --reserved-path=/admin --cruding-path=/alpha
 ```
 
 ## Expected doctrine
@@ -114,6 +114,6 @@ The desired behavior is:
 /login        => no Cruding match
 /viewing      => no Cruding match
 /interfacing  => no Cruding match
-/vendor       => Cruding match when vendor is in APP_RUNTIME_ENTITY
-/vendor/attachment/media/show/123 => Cruding surface token match when vendor is allowed and show is a surface token
+/alpha       => Cruding match when alpha is in APP_RUNTIME_ENTITY
+/alpha/attachment/media/show/123 => Cruding surface token match when alpha is allowed and show is a surface token
 ```

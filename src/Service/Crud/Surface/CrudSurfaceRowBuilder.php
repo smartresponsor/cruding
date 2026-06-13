@@ -46,7 +46,7 @@ final class CrudSurfaceRowBuilder
     private function buildObjectRow(object $object, string $resourcePath, string $component, int $index): array
     {
         $id = $this->scalarReader->read($object, ['getId', 'id']) ?? $this->scalarReader->read($object, ['getSlug', 'slug']) ?? $resourcePath.'-'.($index + 1);
-        $title = $this->scalarReader->read($object, ['getTitle', 'title', 'getName', 'name', 'getLabel', 'label', 'getCode', 'code']) ?? $this->labelFormatter->shortClass($object);
+        $title = $this->scalarReader->read($object, ['getTitle', 'title', 'getName', 'nameEntity', 'getLabel', 'label', 'getCode', 'code']) ?? $this->labelFormatter->shortClass($object);
         $status = $this->scalarReader->read($object, ['getStatus', 'status', 'isEnabled', 'enabled', 'isActive', 'active']) ?? 'loaded';
         $code = $this->scalarReader->read($object, ['getCode', 'code', 'getSku', 'sku', 'getSlug', 'slug']) ?? strtoupper(str_replace('/', '-', $resourcePath)).'-'.($index + 1);
         $locale = $this->scalarReader->read($object, ['getLocale', 'locale', 'getContentLocale', 'contentLocale']) ?? 'en';

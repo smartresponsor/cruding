@@ -20,12 +20,13 @@ $requiredParameters = [
     'cruding.resource_requirement',
     'cruding.resource_path_requirement',
     'cruding.surface_token_requirement',
+    'cruding.operation_token_requirement',
     'cruding.identity_slug_requirement',
 ];
 
 foreach ($requiredParameters as $parameter) {
     if (!str_contains($services, $parameter.':')) {
-        fwrite(STDERR, sprintf("Missing route-loader fallback parameter: %s\n", $parameter));
+        fwrite(STDERR, sprintf("Missing config/services.yaml fallback parameter: %s\n", $parameter));
         exit(1);
     }
 }
@@ -52,11 +53,16 @@ foreach (array_values($referencedParameters) as $parameter) {
     }
 }
 
-foreach (['show', 'index', 'new', 'import', 'export'] as $reservedToken) {
-    if (!preg_match('/cruding\.identity_slug_requirement: .*'.preg_quote($reservedToken, '/').'/m', $services)) {
-        fwrite(STDERR, sprintf("Identity slug fallback does not block reserved token: %s\n", $reservedToken));
+if (isset($referencedParameters['cruding.resource_path_requirement']) || isset($referencedParameters['cruding.identity_slug_requirement']) || isset($referencedParameters['cruding.operation_token_requirement'])) {
+    fwrite(STDERR, "Semantic CRUD grammar parameters must not be referenced by tokenized CRUD/API routes.\n");
+    exit(1);
+}
+
+foreach (['assign', 'approve', 'pay'] as $operationToken) {
+    if (!preg_match('/cruding\.operation_token_requirement: .*'.preg_quote($operationToken, '/').'/m', $services)) {
+        fwrite(STDERR, sprintf("Operation token fallback does not include configured token: %s\n", $operationToken));
         exit(1);
     }
 }
 
-fwrite(STDOUT, "PASS: Cruding route parameters have config/services.yaml fallbacks.\n");
+fwrite(STDOUT, "PASS: Cruding parameters remain available as container fallbacks, but route YAML no longer uses semantic CRUD regex parameters.\n");

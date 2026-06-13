@@ -163,16 +163,16 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         }
 
         $finalResourcePathRequirement = $policy->resourcePathRequirement;
-        if ('(?!)(?:/[a-z0-9][a-z0-9_-]*)*' === $finalResourcePathRequirement || str_starts_with($finalResourcePathRequirement, '(?!).*')) {
+        if ('(?!)(?:/[a-z0-9][a-z0-9_-]*)*' === $finalResourcePathRequirement || str_starts_with($finalResourcePathRequirement, '(?!.*')) {
             $reservedSegmentRequirement = $normalizer->alternationRequirement(array_merge(
                 $finalSurfaceTokens,
                 $policy->operationTokens,
                 $policy->resourcePathReservedTokens,
             ));
             $finalResourcePathRequirement = sprintf(
-                '(?!.*(?:^|/)%s(?:$|/))%s(?:/[a-z0-9][a-z0-9_-]*)*',
-                $reservedSegmentRequirement,
+                '%s(?:/(?!(?:%s)$)[a-z0-9][a-z0-9_-]*)*',
                 $finalResourceRequirement,
+                $reservedSegmentRequirement,
             );
         }
 
@@ -206,6 +206,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('cruding.resource_requirement', $finalResourceRequirement);
         $container->setParameter('cruding.resource_path_requirement', $finalResourcePathRequirement);
         $container->setParameter('cruding.surface_token_requirement', $policy->surfaceTokenRequirement);
+        $container->setParameter('cruding.operation_token_requirement', $normalizer->alternationRequirement($policy->operationTokens));
         $container->setParameter('cruding.identity_slug_requirement', $policy->identitySlugRequirement);
         $container->setParameter('cruding.capability_map', $config['capability_map']);
         $container->setParameter('cruding.entity_class_alias_map', $config['entity_class_alias_map']);
@@ -241,13 +242,13 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     /**
      * @return list<string>
      */
-    private function parameterTokenList(ContainerBuilder $container, string $name): array
+    private function parameterTokenList(ContainerBuilder $container, string $nameEntity): array
     {
-        if (!$container->hasParameter($name)) {
+        if (!$container->hasParameter($nameEntity)) {
             return [];
         }
 
-        $value = $container->getParameter($name);
+        $value = $container->getParameter($nameEntity);
         if (!\is_array($value)) {
             return [];
         }
@@ -360,19 +361,19 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return 'dev';
     }
 
-    private function readEnvironmentValue(string $name): string
+    private function readEnvironmentValue(string $nameEntity): string
     {
-        $serverValue = $_SERVER[$name] ?? null;
+        $serverValue = $_SERVER[$nameEntity] ?? null;
         if (is_string($serverValue)) {
             return $serverValue;
         }
 
-        $envValue = $_ENV[$name] ?? null;
+        $envValue = $_ENV[$nameEntity] ?? null;
         if (is_string($envValue)) {
             return $envValue;
         }
 
-        $getenvValue = getenv($name);
+        $getenvValue = getenv($nameEntity);
 
         return is_string($getenvValue) ? $getenvValue : '';
     }

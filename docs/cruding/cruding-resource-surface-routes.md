@@ -15,23 +15,23 @@ Supported read-oriented shapes:
 Examples:
 
 ```text
-/vendor/acme-inc/compliance/briefing
-/vendor/acme-inc/document/w9-form/preview
-/product/demo-product/offer/summary
+/alpha/sample-subject/compliance/briefing
+/alpha/sample-subject/document/sample-document/preview
+/beta/sample-product/offer/summary
 ```
 
 The route path decides the resource, subject, surface and action. No operation descriptor is required for these resource-bound surface routes.
 
 ## Provider convention
 
-For `/vendor/acme-inc/compliance/briefing`, Cruding computes these provider keys:
+For `/alpha/sample-subject/compliance/briefing`, Cruding computes these provider keys:
 
 ```text
-vendor.compliance.briefing
-vendor.briefing
+alpha.compliance.briefing
+alpha.briefing
 ```
 
-A producer provider named `VendorComplianceBriefingSurface` implements `CrudSurfaceProviderInterface` and is autoconfigured with the `cruding.surface_provider` tag.
+A producer provider named `AlphaComplianceBriefingSurface` implements `CrudSurfaceProviderInterface` and is autoconfigured with the `cruding.surface_provider` tag.
 
 Providers must return `CrudSurfaceContract`. They must not return Symfony `Response`, `JsonResponse`, HTML, or render Twig templates.
 
@@ -58,11 +58,11 @@ Producer providers decide which locations and blocks exist. Viewing decides whet
 
 ## Viewing sync contract
 
-Cruding does not publish operation-based Twig files as a runtime contract. For a route such as `/vendor/acme-inc/compliance/briefing`, `briefing` is provider/operation context, not a required `briefing.html.twig` file. Diagnostic template hints use folder/index form only:
+Cruding does not publish operation-based Twig files as a runtime contract. For a route such as `/alpha/sample-subject/compliance/briefing`, `briefing` is provider/operation context, not a required `briefing.html.twig` file. Diagnostic template hints use folder/index form only:
 
 ```text
-vendor/compliance/index.html.twig
-vendor/index.html.twig
+alpha/compliance/index.html.twig
+alpha/index.html.twig
 index.html.twig
 ```
 
@@ -126,13 +126,13 @@ use App\Cruding\Service\Surface\CrudSurfacePayloadBuilder;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 
-final readonly class VendorComplianceBriefingSurface implements CrudSurfaceProviderInterface
+final readonly class AlphaComplianceBriefingSurface implements CrudSurfaceProviderInterface
 {
     public function provide(CrudSurfaceRequest $request): CrudSurfaceContract
     {
         return CrudSurfacePayloadBuilder::fromRequest($request)
-            ->title('Vendor compliance briefing')
-            ->block('top', 'vendor_header', ['slug' => $request->routeContext->subjectValue])
+            ->title('Alpha compliance briefing')
+            ->block('top', 'alpha_header', ['slug' => $request->routeContext->subjectValue])
             ->block('body', 'compliance_briefing', ['riskLevel' => 'medium'])
             ->block('right', 'next_action', ['count' => 2])
             ->toContract();
@@ -140,4 +140,4 @@ final readonly class VendorComplianceBriefingSurface implements CrudSurfaceProvi
 }
 ```
 
-The controller depends only on `CrudSurfaceContract`. It does not inspect or branch on `vendor_header`, `compliance_briefing`, `next_action`, or any producer-specific data volume. Viewing receives the stable envelope and chooses Interfacing/local template rendering or JSON fallback.
+The controller depends only on `CrudSurfaceContract`. It does not inspect or branch on `alpha_header`, `compliance_briefing`, `next_action`, or any producer-specific data volume. Viewing receives the stable envelope and chooses Interfacing/local template rendering or JSON fallback.

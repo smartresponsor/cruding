@@ -31,7 +31,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'new',
                 'Create',
                 $this->routeNameResolver->resolveNew($context),
-                $this->routeNameResolver->parameters($context, null, null),
+                $this->routeNameResolver->parameters($context, null, null, 'new'),
             );
         }
 
@@ -58,7 +58,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'index',
                 'Back to list',
                 $this->routeNameResolver->resolveIndex($context),
-                $this->routeNameResolver->parameters($context, null, null),
+                $this->routeNameResolver->parameters($context, null, null, 'index'),
             ),
         ];
 
@@ -67,7 +67,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'edit',
                 'Edit',
                 $this->routeNameResolver->resolveEdit($context),
-                $this->routeNameResolver->parameters($context),
+                $this->routeNameResolver->parameters($context, null, null, 'edit'),
             );
         }
 
@@ -103,7 +103,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                     'index',
                     'Back to list',
                     $this->routeNameResolver->resolveIndex($context),
-                    $this->routeNameResolver->parameters($context, null, null),
+                    $this->routeNameResolver->parameters($context, null, null, 'index'),
                 ),
             ],
             [
@@ -123,7 +123,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'index',
                 'Back to list',
                 $this->routeNameResolver->resolveIndex($context),
-                $this->routeNameResolver->parameters($context, null, null),
+                $this->routeNameResolver->parameters($context, null, null, 'index'),
             ),
         ];
 
@@ -132,7 +132,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'delete',
                 'Delete',
                 $this->routeNameResolver->resolveDelete($context),
-                $this->routeNameResolver->parameters($context),
+                $this->routeNameResolver->parameters($context, null, null, 'delete'),
                 'danger',
             );
         }

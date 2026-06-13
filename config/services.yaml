@@ -5,9 +5,10 @@ parameters:
     # They must still exist here because imported route YAML resolves %parameters% before
     # any CRUD controller/runtime guard can run.
     cruding.resource_requirement: '[a-z][a-z0-9_-]*'
-    cruding.resource_path_requirement: '(?!.*(?:^|/)(show|card|table|gallery|compact|full|detail|list|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate|audit|visibility|attach|detach)(?:$|/))[a-z][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+    cruding.resource_path_requirement: '[a-z][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
     cruding.surface_token_requirement: 'card|table|gallery|compact|full|detail|list'
-    cruding.identity_slug_requirement: '(?!(?:show|card|table|gallery|compact|full|detail|list|index|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate)$)[A-Za-z0-9][A-Za-z0-9_-]*'
+    cruding.operation_token_requirement: 'show|index|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate|assign|unassign|adjust|calculate|verify|reject|approve|pay|recalculate|start|overview|mutation'
+    cruding.identity_slug_requirement: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
     cruding.capability_map:
         identifiable:
@@ -53,6 +54,14 @@ services:
 
     App\Cruding\Controller\Api\Crud\:
         resource: '../src/Controller/Api/Crud/'
+        tags: ['controller.service_arguments']
+
+    App\Cruding\Controller\Crud\CrudTokenizedController:
+        public: true
+        tags: ['controller.service_arguments']
+
+    App\Cruding\Controller\Api\Crud\CrudApiTokenizedController:
+        public: true
         tags: ['controller.service_arguments']
 
     App\Cruding\Command\:

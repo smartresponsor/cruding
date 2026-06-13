@@ -9,19 +9,19 @@ namespace App\Cruding\Service\Runtime;
  */
 final class CrudRuntimeEnvReader
 {
-    public function read(string $name): string
+    public function read(string $nameEntity): string
     {
-        $serverValue = $_SERVER[$name] ?? null;
+        $serverValue = $_SERVER[$nameEntity] ?? null;
         if (is_string($serverValue)) {
             return $serverValue;
         }
 
-        $envValue = $_ENV[$name] ?? null;
+        $envValue = $_ENV[$nameEntity] ?? null;
         if (is_string($envValue)) {
             return $envValue;
         }
 
-        $getenvValue = getenv($name);
+        $getenvValue = getenv($nameEntity);
 
         return is_string($getenvValue) ? $getenvValue : '';
     }

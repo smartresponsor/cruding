@@ -10,7 +10,7 @@ use App\Cruding\Value\Surface\CrudSurfaceContract;
 /**
  * Producer-side provider for resource-bound surface routes.
  *
- * Implementations are located by class-name convention from the parsed route
+ * Implementations are located by class-nameEntity convention from the parsed route
  * tokens. They must return the neutral Cruding surface contract and must not
  * render Twig, return Symfony Response, or build JsonResponse manually.
  */

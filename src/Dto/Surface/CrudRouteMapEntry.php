@@ -13,7 +13,7 @@ final readonly class CrudRouteMapEntry
      * @param array<string, mixed> $extra
      */
     public function __construct(
-        public string $name,
+        public string $nameEntity,
         public string $path,
         public ?string $parser = null,
         public ?string $routeKey = null,
@@ -28,7 +28,7 @@ final readonly class CrudRouteMapEntry
 
     public function canonicalKey(): string
     {
-        return $this->routeKey ?? $this->name;
+        return $this->routeKey ?? $this->nameEntity;
     }
 
     public function identifierResolver(): ?string
@@ -54,7 +54,7 @@ final readonly class CrudRouteMapEntry
     public function toArray(): array
     {
         return array_filter([
-            'name' => $this->name,
+            'nameEntity' => $this->nameEntity,
             'path' => $this->path,
             'parser' => $this->parser,
             'routeKey' => $this->routeKey,

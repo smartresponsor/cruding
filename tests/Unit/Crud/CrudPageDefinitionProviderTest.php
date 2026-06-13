@@ -65,32 +65,32 @@ final class CrudPageDefinitionProviderTest extends TestCase
         $routeResolver = new class implements CrudRouteNameResolverInterface {
             public function resolveIndex(CrudContext $context): string
             {
-                return 'cruding_index';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveNew(CrudContext $context): string
             {
-                return 'cruding_new';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveShow(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_show_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveEdit(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_edit_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveDelete(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_delete_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
-            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null): array
+            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array
             {
-                return ['resourcePath' => $context->resourcePath];
+                return ['crudPath' => $context->resourcePath];
             }
         };
 
@@ -101,7 +101,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
         self::assertSame('crud/index.html.twig', $page->template);
         self::assertSame($objects, $page->objects);
         self::assertCount(1, $page->actions);
-        self::assertSame('new', $page->actions[0]->name);
+        self::assertSame('new', $page->actions[0]->nameEntity);
         self::assertSame('cruding_new', $page->actions[0]->routeName);
         self::assertSame('product', $page->meta['resourcePath']);
     }
@@ -145,32 +145,32 @@ final class CrudPageDefinitionProviderTest extends TestCase
         $routeResolver = new class implements CrudRouteNameResolverInterface {
             public function resolveIndex(CrudContext $context): string
             {
-                return 'cruding_index';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveNew(CrudContext $context): string
             {
-                return 'cruding_new';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveShow(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_show_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveEdit(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_edit_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveDelete(CrudContext $context, ?string $identifierField = null): string
             {
-                return 'cruding_delete_slug';
+                return 'cruding_tokenized_catch_all';
             }
 
-            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null): array
+            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array
             {
-                return ['resourcePath' => $context->resourcePath];
+                return ['crudPath' => $context->resourcePath];
             }
         };
 
@@ -229,12 +229,12 @@ final class CrudPageDefinitionProviderTest extends TestCase
         $routeResolver = new class implements CrudRouteNameResolverInterface {
             public function resolveIndex(CrudContext $context): string
             {
-                return 'cruding_index';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveNew(CrudContext $context): string
             {
-                return 'cruding_new';
+                return 'cruding_tokenized_catch_all';
             }
 
             public function resolveShow(CrudContext $context, ?string $identifierField = null): string
@@ -252,7 +252,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
                 return 'cruding_delete_id';
             }
 
-            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null): array
+            public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array
             {
                 return [
                     'resourcePath' => $context->resourcePath,
@@ -268,8 +268,8 @@ final class CrudPageDefinitionProviderTest extends TestCase
         self::assertSame('crud/show.html.twig', $page->template);
         self::assertSame([$object], $page->objects);
         self::assertCount(2, $page->actions);
-        self::assertSame('index', $page->actions[0]->name);
-        self::assertSame('edit', $page->actions[1]->name);
+        self::assertSame('index', $page->actions[0]->nameEntity);
+        self::assertSame('edit', $page->actions[1]->nameEntity);
         self::assertSame('product', $page->meta['resourcePath']);
         self::assertSame(13, $page->meta['identifierValue']);
     }

@@ -12,5 +12,4 @@ parameters:
     - src
   exclude_paths:
     - 'vendor'
-    - 'tests/LegacyPort'
   parallel: true

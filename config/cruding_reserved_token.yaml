@@ -39,6 +39,18 @@ parameters:
         - archive
         - restore
         - duplicate
+        - assign
+        - unassign
+        - adjust
+        - calculate
+        - verify
+        - reject
+        - approve
+        - pay
+        - recalculate
+        - start
+        - overview
+        - mutation
 
     cruding.reserved_route_token.resource_path_only:
         - audit

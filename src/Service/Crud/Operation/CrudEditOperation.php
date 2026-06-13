@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -33,6 +34,7 @@ final readonly class CrudEditOperation implements CrudEditOperationInterface
         private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private CrudEntrypointOperationRunner $entrypointRunner,
     ) {
     }
 
@@ -51,6 +53,11 @@ final readonly class CrudEditOperation implements CrudEditOperationInterface
         $access = $this->accessContextBuilder->build($context, $object);
         $this->mutationGuard->assertCanEdit($access);
 
+        $entrypointResult = $this->entrypointRunner->tryRun($request, $context, $object);
+        if (null !== $entrypointResult) {
+            return $entrypointResult;
+        }
+
         if (null === $context->formTypeClass) {
             return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
@@ -61,7 +68,7 @@ final readonly class CrudEditOperation implements CrudEditOperationInterface
 
             return new RedirectResponse($this->urlGenerator->generate(
                 $this->routeNameResolver->resolveShow($context),
-                $this->routeNameResolver->parameters($context),
+                $this->routeNameResolver->parameters($context, null, null, 'show'),
             ));
         }
 

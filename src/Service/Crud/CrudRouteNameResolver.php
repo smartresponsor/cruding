@@ -9,50 +9,60 @@ use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
 
 final class CrudRouteNameResolver implements CrudRouteNameResolverInterface
 {
+    public const ROUTE_NAME = 'cruding_tokenized_catch_all';
+
     public function resolveIndex(CrudContext $context): string
     {
-        return 'cruding_index';
+        return self::ROUTE_NAME;
     }
 
     public function resolveNew(CrudContext $context): string
     {
-        return 'cruding_new';
+        return self::ROUTE_NAME;
     }
 
     public function resolveShow(CrudContext $context, ?string $identifierField = null): string
     {
-        $field = $identifierField ?? $context->identifierField;
-
-        return 'id' === $field ? 'cruding_show_operation_id' : 'cruding_show_operation_slug';
+        return self::ROUTE_NAME;
     }
 
     public function resolveEdit(CrudContext $context, ?string $identifierField = null): string
     {
-        $field = $identifierField ?? $context->identifierField;
-
-        return 'id' === $field ? 'cruding_edit_id' : 'cruding_edit_slug';
+        return self::ROUTE_NAME;
     }
 
     public function resolveDelete(CrudContext $context, ?string $identifierField = null): string
     {
-        $field = $identifierField ?? $context->identifierField;
-
-        return 'id' === $field ? 'cruding_delete_id' : 'cruding_delete_slug';
+        return self::ROUTE_NAME;
     }
 
     /**
      * @return array<string, string|int>
      */
-    public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null): array
-    {
+    public function parameters(
+        CrudContext $context,
+        string|int|null $identifierValue = null,
+        ?string $identifierField = null,
+        ?string $operation = null,
+    ): array {
+        $operation ??= $context->operation;
         $field = $identifierField ?? $context->identifierField;
-        $parameters = ['resourcePath' => $context->resourcePath];
         $value = $identifierValue ?? $context->identifierValue;
+        $segments = [$context->resourcePath];
 
-        if (null !== $value) {
-            $parameters[$field] = $value;
+        if ('index' === $operation) {
+            return ['crudPath' => $context->resourcePath];
         }
 
-        return $parameters;
+        if ('show' === $operation && null !== $value) {
+            return ['crudPath' => $context->resourcePath.'/'.$value];
+        }
+
+        $segments[] = $operation;
+        if (null !== $value && '' !== $field) {
+            $segments[] = (string) $value;
+        }
+
+        return ['crudPath' => implode('/', array_filter($segments, static fn (string $segment): bool => '' !== trim($segment, '/')))];
     }
 }

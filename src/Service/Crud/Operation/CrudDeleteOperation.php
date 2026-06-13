@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
@@ -32,6 +33,7 @@ final readonly class CrudDeleteOperation implements CrudDeleteOperationInterface
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private UrlGeneratorInterface $urlGenerator,
         private CsrfTokenManagerInterface $csrfTokenManager,
+        private CrudEntrypointOperationRunner $entrypointRunner,
     ) {
     }
 
@@ -55,11 +57,16 @@ final readonly class CrudDeleteOperation implements CrudDeleteOperationInterface
             throw new AccessDeniedHttpException('Invalid CSRF token.');
         }
 
+        $entrypointResult = $this->entrypointRunner->tryRun($request, $context, $object);
+        if ($entrypointResult instanceof Response) {
+            return $entrypointResult;
+        }
+
         $this->formHandler->delete($object);
 
         return new RedirectResponse($this->urlGenerator->generate(
             $this->routeNameResolver->resolveIndex($context),
-            $this->routeNameResolver->parameters($context, null),
+            $this->routeNameResolver->parameters($context, null, null, 'index'),
         ));
     }
 }

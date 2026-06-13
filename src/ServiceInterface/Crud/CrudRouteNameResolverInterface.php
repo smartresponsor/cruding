@@ -21,5 +21,5 @@ interface CrudRouteNameResolverInterface
     /**
      * @return array<string, string|int>
      */
-    public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null): array;
+    public function parameters(CrudContext $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array;
 }

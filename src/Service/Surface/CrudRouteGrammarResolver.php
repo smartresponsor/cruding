@@ -43,7 +43,7 @@ final readonly class CrudRouteGrammarResolver
             $operation = 'index';
         } elseif (2 === $count) {
             if ($values[1]['dynamic']) {
-                $subjectField = $this->normalizer->placeholderField($values[1]['name']);
+                $subjectField = $this->normalizer->placeholderField($values[1]['nameEntity']);
                 $subjectValue = $this->normalizer->scalarValue($values[1]['value']);
                 $operation = 'detail';
             } else {
@@ -51,7 +51,7 @@ final readonly class CrudRouteGrammarResolver
             }
         } else {
             if ($values[1]['dynamic']) {
-                $subjectField = $this->normalizer->placeholderField($values[1]['name']);
+                $subjectField = $this->normalizer->placeholderField($values[1]['nameEntity']);
                 $subjectValue = $this->normalizer->scalarValue($values[1]['value']);
             }
 
@@ -60,8 +60,8 @@ final readonly class CrudRouteGrammarResolver
             if (3 === $count) {
                 $operation = null === $surfacePath ? 'detail' : 'index';
             } elseif (4 === $count) {
-                if ($values[3]['dynamic'] && 'action' !== $values[3]['name']) {
-                    $itemField = $this->normalizer->placeholderField($values[3]['name']);
+                if ($values[3]['dynamic'] && 'action' !== $values[3]['nameEntity']) {
+                    $itemField = $this->normalizer->placeholderField($values[3]['nameEntity']);
                     $itemValue = $this->normalizer->scalarValue($values[3]['value']);
                     $operation = 'detail';
                 } else {
@@ -70,7 +70,7 @@ final readonly class CrudRouteGrammarResolver
             } elseif ($this->isSurfaceTokenSegment($values[3])) {
                 $surfaceToken = $this->normalizer->token((string) $values[3]['value']) ?: null;
                 if ($values[4]['dynamic']) {
-                    $itemField = $this->normalizer->placeholderField($values[4]['name']);
+                    $itemField = $this->normalizer->placeholderField($values[4]['nameEntity']);
                     $itemValue = $this->normalizer->scalarValue($values[4]['value']);
                 }
 
@@ -79,13 +79,13 @@ final readonly class CrudRouteGrammarResolver
                     : $this->normalizer->token((string) $values[$count - 1]['value']);
             } else {
                 if ($values[3]['dynamic']) {
-                    $itemField = $this->normalizer->placeholderField($values[3]['name']);
+                    $itemField = $this->normalizer->placeholderField($values[3]['nameEntity']);
                     $itemValue = $this->normalizer->scalarValue($values[3]['value']);
                 } elseif (null !== $surfacePath) {
                     $surfacePath .= '/'.$this->normalizer->token((string) $values[3]['value']);
                 }
 
-                $operation = $values[$count - 1]['dynamic'] && 'action' !== $values[$count - 1]['name']
+                $operation = $values[$count - 1]['dynamic'] && 'action' !== $values[$count - 1]['nameEntity']
                     ? 'detail'
                     : $this->normalizer->token((string) $values[$count - 1]['value']);
             }
@@ -114,6 +114,6 @@ final readonly class CrudRouteGrammarResolver
             return true;
         }
 
-        return in_array($segment['name'], ['token', 'surfaceToken', 'widgetToken'], true);
+        return in_array($segment['nameEntity'], ['token', 'surfaceToken', 'widgetToken'], true);
     }
 }
