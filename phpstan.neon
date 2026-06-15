@@ -4,6 +4,3 @@ parameters:
     - src
     - tests
   inferPrivatePropertyTypeFromConstructor: true
-  scanFiles:
-    - tools/phpstan/stubs/DoctrineDBALConnection.stub.php
-    - tools/phpstan/stubs/RedisCapability.stub.php

@@ -1,5 +1,5 @@
 imports:
-  - { resource: 'vendor/rector/rector/config/set/php83.php' }
+  - { resource: 'vendor/rector/rector/config/set/php84.php' }
 
 parameters:
   sets:

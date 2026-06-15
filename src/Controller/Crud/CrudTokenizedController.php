@@ -10,6 +10,7 @@ use App\Cruding\Service\Crud\CrudActorScopeContextResolver;
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
+use App\Cruding\Service\Surface\CrudRouteMapMatcher;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudDeleteOperationInterface;
@@ -54,6 +55,7 @@ final class CrudTokenizedController extends AbstractController
         private readonly CrudEditOperationInterface $editOperation,
         private readonly CrudDeleteOperationInterface $deleteOperation,
         private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
+        private readonly ?CrudRouteMapMatcher $routeMapMatcher = null,
     ) {
     }
 
@@ -64,6 +66,7 @@ final class CrudTokenizedController extends AbstractController
             return $this->notFoundResponseFactory->create($request, 'crud_route_intent_not_found');
         }
 
+        $this->applyRouteMapEntry($request);
         $this->applyIntent($request, $intent);
 
         $handler = self::DEFAULT_OPERATION_HANDLER[$intent->operation] ?? null;
@@ -110,6 +113,27 @@ final class CrudTokenizedController extends AbstractController
         $request->attributes->remove('slug');
         if (null !== $intent->identifierField && null !== $intent->identifierValue) {
             $request->attributes->set($intent->identifierField, $intent->identifierValue);
+        }
+    }
+
+    private function applyRouteMapEntry(Request $request): void
+    {
+        if (null === $this->routeMapMatcher) {
+            return;
+        }
+
+        $routeMapEntry = $this->routeMapMatcher->match($request);
+        if (null === $routeMapEntry) {
+            return;
+        }
+
+        $request->attributes->set('_crud_route_key', $routeMapEntry->canonicalKey());
+
+        if (null !== $routeMapEntry->service && '' !== $routeMapEntry->service) {
+            $request->attributes->set('_crud_entrypoint_service', $routeMapEntry->service);
+            $request->attributes->set('_crud_service', $routeMapEntry->service);
+            $request->attributes->set('_crud_handler_service', $routeMapEntry->service);
+            $request->attributes->set('crud_service', $routeMapEntry->service);
         }
     }
 

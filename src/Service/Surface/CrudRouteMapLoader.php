@@ -14,6 +14,16 @@ use App\Cruding\Dto\Surface\CrudRouteMapEntry;
  */
 final readonly class CrudRouteMapLoader
 {
+    /**
+     * @var array<string, true>
+     */
+    private const CENTRAL_ROUTE_COMPONENTS = [
+        'Cruding' => true,
+        'Interfacing' => true,
+        'Viewing' => true,
+        'Vendoring' => true,
+    ];
+
     public function __construct(
         private string $projectDir,
         private string $relativeDirectory = 'config/platform/routes',
@@ -25,20 +35,17 @@ final readonly class CrudRouteMapLoader
      */
     public function entries(): array
     {
-        $directory = rtrim($this->projectDir, '/\\').DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, trim($this->relativeDirectory, '/'));
-        if (!is_dir($directory)) {
-            return [];
-        }
-
         $entries = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
-        foreach ($iterator as $file) {
-            if (!$file instanceof \SplFileInfo || !$file->isFile() || 'yaml' !== strtolower($file->getExtension())) {
-                continue;
-            }
+        foreach ($this->routeRoots() as $directory) {
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
+            foreach ($iterator as $file) {
+                if (!$file instanceof \SplFileInfo || !$file->isFile() || 'yaml' !== strtolower($file->getExtension())) {
+                    continue;
+                }
 
-            foreach ($this->entriesFromFile($file->getPathname()) as $entry) {
-                $entries[] = $entry;
+                foreach ($this->entriesFromFile($file->getPathname()) as $entry) {
+                    $entries[] = $entry;
+                }
             }
         }
 
@@ -91,7 +98,7 @@ final readonly class CrudRouteMapLoader
         }
 
         return new CrudRouteMapEntry(
-            name: $nameEntity,
+            nameEntity: $nameEntity,
             path: $path,
             parser: $this->string($data['parser'] ?? null),
             routeKey: $this->string($data['routeKey'] ?? null),
@@ -163,5 +170,43 @@ final readonly class CrudRouteMapLoader
     private function string(mixed $value): ?string
     {
         return is_string($value) && '' !== trim($value) ? trim($value) : null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function routeRoots(): array
+    {
+        $roots = [];
+        $local = $this->routeRoot($this->projectDir);
+        if (null !== $local) {
+            $roots[] = $local;
+        }
+
+        $baseDir = rtrim($this->projectDir, '/\\').DIRECTORY_SEPARATOR.'..';
+        foreach (array_keys(self::CENTRAL_ROUTE_COMPONENTS) as $component) {
+            $candidate = $baseDir.DIRECTORY_SEPARATOR.$component;
+            $real = realpath($candidate);
+            if (false === $real) {
+                continue;
+            }
+
+            $root = $this->routeRoot($real);
+            if (null !== $root) {
+                $roots[] = $root;
+            }
+        }
+
+        return array_values(array_unique($roots));
+    }
+
+    private function routeRoot(string $componentDir): ?string
+    {
+        $directory = rtrim($componentDir, '/\\').DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, trim($this->relativeDirectory, '/'));
+        if (!is_dir($directory)) {
+            return null;
+        }
+
+        return $directory;
     }
 }

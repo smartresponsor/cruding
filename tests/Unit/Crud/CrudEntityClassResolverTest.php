@@ -21,8 +21,8 @@ final class CrudEntityClassResolverTest extends TestCase
             'App\Tests\Fixture\Entity\Product\ProductPriceEntity',
             'App\Tests\Fixture\Entity\Resource\ResourceCategoryEntity',
             'App\Tests\Fixture\Entity\Record\RecordEntity',
-            'App\Vendoring\Entity\Vendor\VendorAttachmentDocumentEntity',
-            'App\Vendoring\Entity\Vendor\Catalog\VendorCatalogAttachmentMediaEntity',
+            'App\Tests\Fixture\Entity\Vendor\VendorAttachmentDocumentEntity',
+            'App\Tests\Fixture\Entity\Vendor\Catalog\VendorCatalogAttachmentMediaEntity',
         ];
 
         $resolver = new CrudEntityClassResolver($this->buildRegistry($classes), new CrudResourcePathParser());

@@ -19,4 +19,4 @@ cruding_tokenized_catch_all:
     defaults:
         _crud_surface: public
     requirements:
-        crudPath: '.+'
+        crudPath: '%cruding.resource_requirement%(?:/.*)?'

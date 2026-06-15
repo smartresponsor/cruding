@@ -43,6 +43,23 @@ final class CrudRouteMapMatcherTest extends TestCase
         self::assertSame('slug', $entry->identifierResolver());
     }
 
+    public function testScansSiblingComponentRouteMaps(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-route-map-host-'.bin2hex(random_bytes(4));
+        self::assertTrue(mkdir($projectDir.'/config/platform/routes', 0777, true));
+
+        $vendoringDirectory = dirname($projectDir).'/Vendoring/config/platform/routes/crud';
+        self::assertTrue(mkdir($vendoringDirectory, 0777, true));
+        file_put_contents($vendoringDirectory.'/vendor.yaml', "vendor.index: { path: /vendor/index, service: App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService }\n");
+
+        $matcher = new CrudRouteMapMatcher(new CrudRouteMapLoader($projectDir));
+        $entry = $matcher->match(Request::create('/vendor/index'));
+
+        self::assertNotNull($entry);
+        self::assertSame('vendor.index', $entry->nameEntity);
+        self::assertSame('App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService', $entry->service);
+    }
+
     /**
      * @param list<string> $lines
      */

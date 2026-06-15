@@ -45,6 +45,34 @@
   "scripts": {
     "canon:cruding": [
       "php tools/cruding/interfacing-provider-rendering-guard.php"
+    ],
+    "smoke:cruding": [
+      "@php tools/smoke/cruding-catch-all-resource-boundary-smoke.php",
+      "@php tools/smoke/cruding-composer-autoload-dev-psr4-smoke.php",
+      "@php tools/smoke/cruding-config-driven-operation-token-router-smoke.php",
+      "@php tools/smoke/cruding-direct-entity-fqcn-canon-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-contract-finalization-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-migration-contract-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-operation-method-parity-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-readonly-inheritance-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-safe-hook-invocation-smoke.php",
+      "@php tools/smoke/cruding-entrypoint-trace-diagnostics-smoke.php",
+      "@php tools/smoke/cruding-index-operation-grammar-smoke.php",
+      "@php tools/smoke/cruding-legacy-invokable-entrypoint-bridge-smoke.php",
+      "@php tools/smoke/cruding-my-actor-scope-tokenized-resolver-smoke.php",
+      "@php tools/smoke/cruding-operation-token-route-coverage-smoke.php",
+      "@php tools/smoke/cruding-positional-operation-token-grammar-smoke.php",
+      "@php tools/smoke/cruding-reserved-identity-token-guard.php",
+      "@php tools/smoke/cruding-resource-path-operation-suffix-regex-smoke.php",
+      "@php tools/smoke/cruding-route-parameter-fallback-smoke.php",
+      "@php tools/smoke/cruding-tokenized-before-legacy-surface-route-order-smoke.php",
+      "@php tools/smoke/cruding-tokenized-controller-service-registration-smoke.php",
+      "@php tools/smoke/cruding-tokenized-route-resolver-smoke.php",
+      "@php tools/smoke/cruding-uri-entrypoint-extension-smoke.php"
+    ],
+    "check:cruding": [
+      "@canon:cruding",
+      "@smoke:cruding"
     ]
   }
 }

@@ -59,6 +59,8 @@ services:
     App\Cruding\Controller\Crud\CrudTokenizedController:
         public: true
         tags: ['controller.service_arguments']
+        arguments:
+            $routeMapMatcher: '@App\Cruding\Service\Surface\CrudRouteMapMatcher'
 
     App\Cruding\Controller\Api\Crud\CrudApiTokenizedController:
         public: true
