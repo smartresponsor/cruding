@@ -15,8 +15,8 @@ assert(str_contains($resolver, 'if (isset($operationTokens[$last]))'), 'Tokenize
 assert(str_contains($operation, '$this->contextResolver->tryResolve($request)'), 'Index operation must resolve the canonical CRUD context.');
 assert(!str_contains($operation, "entityClass: ''"), 'Index operation must not manufacture an unresolved CRUD context.');
 assert(!str_contains($operation, 'tryExplicitRouteEntrypoint'), 'Index operation must not maintain a parallel explicit-route shortcut.');
-assert(str_contains($controller, "'index' => \$this->runIndex(\$request)"), 'Tokenized controller must own index entrypoint dispatch.');
-assert(str_contains($controller, '$this->entrypointRunner->tryRun($request, $context)'), 'Index entrypoint dispatch must use the resolved CRUD context.');
+assert(str_contains($operation, '$this->entrypointDispatcher->tryRun($request, $context)'), 'Index entrypoint dispatch must use the resolved CRUD context.');
+assert(str_contains($controller, "'index' => \$this->indexOperation->handle(\$request)"), 'Tokenized and legacy controllers must share CrudIndexOperation dispatch.');
 
 foreach (['alpha', 'beta-item', 'gamma-entry'] as $resourcePath) {
     assert('index' !== $resourcePath, 'Generated resourcePath fixture must not be index.');
@@ -24,7 +24,7 @@ foreach (['alpha', 'beta-item', 'gamma-entry'] as $resourcePath) {
     assert(str_ends_with($path, '/index'), 'Generated path must put index in operation suffix position.');
 }
 
-fwrite(STDOUT, "PASS: /{resourcePath}/index uses tokenized grammar and one resolved-context dispatch path.\n");
+fwrite(STDOUT, "PASS: /{resourcePath}/index uses tokenized grammar and one resolved-context operation path.\n");
 
 function readFileStrict(string $path): string
 {
