@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,20 +20,8 @@ use Symfony\Component\Routing\RouterInterface;
 final class CrudRuntimeRouteMatchSmokeCommand extends Command
 {
     private const DEFAULT_RESERVED_PATHS = [
-        '/admin',
-        '/login',
-        '/logout',
-        '/profile',
-        '/dashboard',
-        '/viewing',
-        '/interfacing',
-        '/accessing',
-        '/administering',
-        '/cruding',
-        '/api/admin',
-        '/api/login',
-        '/api/viewing',
-        '/api/interfacing',
+        '/admin', '/login', '/logout', '/profile', '/dashboard', '/viewing', '/interfacing',
+        '/accessing', '/administering', '/cruding', '/api/admin', '/api/login', '/api/viewing', '/api/interfacing',
     ];
 
     public function __construct(
@@ -46,37 +34,16 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption(
-                'reserved-path',
-                null,
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Reserved path that must not match a Cruding route. Can be repeated.',
-            )
-            ->addOption(
-                'cruding-path',
-                null,
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Path that must match a Cruding route. Can be repeated.',
-            )
-            ->addOption(
-                'skip-defaults',
-                null,
-                InputOption::VALUE_NONE,
-                'Do not add default reserved/entity/surface smoke paths.',
-            )
-            ->addOption(
-                'fail-on-empty-entity',
-                null,
-                InputOption::VALUE_NONE,
-                'Fail when APP_RUNTIME_ENTITY produced no allowed resource tokens.',
-            );
+            ->addOption('reserved-path', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Reserved path that must not match a Cruding route. Can be repeated.')
+            ->addOption('cruding-path', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Path that must match a Cruding route. Can be repeated.')
+            ->addOption('skip-defaults', null, InputOption::VALUE_NONE, 'Do not add default reserved/entity/surface smoke paths.')
+            ->addOption('fail-on-empty-entity', null, InputOption::VALUE_NONE, 'Fail when APP_RUNTIME_ENTITY produced no allowed resource tokens.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $policy = $this->routeGuard->policy();
         $errors = [];
-
         $reservedPaths = $this->stringList($input->getOption('reserved-path'));
         $crudingPaths = $this->stringList($input->getOption('cruding-path'));
         $skipDefaults = (bool) $input->getOption('skip-defaults');
@@ -147,7 +114,6 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
     /**
      * @param list<string> $allowedResourceTokens
      * @param list<string> $surfaceTokens
-     *
      * @return list<string>
      */
     private function defaultCrudingPaths(array $allowedResourceTokens, array $surfaceTokens): array
@@ -168,9 +134,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
         ];
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     private function match(string $path): ?array
     {
         try {
@@ -180,9 +144,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
         }
     }
 
-    /**
-     * @param array<string, mixed> $match
-     */
+    /** @param array<string, mixed> $match */
     private function routeName(array $match): string
     {
         $route = $match['_route'] ?? '<unknown>';
@@ -195,9 +157,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
         return str_starts_with($routeName, 'cruding_');
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function stringList(mixed $value): array
     {
         if (!is_array($value)) {
@@ -214,9 +174,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
         return $strings;
     }
 
-    /**
-     * @param list<string> $values
-     */
+    /** @param list<string> $values */
     private function writeList(OutputInterface $output, string $label, array $values): void
     {
         $output->writeln(sprintf('%s: %s', $label, [] === $values ? '<none>' : implode(', ', $values)));
