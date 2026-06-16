@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection\Compiler;
 
-use App\Cruding\Service\Surface\CrudSurfaceServiceLocator;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceServiceLocator;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * Collects canonical host and component HTTP entrypoint services.
- */
 final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 {
     private const HTTP_SERVICE_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\Http\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
