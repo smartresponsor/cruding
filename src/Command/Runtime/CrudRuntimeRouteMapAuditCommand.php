@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Surface\CrudRouteMapMatcher;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'crud:runtime:route-map-audit',
-    description: 'Inspect host platform route-map entries loaded by Cruding.',
-)]
+#[AsCommand(name: 'crud:runtime:route-map-audit', description: 'Inspect host platform route-map entries loaded by Cruding.')]
 final class CrudRuntimeRouteMapAuditCommand extends Command
 {
-    public function __construct(
-        private readonly CrudRouteMapMatcher $matcher,
-    ) {
+    public function __construct(private readonly CrudRouteMapMatcher $matcher)
+    {
         parent::__construct();
     }
 
