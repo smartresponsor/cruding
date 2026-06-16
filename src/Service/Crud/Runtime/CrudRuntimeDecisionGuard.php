@@ -62,15 +62,25 @@ final readonly class CrudRuntimeDecisionGuard
 
             if (!$composer->hasPackage($expectedPackage)) {
                 $message = sprintf('Runtime scope token "%s" expects composer package "%s", but it is not declared/installed.', $scopeToken, $expectedPackage);
-                ($this->requireComposerPackages ? $errors : $warnings)[] = $message;
+                if ($this->requireComposerPackages) {
+                    $errors[] = $message;
+                } else {
+                    $warnings[] = $message;
+                }
             }
         }
 
         if ($lock->found) {
             foreach ($lock->packageNames as $packageName) {
-                if (!$composer->hasPackage($packageName)) {
-                    $message = sprintf('Runtime lock package "%s" is not declared/installed in composer inventory.', $packageName);
-                    ($this->requireComposerPackages ? $errors : $warnings)[] = $message;
+                if ($composer->hasPackage($packageName)) {
+                    continue;
+                }
+
+                $message = sprintf('Runtime lock package "%s" is not declared/installed in composer inventory.', $packageName);
+                if ($this->requireComposerPackages) {
+                    $errors[] = $message;
+                } else {
+                    $warnings[] = $message;
                 }
             }
         }
@@ -110,6 +120,11 @@ final readonly class CrudRuntimeDecisionGuard
     /** @param list<string> $messages @return list<string> */
     private function unique(array $messages): array
     {
-        return array_values(array_combine($messages, $messages) ?: []);
+        $unique = [];
+        foreach ($messages as $message) {
+            $unique[$message] = $message;
+        }
+
+        return array_values($unique);
     }
 }
