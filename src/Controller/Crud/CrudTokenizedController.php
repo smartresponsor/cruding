@@ -72,7 +72,7 @@ final class CrudTokenizedController extends AbstractController
         $handler = self::DEFAULT_OPERATION_HANDLER[$intent->operation] ?? null;
         if (null !== $handler) {
             return match ($handler) {
-                'index' => $this->runIndex($request),
+                'index' => $this->indexOperation->handle($request),
                 'show' => $this->showOperation->handle($request),
                 'create' => $this->createOperation->handle($request),
                 'edit' => $this->editOperation->handle($request),
@@ -82,19 +82,6 @@ final class CrudTokenizedController extends AbstractController
         }
 
         return $this->runEntrypointOnly($request, $intent);
-    }
-
-    private function runIndex(Request $request): Response|CrudSurfaceContract
-    {
-        $context = $this->contextResolver->tryResolve($request);
-        if (null !== $context) {
-            $entrypointResult = $this->entrypointRunner->tryRun($request, $context);
-            if (null !== $entrypointResult) {
-                return $entrypointResult;
-            }
-        }
-
-        return $this->indexOperation->handle($request);
     }
 
     private function runEntrypointOnly(Request $request, CrudTokenizedRouteIntent $intent): Response|CrudSurfaceContract
