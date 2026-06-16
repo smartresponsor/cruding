@@ -22,15 +22,24 @@ final class CrudEntrypointClassNameResolver
         $root = $this->pascal($segments[0]);
         $tail = array_map($this->pascal(...), array_slice($segments, 1));
         $all = [$root, ...$tail];
-
-        $namespace = 'App\\Service\\Http\\'.implode('\\', $all);
         $class = $root.implode('', $tail).$operation.'Service';
+        $localClass = [] !== $tail ? implode('', $tail).$operation.'Service' : null;
 
-        $candidates = [$namespace.'\\'.$class];
+        $namespaceRoots = [];
+        $componentNamespace = $this->componentNamespace($context->entityClass);
+        if (null !== $componentNamespace) {
+            $namespaceRoots[] = 'App\\'.$componentNamespace;
+        }
+        $namespaceRoots[] = 'App';
 
-        if ([] !== $tail) {
-            $localClass = implode('', $tail).$operation.'Service';
-            $candidates[] = $namespace.'\\'.$localClass;
+        $candidates = [];
+        foreach (array_values(array_unique($namespaceRoots)) as $namespaceRoot) {
+            $namespace = $namespaceRoot.'\\Service\\Http\\'.implode('\\', $all);
+            $candidates[] = $namespace.'\\'.$class;
+
+            if (null !== $localClass) {
+                $candidates[] = $namespace.'\\'.$localClass;
+            }
         }
 
         return array_values(array_unique($candidates));
@@ -44,9 +53,7 @@ final class CrudEntrypointClassNameResolver
         return $this->candidateClassNames($context);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function resourceSegments(string $resourcePath): array
     {
         $segments = [];
@@ -60,6 +67,15 @@ final class CrudEntrypointClassNameResolver
         }
 
         return $segments;
+    }
+
+    private function componentNamespace(string $entityClass): ?string
+    {
+        if (1 !== preg_match('/^App\\\\(?<component>[A-Z][A-Za-z0-9]*)\\\\(?:Entity|Model|Domain)\\\\/', ltrim($entityClass, '\\'), $match)) {
+            return null;
+        }
+
+        return $match['component'];
     }
 
     private function pascal(string $token): string
