@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Collects host App\Service\Http\* services so Cruding can resolve surfaces by FQCN convention.
+ * Collects concrete App\*\Service\Http\* services so Cruding can resolve route-owned surfaces by FQCN convention.
  */
 final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 {
@@ -21,6 +21,10 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
         $references = [];
 
         foreach ($container->getDefinitions() as $id => $definition) {
+            if ($definition->isAbstract() || $definition->isSynthetic()) {
+                continue;
+            }
+
             if (!$this->isHttpSurfaceService($id, $definition)) {
                 continue;
             }
@@ -30,7 +34,7 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 
         foreach ($container->getAliases() as $id => $alias) {
             $id = (string) $id;
-            if (!str_starts_with($id, 'App\\Service\\Http\\')) {
+            if (!str_starts_with($id, 'App\\') || !str_contains($id, '\\Service\\Http\\')) {
                 continue;
             }
 
@@ -49,12 +53,12 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 
     private function isHttpSurfaceService(string $id, Definition $definition): bool
     {
-        if (str_starts_with($id, 'App\\Service\\Http\\')) {
+        if (str_starts_with($id, 'App\\') && str_contains($id, '\\Service\\Http\\')) {
             return true;
         }
 
         $class = $definition->getClass();
 
-        return is_string($class) && str_starts_with($class, 'App\\Service\\Http\\');
+        return is_string($class) && str_starts_with($class, 'App\\') && str_contains($class, '\\Service\\Http\\');
     }
 }

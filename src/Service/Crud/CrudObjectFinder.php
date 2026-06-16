@@ -6,7 +6,6 @@ namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
-use Doctrine\ORM\Exception\PersisterException;
 use Doctrine\Persistence\ManagerRegistry;
 
 final readonly class CrudObjectFinder implements CrudObjectFinderInterface
@@ -24,7 +23,7 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         try {
             $repository = $this->managerRegistry->getRepository($context->entityClass);
             $object = $repository->findOneBy([$context->identifierField => $context->identifierValue]);
-        } catch (PersisterException) {
+        } catch (\Throwable) {
             return null;
         }
 
@@ -36,6 +35,10 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
      */
     public function findAll(CrudContext $context): array
     {
-        return $this->managerRegistry->getRepository($context->entityClass)->findAll();
+        try {
+            return $this->managerRegistry->getRepository($context->entityClass)->findAll();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }
