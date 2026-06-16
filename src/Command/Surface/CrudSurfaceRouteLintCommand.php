@@ -6,8 +6,8 @@ namespace App\Cruding\Command\Surface;
 
 use App\Cruding\Controller\Surface\CrudSurfaceController;
 use App\Cruding\Dto\Surface\CrudRouteContext;
-use App\Cruding\Service\Surface\CrudRouteShapeResolver;
-use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,13 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * Validates that resource-bound surface routes remain convention parsable.
- */
-#[AsCommand(
-    name: 'crud:surface:lint-routes',
-    description: 'Validate Cruding surface routes against the route-token convention.',
-)]
+#[AsCommand(name: 'crud:surface:lint-routes', description: 'Validate Cruding surface routes against the route-token convention.')]
 final class CrudSurfaceRouteLintCommand extends Command
 {
     private const FALLBACK_OPERATION_LIST = ['index', 'detail', 'show', 'view'];
@@ -38,12 +32,7 @@ final class CrudSurfaceRouteLintCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption(
-            'strict-provider',
-            null,
-            InputOption::VALUE_NONE,
-            'Fail concrete non-fallback routes when no surface provider is registered.',
-        );
+        $this->addOption('strict-provider', null, InputOption::VALUE_NONE, 'Fail concrete non-fallback routes when no surface provider is registered.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -125,8 +114,7 @@ final class CrudSurfaceRouteLintCommand extends Command
             return false;
         }
 
-        return CrudSurfaceController::class === $controller
-            || str_starts_with($controller, CrudSurfaceController::class.'::');
+        return CrudSurfaceController::class === $controller || str_starts_with($controller, CrudSurfaceController::class.'::');
     }
 
     private function requestForRoute(string $nameEntity, Route $route): Request
@@ -160,9 +148,7 @@ final class CrudSurfaceRouteLintCommand extends Command
             'subject' => 'sample-subject',
             'surface' => 'compliance',
             'item' => 'sample-item',
-            'token' => 'show',
-            'surfaceToken' => 'show',
-            'widgetToken' => 'show',
+            'token', 'surfaceToken', 'widgetToken' => 'show',
             'action' => 'briefing',
             default => str_ends_with($lower, 'slug') ? $this->sampleSlug($lower) : 'demo-'.$this->tokenize($variable),
         };
