@@ -31,15 +31,36 @@ foreach ($requiredFiles as $relativePath) {
     assert(is_file($root.'/'.$relativePath), sprintf('Missing entrypoint file: %s', $relativePath));
 }
 
-$classResolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php');
+require_once $root.'/src/Dto/Crud/CrudContext.php';
+require_once $root.'/src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php';
+
+$classNameResolver = new App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver();
+$classNameCandidates = $classNameResolver->candidateClassNames(
+    new App\Cruding\Dto\Crud\CrudContext(
+        surface: 'public',
+        operation: 'edit',
+        resourcePath: 'vendor/attachment/document',
+        entityClass: 'App\\Entity\\DocumentEntity',
+        identifierField: 'id',
+        identifierValue: 123,
+        formTypeClass: null,
+    ),
+);
+
+assert(
+    [
+        'App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentEditService',
+        'App\\Service\\Http\\Vendor\\Attachment\\Document\\AttachmentDocumentEditService',
+    ] === $classNameCandidates,
+    'Entrypoint class resolver must derive canonical App\\Service\\Http root/tail/operation service classes.',
+);
+
 $explicitResolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointExplicitServiceResolver.php');
 $abstract = file_get_contents($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
 $dispatcher = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointDispatcher.php');
 $invoker = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php');
 $resolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointResolver.php');
 
-assert(false !== $classResolver && str_contains($classResolver, 'App\\Service\\Http'), 'Entrypoint class resolver must target App\Service\Http namespace.');
-assert(false !== $classResolver && str_contains($classResolver, '$root.implode'), 'Entrypoint class names must include root resource + tail + operation.');
 assert(false !== $explicitResolver && str_contains($explicitResolver, '_crud_entrypoint_service'), 'Explicit registered service lookup must remain first-class.');
 assert(false !== $resolver && strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Resolver must check explicit service ids before URI-derived class names.');
 assert(false !== $resolver && str_contains($resolver, 'CrudEntrypointResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED'), 'Resolver must fail softly when class exists but is not registered.');
