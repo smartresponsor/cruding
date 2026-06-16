@@ -12,30 +12,47 @@ use PHPUnit\Framework\TestCase;
 
 final class CrudObjectFinderTest extends TestCase
 {
-    public function testFindAllReturnsEmptyArrayWhenRepositoryFails(): void
+    public function testFindAllPropagatesRepositoryFailure(): void
     {
+        $failure = new \RuntimeException('db unavailable');
         $repository = $this->createMock(ObjectRepository::class);
-        $repository->method('findAll')->willThrowException(new \RuntimeException('db unavailable'));
+        $repository->method('findAll')->willThrowException($failure);
 
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
 
         $finder = new CrudObjectFinder($registry);
-        $context = new CrudContext('public', 'index', 'vendor', 'App\\Vendoring\\Entity\\Vendor\\VendorEntity', 'id', null, null, 'vendor');
+        $context = new CrudContext('public', 'index', 'document', 'App\\Tests\\Fixture\\Entity\\DocumentEntity', 'id', null, null);
 
-        self::assertSame([], $finder->findAll($context));
+        $this->expectExceptionObject($failure);
+
+        $finder->findAll($context);
     }
 
-    public function testFindOneReturnsNullWhenRepositoryFails(): void
+    public function testFindOnePropagatesRepositoryFailure(): void
     {
+        $failure = new \RuntimeException('db unavailable');
         $repository = $this->createMock(ObjectRepository::class);
-        $repository->method('findOneBy')->willThrowException(new \RuntimeException('db unavailable'));
+        $repository->method('findOneBy')->willThrowException($failure);
 
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
 
         $finder = new CrudObjectFinder($registry);
-        $context = new CrudContext('public', 'show', 'vendor', 'App\\Vendoring\\Entity\\Vendor\\VendorEntity', 'id', 1, null, 'vendor');
+        $context = new CrudContext('public', 'show', 'document', 'App\\Tests\\Fixture\\Entity\\DocumentEntity', 'id', 1, null);
+
+        $this->expectExceptionObject($failure);
+
+        $finder->findOne($context);
+    }
+
+    public function testFindOneWithoutIdentifierDoesNotAccessRegistry(): void
+    {
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->expects(self::never())->method('getRepository');
+
+        $finder = new CrudObjectFinder($registry);
+        $context = new CrudContext('public', 'show', 'document', 'App\\Tests\\Fixture\\Entity\\DocumentEntity', 'id', null, null);
 
         self::assertNull($finder->findOne($context));
     }

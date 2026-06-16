@@ -7,7 +7,7 @@ namespace App\Cruding\Service\Crud\Entrypoint;
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
 use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResolution;
-use App\Cruding\Service\Surface\CrudSurfaceServiceLocator;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceServiceLocator;
 use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 

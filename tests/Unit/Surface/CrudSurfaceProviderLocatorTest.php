@@ -6,7 +6,7 @@ namespace App\Cruding\Tests\Unit\Surface;
 
 use App\Cruding\Dto\Surface\CrudRouteContext;
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
-use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,6 @@ final class CrudSurfaceProviderLocatorTest extends TestCase
     {
         $provider = new AlphaComplianceBriefingSurface();
         $locator = new CrudSurfaceProviderLocator([$provider]);
-
         $context = new CrudRouteContext(
             resource: 'alpha',
             resourcePath: 'alpha',

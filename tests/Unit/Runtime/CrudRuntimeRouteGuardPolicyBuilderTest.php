@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Runtime;
 
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
-use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;

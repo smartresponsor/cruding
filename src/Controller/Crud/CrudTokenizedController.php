@@ -10,7 +10,7 @@ use App\Cruding\Service\Crud\CrudActorScopeContextResolver;
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
-use App\Cruding\Service\Surface\CrudRouteMapMatcher;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudDeleteOperationInterface;
@@ -26,22 +26,10 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 #[AsController]
 final class CrudTokenizedController extends AbstractController
 {
-    /**
-     * @var array<string, string>
-     */
     private const DEFAULT_OPERATION_HANDLER = [
-        'index' => 'index',
-        'show' => 'show',
-        'new' => 'create',
-        'create' => 'create',
-        'import' => 'create',
-        'bulk' => 'create',
-        'edit' => 'edit',
-        'update' => 'edit',
-        'archive' => 'edit',
-        'restore' => 'edit',
-        'duplicate' => 'edit',
-        'delete' => 'delete',
+        'index' => 'index', 'show' => 'show', 'new' => 'create', 'create' => 'create',
+        'import' => 'create', 'bulk' => 'create', 'edit' => 'edit', 'update' => 'edit',
+        'archive' => 'edit', 'restore' => 'edit', 'duplicate' => 'edit', 'delete' => 'delete',
     ];
 
     public function __construct(
@@ -68,8 +56,8 @@ final class CrudTokenizedController extends AbstractController
 
         $this->applyRouteMapEntry($request);
         $this->applyIntent($request, $intent);
-
         $handler = self::DEFAULT_OPERATION_HANDLER[$intent->operation] ?? null;
+
         if (null !== $handler) {
             return match ($handler) {
                 'index' => $this->indexOperation->handle($request),
@@ -108,7 +96,6 @@ final class CrudTokenizedController extends AbstractController
         $request->attributes->set('_crud_route_family', $intent->routeFamily);
         $request->attributes->set('_crud_route_tokens', $intent->tokens);
         $this->actorScopeContextResolver->apply($request, $intent);
-
         $request->attributes->remove('id');
         $request->attributes->remove('slug');
         if (null !== $intent->identifierField && null !== $intent->identifierValue) {
@@ -128,12 +115,10 @@ final class CrudTokenizedController extends AbstractController
         }
 
         $request->attributes->set('_crud_route_key', $routeMapEntry->canonicalKey());
-
         if (null !== $routeMapEntry->service && '' !== $routeMapEntry->service) {
-            $request->attributes->set('_crud_entrypoint_service', $routeMapEntry->service);
-            $request->attributes->set('_crud_service', $routeMapEntry->service);
-            $request->attributes->set('_crud_handler_service', $routeMapEntry->service);
-            $request->attributes->set('crud_service', $routeMapEntry->service);
+            foreach (['_crud_entrypoint_service', '_crud_service', '_crud_handler_service', 'crud_service'] as $attribute) {
+                $request->attributes->set($attribute, $routeMapEntry->service);
+            }
         }
     }
 

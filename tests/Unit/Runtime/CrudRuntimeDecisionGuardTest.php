@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Runtime;
 
-use App\Cruding\Service\Runtime\CrudRuntimeComposerInventoryReader;
-use App\Cruding\Service\Runtime\CrudRuntimeDecisionGuard;
-use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
-use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeComposerInventoryReader;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeDecisionGuard;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
 use PHPUnit\Framework\TestCase;
 
 final class CrudRuntimeDecisionGuardTest extends TestCase
@@ -20,9 +20,7 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
             'entity' => ['alpha'],
             'packages' => ['cruding/crud', 'viewing/view'],
         ], [
-            'require' => [
-                'cruding/crud' => 'dev-master',
-            ],
+            'require' => ['cruding/crud' => 'dev-master'],
         ]);
 
         $guard = new CrudRuntimeDecisionGuard(
@@ -63,9 +61,7 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
             'entity' => ['alpha'],
             'packages' => ['cruding/crud'],
         ], [
-            'require' => [
-                'cruding/crud' => 'dev-master',
-            ],
+            'require' => ['cruding/crud' => 'dev-master'],
         ]);
 
         $guard = new CrudRuntimeDecisionGuard(

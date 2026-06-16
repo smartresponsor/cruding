@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\EventSubscriber;
 
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory;
 use App\Cruding\Value\Api\CrudApiResponseTitle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,9 +34,7 @@ final readonly class CrudApiExceptionSubscriber implements EventSubscriberInterf
         }
 
         $exception = $event->getThrowable();
-        $extra = [
-            'resourcePath' => $request->attributes->get('resourcePath'),
-        ];
+        $extra = ['resourcePath' => $request->attributes->get('resourcePath')];
 
         $response = match (true) {
             $exception instanceof NotFoundHttpException => $this->problemResponseFactory->notFound($exception->getMessage() ?: 'Resource not found.', $extra),

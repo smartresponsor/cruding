@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -53,9 +53,7 @@ final class CrudRuntimeRouteGuardCommand extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @param list<string> $values
-     */
+    /** @param list<string> $values */
     private function writeList(OutputInterface $output, string $label, array $values): void
     {
         $output->writeln(sprintf('%s: %s', $label, [] === $values ? '<none>' : implode(', ', $values)));

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Surface;
 
-use App\Cruding\Service\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapLoader;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher;
+use App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -15,15 +17,10 @@ final class CrudRouteShapeResolverTest extends TestCase
 {
     public function testResolvesLiteralResourceSurfaceActionRoute(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'alpha_compliance_briefing',
-            '/alpha/{alphaSlug}/compliance/briefing',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('alpha_compliance_briefing', '/alpha/{alphaSlug}/compliance/briefing'));
         $request = Request::create('/alpha/acme-inc/compliance/briefing');
         $request->attributes->set('_route', 'alpha_compliance_briefing');
         $request->attributes->set('alphaSlug', 'acme-inc');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -33,28 +30,19 @@ final class CrudRouteShapeResolverTest extends TestCase
         self::assertSame('alphaSlug', $context->subjectField);
         self::assertSame('acme-inc', $context->subjectValue);
         self::assertSame('alpha.compliance.briefing', $context->primaryProviderKey());
-        self::assertSame([
-            'alpha/compliance/index.html.twig',
-            'alpha/index.html.twig',
-            'index.html.twig',
-        ], $context->templateCandidates);
+        self::assertSame(['alpha/compliance/index.html.twig', 'alpha/index.html.twig', 'index.html.twig'], $context->templateCandidates);
         self::assertNotContains('alpha/compliance/briefing.html.twig', $context->templateCandidates);
     }
 
     public function testResolvesGenericDynamicSurfaceActionRoute(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'cruding_surface_action',
-            '/{resource}/{subject}/{surface}/{action}',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('cruding_surface_action', '/{resource}/{subject}/{surface}/{action}'));
         $request = Request::create('/alpha/acme-inc/compliance/briefing');
         $request->attributes->set('_route', 'cruding_surface_action');
         $request->attributes->set('resource', 'alpha');
         $request->attributes->set('subject', 'acme-inc');
         $request->attributes->set('surface', 'compliance');
         $request->attributes->set('action', 'briefing');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -67,16 +55,11 @@ final class CrudRouteShapeResolverTest extends TestCase
 
     public function testResolvesItemActionRoute(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'alpha_document_preview',
-            '/alpha/{alphaSlug}/document/{documentSlug}/preview',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('alpha_document_preview', '/alpha/{alphaSlug}/document/{documentSlug}/preview'));
         $request = Request::create('/alpha/acme-inc/document/w9-form/preview');
         $request->attributes->set('_route', 'alpha_document_preview');
         $request->attributes->set('alphaSlug', 'acme-inc');
         $request->attributes->set('documentSlug', 'w9-form');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -90,16 +73,11 @@ final class CrudRouteShapeResolverTest extends TestCase
 
     public function testKeepsSubjectAndItemIdentifierFieldsSeparate(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'alpha_document_preview',
-            '/alpha/{alphaSlug}/document/{documentSlug}/preview',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('alpha_document_preview', '/alpha/{alphaSlug}/document/{documentSlug}/preview'));
         $request = Request::create('/alpha/acme-inc/document/w9-form/preview');
         $request->attributes->set('_route', 'alpha_document_preview');
         $request->attributes->set('alphaSlug', 'acme-inc');
         $request->attributes->set('documentSlug', 'w9-form');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -113,11 +91,7 @@ final class CrudRouteShapeResolverTest extends TestCase
 
     public function testResolvesSurfaceTokenBeforeItemIdentifier(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'cruding_surface_token_item',
-            '/{resource}/{subject}/{surface}/{token}/{item}',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('cruding_surface_token_item', '/{resource}/{subject}/{surface}/{token}/{item}'));
         $request = Request::create('/alpha/attachment/media/show/acme-inc');
         $request->attributes->set('_route', 'cruding_surface_token_item');
         $request->attributes->set('resource', 'alpha');
@@ -125,7 +99,6 @@ final class CrudRouteShapeResolverTest extends TestCase
         $request->attributes->set('surface', 'media');
         $request->attributes->set('token', 'show');
         $request->attributes->set('item', 'acme-inc');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -151,7 +124,7 @@ final class CrudRouteShapeResolverTest extends TestCase
         self::assertTrue(mkdir($directory, 0777, true));
         file_put_contents($directory.'/alpha.yaml', "alpha.attachment.document.show_slug: { path: /alpha/attachment/document/show/{slug}, parser: cruding_surface_token_item, routeKey: alpha.attachment.document.show, object: attachment.document, template: document/show/index.html.twig, resolver: slug, service: App\\Service\\Http\\Alpha\\Attachment\\Document\\AlphaAttachmentDocumentShowService }\n");
 
-        $matcher = new \App\Cruding\Service\Surface\CrudRouteMapMatcher(new \App\Cruding\Service\Surface\CrudRouteMapLoader($projectDir));
+        $matcher = new CrudRouteMapMatcher(new CrudRouteMapLoader($projectDir));
         $resolver = new CrudRouteShapeResolver(
             $this->routerWithRoute('cruding_surface_token_item', '/{resource}/{subject}/{surface}/{token}/{item}'),
             routeMapMatcher: $matcher,
@@ -164,7 +137,6 @@ final class CrudRouteShapeResolverTest extends TestCase
         $request->attributes->set('surface', 'document');
         $request->attributes->set('token', 'show');
         $request->attributes->set('item', 'w9-form');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);
@@ -177,18 +149,13 @@ final class CrudRouteShapeResolverTest extends TestCase
 
     public function testProviderKeysPreserveGenericSubjectBusinessToken(): void
     {
-        $resolver = new CrudRouteShapeResolver($this->routerWithRoute(
-            'cruding_surface_action',
-            '/{resource}/{subject}/{surface}/{action}',
-        ));
-
+        $resolver = new CrudRouteShapeResolver($this->routerWithRoute('cruding_surface_action', '/{resource}/{subject}/{surface}/{action}'));
         $request = Request::create('/alpha/attachment/document/index');
         $request->attributes->set('_route', 'cruding_surface_action');
         $request->attributes->set('resource', 'alpha');
         $request->attributes->set('subject', 'attachment');
         $request->attributes->set('surface', 'document');
         $request->attributes->set('action', 'index');
-
         $context = $resolver->resolve($request);
 
         self::assertNotNull($context);

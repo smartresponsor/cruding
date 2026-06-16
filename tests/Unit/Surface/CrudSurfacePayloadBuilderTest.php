@@ -6,7 +6,7 @@ namespace App\Cruding\Tests\Unit\Surface;
 
 use App\Cruding\Dto\Surface\CrudRouteContext;
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
-use App\Cruding\Service\Surface\CrudSurfacePayloadBuilder;
+use App\Cruding\Service\Crud\Surface\CrudSurfacePayloadBuilder;
 use PHPUnit\Framework\TestCase;
 
 final class CrudSurfacePayloadBuilderTest extends TestCase

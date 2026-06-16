@@ -65,6 +65,7 @@
       "@php tools/smoke/cruding-reserved-identity-token-guard.php",
       "@php tools/smoke/cruding-resource-path-operation-suffix-regex-smoke.php",
       "@php tools/smoke/cruding-route-parameter-fallback-smoke.php",
+      "@php tools/smoke/cruding-single-route-runtime-smoke.php",
       "@php tools/smoke/cruding-tokenized-before-legacy-surface-route-order-smoke.php",
       "@php tools/smoke/cruding-tokenized-controller-service-registration-smoke.php",
       "@php tools/smoke/cruding-tokenized-route-resolver-smoke.php",

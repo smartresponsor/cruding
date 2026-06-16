@@ -6,8 +6,8 @@ namespace App\Cruding\Command\Surface;
 
 use App\Cruding\Controller\Surface\CrudSurfaceController;
 use App\Cruding\Dto\Surface\CrudRouteContext;
-use App\Cruding\Service\Surface\CrudRouteShapeResolver;
-use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -18,13 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * Shows how Cruding parses resource-bound surface routes.
- */
-#[AsCommand(
-    name: 'crud:surface:debug-map',
-    description: 'Display Cruding surface route parsing, provider keys, and diagnostic template hints.',
-)]
+#[AsCommand(name: 'crud:surface:debug-map', description: 'Display Cruding surface route parsing, provider keys, and diagnostic template hints.')]
 final class CrudSurfaceDebugMapCommand extends Command
 {
     public function __construct(
@@ -107,8 +101,7 @@ final class CrudSurfaceDebugMapCommand extends Command
             return false;
         }
 
-        return CrudSurfaceController::class === $controller
-            || str_starts_with($controller, CrudSurfaceController::class.'::');
+        return CrudSurfaceController::class === $controller || str_starts_with($controller, CrudSurfaceController::class.'::');
     }
 
     private function requestForRoute(string $nameEntity, Route $route): Request
@@ -142,9 +135,7 @@ final class CrudSurfaceDebugMapCommand extends Command
             'subject' => 'sample-subject',
             'surface' => 'compliance',
             'item' => 'sample-item',
-            'token' => 'show',
-            'surfaceToken' => 'show',
-            'widgetToken' => 'show',
+            'token', 'surfaceToken', 'widgetToken' => 'show',
             'action' => 'briefing',
             default => str_ends_with($lower, 'slug') ? $this->sampleSlug($lower) : 'demo-'.$this->tokenize($variable),
         };
@@ -153,11 +144,8 @@ final class CrudSurfaceDebugMapCommand extends Command
     private function sampleSlug(string $lower): string
     {
         $stem = substr($lower, 0, -4);
-        if ('' === $stem) {
-            return 'demo-slug';
-        }
 
-        return 'demo-'.$this->tokenize($stem);
+        return '' === $stem ? 'demo-slug' : 'demo-'.$this->tokenize($stem);
     }
 
     private function contextLabel(CrudRouteContext $context): string

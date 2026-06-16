@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Controller\Api\Crud;
 
 use App\Cruding\Dto\Crud\CrudTokenizedRouteIntent;
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory;
 use App\Cruding\Service\Crud\CrudActorScopeContextResolver;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudApiCreateOperationInterface;
@@ -37,9 +37,7 @@ final class CrudApiTokenizedController extends AbstractController
     {
         $intent = $this->intentResolver->resolveApi($request);
         if (null === $intent || '' === $intent->resourcePath) {
-            return $this->problemResponseFactory->notFound('crud_route_intent_not_found', [
-                'path' => $request->getPathInfo(),
-            ]);
+            return $this->problemResponseFactory->notFound('crud_route_intent_not_found', ['path' => $request->getPathInfo()]);
         }
 
         $this->applyIntent($request, $intent);

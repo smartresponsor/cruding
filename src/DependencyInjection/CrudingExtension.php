@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
-use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
-use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -239,9 +239,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return 'cruding';
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function parameterTokenList(ContainerBuilder $container, string $nameEntity): array
     {
         if (!$container->hasParameter($nameEntity)) {
@@ -266,7 +264,6 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     /**
      * @param list<string> $primaryTokens
      * @param list<string> $paths
-     *
      * @return list<string>
      */
     private function fallbackLockTokens(array $primaryTokens, ?string $lockPath, array $paths): array
@@ -292,9 +289,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return [];
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
+    /** @param array<string, mixed> $payload */
     private function readPayloadPath(array $payload, string $path): mixed
     {
         if (array_key_exists($path, $payload)) {
@@ -313,9 +308,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return $current;
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function tokenListFromValue(mixed $value): array
     {
         $normalizer = new CrudRuntimeTokenNormalizer();
@@ -337,9 +330,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return $normalizer->normalizeTokenList($tokens);
     }
 
-    /**
-     * @param list<string> $fallbackTokens
-     */
+    /** @param list<string> $fallbackTokens */
     private function fallbackCsv(string $primaryRaw, array $fallbackTokens): string
     {
         if ('' !== trim($primaryRaw)) {

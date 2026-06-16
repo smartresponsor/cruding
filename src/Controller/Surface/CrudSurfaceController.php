@@ -6,11 +6,11 @@ namespace App\Cruding\Controller\Surface;
 
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Surface\CrudRouteShapeResolver;
-use App\Cruding\Service\Surface\CrudSurfaceGenericFallback;
-use App\Cruding\Service\Surface\CrudSurfaceProviderLocator;
-use App\Cruding\Service\Surface\CrudSurfaceServiceInvoker;
-use App\Cruding\Service\Surface\CrudSurfaceServiceResolver;
+use App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceGenericFallback;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceServiceInvoker;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceServiceResolver;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
