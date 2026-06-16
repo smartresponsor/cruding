@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
+use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +17,8 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
 {
     public function __construct(
         private CrudContextResolverInterface $contextResolver,
+        private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
+        private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
     ) {
     }
@@ -26,6 +30,6 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
             return $this->notFoundResponseFactory->create($request, 'crud_context_not_found');
         }
 
-        return $this->notFoundResponseFactory->create($request, 'crud_index_unavailable');
+        return $this->surfaceContractFactory->create($this->pageDefinitionProvider->provideIndex($context));
     }
 }
