@@ -12,10 +12,12 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Collects concrete App\*\Service\Http\* services so Cruding can resolve route-owned surfaces by FQCN convention.
+ * Collects canonical host and component HTTP entrypoint services.
  */
 final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 {
+    private const HTTP_SERVICE_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\Http\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
+
     public function process(ContainerBuilder $container): void
     {
         $references = [];
@@ -25,7 +27,7 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
                 continue;
             }
 
-            if (!$this->isHttpSurfaceService($id, $definition)) {
+            if (!$this->isHttpEntrypointService($id, $definition)) {
                 continue;
             }
 
@@ -34,7 +36,8 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
 
         foreach ($container->getAliases() as $id => $alias) {
             $id = (string) $id;
-            if (!str_starts_with($id, 'App\\') || !str_contains($id, '\\Service\\Http\\')) {
+            $target = (string) $alias;
+            if (!$this->isCanonicalHttpService($id) && !$this->isCanonicalHttpService($target)) {
                 continue;
             }
 
@@ -51,14 +54,18 @@ final class CrudSurfaceServiceLocatorPass implements CompilerPassInterface
             ->setArgument(0, new ServiceLocatorArgument($references));
     }
 
-    private function isHttpSurfaceService(string $id, Definition $definition): bool
+    private function isHttpEntrypointService(string $id, Definition $definition): bool
     {
-        if (str_starts_with($id, 'App\\') && str_contains($id, '\\Service\\Http\\')) {
-            return true;
+        $class = $definition->getClass();
+        if (is_string($class) && '' !== $class) {
+            return $this->isCanonicalHttpService($class);
         }
 
-        $class = $definition->getClass();
+        return $this->isCanonicalHttpService($id);
+    }
 
-        return is_string($class) && str_starts_with($class, 'App\\') && str_contains($class, '\\Service\\Http\\');
+    private function isCanonicalHttpService(string $serviceId): bool
+    {
+        return 1 === preg_match(self::HTTP_SERVICE_PATTERN, $serviceId);
     }
 }
