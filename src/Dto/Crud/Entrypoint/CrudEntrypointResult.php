@@ -12,6 +12,8 @@ final readonly class CrudEntrypointResult
     public const STATUS_CONTINUE_DEFAULT = 'continue_default';
     public const STATUS_RESPONSE = 'response';
     public const STATUS_SURFACE_CONTRACT = 'surface_contract';
+    public const STATUS_DEFAULT_BEHAVIOR = 'default_behavior';
+    public const STATUS_DEFAULT_BEHAVIOR_UNAVAILABLE = 'default_behavior_unavailable';
     public const STATUS_NOT_GROUNDED = 'not_grounded';
     public const STATUS_ENTRYPOINT_GROUNDING_FAILED = 'entrypoint_grounding_failed';
     public const STATUS_ENTRYPOINT_HOOK_FAILED = 'entrypoint_hook_failed';
@@ -19,9 +21,7 @@ final readonly class CrudEntrypointResult
     public const STATUS_INVALID_ENTRYPOINT_RESULT_IGNORED = 'invalid_entrypoint_result_ignored';
     public const STATUS_LEGACY_INVOKABLE_FAILED = 'legacy_invokable_failed';
 
-    /**
-     * @param array<string, mixed> $diagnostics
-     */
+    /** @param array<string, mixed> $diagnostics */
     private function __construct(
         private ?Response $response,
         private ?CrudSurfaceContract $surfaceContract,
@@ -51,9 +51,7 @@ final readonly class CrudEntrypointResult
         return new self(null, null, true, self::STATUS_NOT_GROUNDED, $diagnostics);
     }
 
-    /**
-     * @param array<string, mixed> $diagnostics
-     */
+    /** @param array<string, mixed> $diagnostics */
     public function withDiagnostics(array $diagnostics): self
     {
         if ([] === $diagnostics) {
@@ -69,9 +67,7 @@ final readonly class CrudEntrypointResult
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function diagnostics(): array
     {
         return $this->diagnostics;
