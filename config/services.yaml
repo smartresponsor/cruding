@@ -43,11 +43,11 @@ services:
     App\Cruding\Controller\Surface\CrudSurfaceController:
         tags: ['controller.service_arguments']
         arguments:
-            $routeShapeResolver: '@App\Cruding\Service\Surface\CrudRouteShapeResolver'
-            $serviceResolver: '@App\Cruding\Service\Surface\CrudSurfaceServiceResolver'
-            $serviceInvoker: '@App\Cruding\Service\Surface\CrudSurfaceServiceInvoker'
-            $providerLocator: '@App\Cruding\Service\Surface\CrudSurfaceProviderLocator'
-            $genericFallback: '@App\Cruding\Service\Surface\CrudSurfaceGenericFallback'
+            $routeShapeResolver: '@App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver'
+            $serviceResolver: '@App\Cruding\Service\Crud\Surface\CrudSurfaceServiceResolver'
+            $serviceInvoker: '@App\Cruding\Service\Crud\Surface\CrudSurfaceServiceInvoker'
+            $providerLocator: '@App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator'
+            $genericFallback: '@App\Cruding\Service\Crud\Surface\CrudSurfaceGenericFallback'
             $notFoundResponseFactory: '@App\Cruding\Service\Crud\CrudNotFoundResponseFactory'
             $debug: '%kernel.debug%'
             $logger: '@?logger'
@@ -60,7 +60,7 @@ services:
         public: true
         tags: ['controller.service_arguments']
         arguments:
-            $routeMapMatcher: '@App\Cruding\Service\Surface\CrudRouteMapMatcher'
+            $routeMapMatcher: '@App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher'
 
     App\Cruding\Controller\Api\Crud\CrudApiTokenizedController:
         public: true
@@ -81,12 +81,7 @@ services:
             $surfaceTokens: '%cruding.runtime_surface_tokens%'
             $operationTokens: '%cruding.runtime_operation_tokens%'
 
-    App\Cruding\Service\:
-        resource: '../src/Service/'
-        exclude:
-            - '../src/Service/Crud/'
-
-    App\Cruding\Service\Surface\CrudSurfaceProviderLocator:
+    App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator:
         arguments:
             $providers: !tagged_iterator cruding.surface_provider
 
@@ -104,19 +99,19 @@ services:
     App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Service\Crud\CrudPageDefinitionProvider'
     App\Cruding\ServiceInterface\Crud\Surface\CrudInterfacingProviderSurfaceBuilderInterface: '@App\Cruding\Service\Crud\Surface\CrudInterfacingProviderSurfaceBuilder'
 
-    App\Cruding\Service\Runtime\CrudRuntimeScopeReader:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeScopeReader:
         arguments:
             $envName: '%cruding.runtime_scope_env%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeEntityReader:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeEntityReader:
         arguments:
             $envName: '%cruding.runtime_entity_env%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeSurfaceTokenReader:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeSurfaceTokenReader:
         arguments:
             $envName: '%cruding.runtime_surface_token_env%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeRouteGuard:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard:
         arguments:
             $scopeTokens: '%cruding.runtime_scope_tokens%'
             $entityTokens: '%cruding.runtime_entity_tokens%'
@@ -131,23 +126,23 @@ services:
             $surfaceTokenRequirement: '%cruding.surface_token_requirement%'
             $identitySlugRequirement: '%cruding.identity_slug_requirement%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeLockReader:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader:
         arguments:
             $projectDir: '%kernel.project_dir%'
             $appEnv: '%cruding.app_env%'
             $lockGlob: '%cruding.runtime_lock_glob%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeComposerInventoryReader:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeComposerInventoryReader:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    App\Cruding\Service\Runtime\CrudRuntimeDecisionGuard:
+    App\Cruding\Service\Crud\Runtime\CrudRuntimeDecisionGuard:
         arguments:
             $expectedPackageByScopeToken: '%cruding.runtime_scope_package_map%'
             $requireRuntimeLock: '%cruding.runtime_require_lock%'
             $requireComposerPackages: '%cruding.runtime_require_composer_packages%'
 
-    App\Cruding\Service\Api\CrudApiProblemResponseFactory: ~
+    App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory: ~
 
     App\Cruding\EventSubscriber\CrudApiExceptionSubscriber:
         tags: ['kernel.event_subscriber']
@@ -164,7 +159,7 @@ services:
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiUpdateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiUpdateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiDeleteOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiDeleteOperation'
 
-    App\Cruding\Service\Surface\CrudRouteMapLoader:
+    App\Cruding\Service\Crud\Surface\CrudRouteMapLoader:
         arguments:
             $projectDir: '%kernel.project_dir%'
             $relativeDirectory: 'config/platform/routes'
