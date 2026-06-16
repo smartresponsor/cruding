@@ -20,14 +20,9 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
             return null;
         }
 
-        try {
-            $repository = $this->managerRegistry->getRepository($context->entityClass);
-            $object = $repository->findOneBy([$context->identifierField => $context->identifierValue]);
-        } catch (\Throwable) {
-            return null;
-        }
+        $repository = $this->managerRegistry->getRepository($context->entityClass);
 
-        return $object;
+        return $repository->findOneBy([$context->identifierField => $context->identifierValue]);
     }
 
     /**
@@ -35,10 +30,6 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
      */
     public function findAll(CrudContext $context): array
     {
-        try {
-            return $this->managerRegistry->getRepository($context->entityClass)->findAll();
-        } catch (\Throwable) {
-            return [];
-        }
+        return $this->managerRegistry->getRepository($context->entityClass)->findAll();
     }
 }
