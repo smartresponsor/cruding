@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud\Operation;
 
+use App\Cruding\Dto\Crud\CrudAccessContext;
 use App\Cruding\Dto\Crud\CrudContext;
+use App\Cruding\Dto\Crud\CrudOwnership;
+use App\Cruding\Dto\Crud\CrudPageDefinition;
 use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Operation\CrudIndexOperation;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
@@ -29,6 +32,16 @@ final class CrudIndexOperationTest extends TestCase
             identifierValue: null,
             formTypeClass: null,
         );
+        $access = new CrudAccessContext(
+            crud: $context,
+            supportsSlug: false,
+            supportsId: true,
+            ownership: new CrudOwnership(false, false, false, false, null),
+            canView: true,
+            canEdit: false,
+            canDelete: false,
+        );
+        $page = new CrudPageDefinition($context, $access, 'Documents', '@Cruding/crud/index.html.twig');
 
         $contextResolver = $this->createMock(CrudContextResolverInterface::class);
         $contextResolver->expects(self::once())
@@ -39,7 +52,8 @@ final class CrudIndexOperationTest extends TestCase
         $pageDefinitionProvider = $this->createMock(CrudPageDefinitionProviderInterface::class);
         $pageDefinitionProvider->expects(self::once())
             ->method('provideIndex')
-            ->with($context);
+            ->with($context)
+            ->willReturn($page);
 
         $surfaceBuilder = $this->createStub(CrudInterfacingProviderSurfaceBuilderInterface::class);
         $surfaceBuilder->method('build')->willReturn([]);
