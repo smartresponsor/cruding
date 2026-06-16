@@ -49,6 +49,7 @@
     "smoke:cruding": [
       "@php tools/smoke/cruding-catch-all-resource-boundary-smoke.php",
       "@php tools/smoke/cruding-composer-autoload-dev-psr4-smoke.php",
+      "@php tools/smoke/cruding-config-declarative-only-smoke.php",
       "@php tools/smoke/cruding-config-driven-operation-token-router-smoke.php",
       "@php tools/smoke/cruding-direct-entity-fqcn-canon-smoke.php",
       "@php tools/smoke/cruding-entrypoint-contract-finalization-smoke.php",
