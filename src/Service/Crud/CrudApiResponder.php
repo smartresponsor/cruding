@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory;
 use App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
