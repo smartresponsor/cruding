@@ -44,7 +44,22 @@ $candidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\C
 assert([
     'App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentEditService',
     'App\\Service\\Http\\Vendor\\Attachment\\Document\\AttachmentDocumentEditService',
-] === $candidates, 'Entrypoint class resolver must preserve canonical service names.');
+] === $candidates, 'Host entrypoint service names must remain canonical.');
+
+$componentCandidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\CrudContext(
+    surface: 'public',
+    operation: 'index',
+    resourcePath: 'vendor',
+    entityClass: 'App\\Vendoring\\Entity\\Vendor\\VendorEntity',
+    identifierField: 'id',
+    identifierValue: null,
+    formTypeClass: null,
+));
+
+assert([
+    'App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService',
+    'App\\Service\\Http\\Vendor\\VendorIndexService',
+] === $componentCandidates, 'Component entrypoint must be preferred before the host fallback class.');
 
 $abstract = file_get_contents($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
 $behavior = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php');
@@ -68,4 +83,4 @@ assert(false !== $behavior && str_contains($behavior, 'crud_operation_not_suppor
 assert(false !== $registry && str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide an index object.');
 assert(false !== $registry && str_contains($registry, 'DefaultCrudEntrypointService'), 'Registry must provide a generic terminal object.');
 
-fwrite(STDOUT, "PASS: entrypoints resolve explicit service, FQCN service, or contextual default behavior.\n");
+fwrite(STDOUT, "PASS: entrypoints resolve explicit service, component FQCN, host FQCN, or contextual default behavior.\n");
