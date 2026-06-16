@@ -9,8 +9,10 @@ use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointDispatcher;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointDispatcherInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,7 +23,8 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
         private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
-        private CrudEntrypointDispatcher $entrypointDispatcher,
+        #[Autowire(service: CrudEntrypointDispatcher::class)]
+        private CrudEntrypointDispatcherInterface $entrypointDispatcher,
     ) {
     }
 
