@@ -13,6 +13,7 @@ use App\Cruding\Service\Crud\Operation\CrudIndexOperation;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointDispatcherInterface;
 use App\Cruding\ServiceInterface\Crud\Surface\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use PHPUnit\Framework\TestCase;
@@ -49,6 +50,12 @@ final class CrudIndexOperationTest extends TestCase
             ->with($request)
             ->willReturn($context);
 
+        $entrypointDispatcher = $this->createMock(CrudEntrypointDispatcherInterface::class);
+        $entrypointDispatcher->expects(self::once())
+            ->method('tryRun')
+            ->with($request, $context)
+            ->willReturn(null);
+
         $pageDefinitionProvider = $this->createMock(CrudPageDefinitionProviderInterface::class);
         $pageDefinitionProvider->expects(self::once())
             ->method('provideIndex')
@@ -63,6 +70,7 @@ final class CrudIndexOperationTest extends TestCase
             $pageDefinitionProvider,
             new CrudSurfaceContractFactory($surfaceBuilder),
             new CrudNotFoundResponseFactory(),
+            $entrypointDispatcher,
         );
 
         self::assertInstanceOf(CrudSurfaceContract::class, $operation->handle($request));
