@@ -31,4 +31,19 @@ final class CrudSurfaceServiceLocatorPassTest extends TestCase
         self::assertArrayHasKey('component.document.index', $values);
         self::assertArrayNotHasKey('App\\Something\\ElseService', $values);
     }
+
+    public function testSkipsAbstractCanonicalService(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(CrudSurfaceServiceLocator::class, new Definition(CrudSurfaceServiceLocator::class));
+        $definition = new Definition('App\\Fixture\\Service\\Http\\Document\\AbstractDocumentService');
+        $definition->setAbstract(true);
+        $container->setDefinition('abstract.document', $definition);
+
+        (new CrudSurfaceServiceLocatorPass())->process($container);
+
+        $argument = $container->getDefinition(CrudSurfaceServiceLocator::class)->getArgument(0);
+        self::assertInstanceOf(ServiceLocatorArgument::class, $argument);
+        self::assertArrayNotHasKey('abstract.document', $argument->getValues());
+    }
 }
