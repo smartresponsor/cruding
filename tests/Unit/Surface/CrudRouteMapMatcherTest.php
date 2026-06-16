@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Surface;
 
-use App\Cruding\Service\Surface\CrudRouteMapLoader;
-use App\Cruding\Service\Surface\CrudRouteMapMatcher;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapLoader;
+use App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,9 +60,7 @@ final class CrudRouteMapMatcherTest extends TestCase
         self::assertSame('App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService', $entry->service);
     }
 
-    /**
-     * @param list<string> $lines
-     */
+    /** @param list<string> $lines */
     private function createProjectDir(array $lines): string
     {
         $projectDir = sys_get_temp_dir().'/cruding-route-map-'.bin2hex(random_bytes(4));
