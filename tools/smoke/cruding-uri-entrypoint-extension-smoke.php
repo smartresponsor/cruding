@@ -9,22 +9,18 @@ $requiredFiles = [
     'src/Dto/Crud/Entrypoint/CrudEntrypointResult.php',
     'src/Dto/Crud/Entrypoint/CrudEntrypointResolution.php',
     'src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointDispatcher.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointExplicitServiceResolver.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointOperationRunner.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointResolver.php',
-    'src/Service/Crud/Entrypoint/NullCrudEntrypointService.php',
-    'src/Service/Crud/Entrypoint/PassiveCrudEntrypointService.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudEntrypointDispatcherInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudEntrypointServiceInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudGroundedEntrypointInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudGetEntrypointInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudPostEntrypointInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudPutEntrypointInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudPatchEntrypointInterface.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudDeleteEntrypointInterface.php',
+    'src/Service/Crud/Entrypoint/AbstractCrudIndexService.php',
+    'src/Service/Crud/Entrypoint/AbstractCrudShowService.php',
+    'src/Service/Crud/Entrypoint/AbstractCrudCreateService.php',
+    'src/Service/Crud/Entrypoint/AbstractCrudEditService.php',
+    'src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php',
+    'src/Service/Crud/Entrypoint/CrudDefaultEntrypointRegistry.php',
+    'src/Service/Crud/Entrypoint/DefaultCrudEntrypointService.php',
+    'src/Service/Crud/Entrypoint/DefaultCrudIndexService.php',
+    'src/Service/Crud/Entrypoint/DefaultCrudShowService.php',
+    'src/Service/Crud/Entrypoint/DefaultCrudCreateService.php',
+    'src/Service/Crud/Entrypoint/DefaultCrudEditService.php',
+    'src/ServiceInterface/Crud/Entrypoint/CrudEntrypointBehaviorInterface.php',
 ];
 
 foreach ($requiredFiles as $relativePath) {
@@ -35,54 +31,41 @@ require_once $root.'/src/Dto/Crud/CrudContext.php';
 require_once $root.'/src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php';
 
 $classNameResolver = new App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver();
-$classNameCandidates = $classNameResolver->candidateClassNames(
-    new App\Cruding\Dto\Crud\CrudContext(
-        surface: 'public',
-        operation: 'edit',
-        resourcePath: 'vendor/attachment/document',
-        entityClass: 'App\\Entity\\DocumentEntity',
-        identifierField: 'id',
-        identifierValue: 123,
-        formTypeClass: null,
-    ),
-);
+$candidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\CrudContext(
+    surface: 'public',
+    operation: 'edit',
+    resourcePath: 'vendor/attachment/document',
+    entityClass: 'App\\Entity\\DocumentEntity',
+    identifierField: 'id',
+    identifierValue: 123,
+    formTypeClass: null,
+));
 
-assert(
-    [
-        'App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentEditService',
-        'App\\Service\\Http\\Vendor\\Attachment\\Document\\AttachmentDocumentEditService',
-    ] === $classNameCandidates,
-    'Entrypoint class resolver must derive canonical App\\Service\\Http root/tail/operation service classes.',
-);
+assert([
+    'App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentEditService',
+    'App\\Service\\Http\\Vendor\\Attachment\\Document\\AttachmentDocumentEditService',
+] === $candidates, 'Entrypoint class resolver must preserve canonical service names.');
 
-$explicitResolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointExplicitServiceResolver.php');
 $abstract = file_get_contents($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
-$dispatcher = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointDispatcher.php');
-$invoker = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php');
+$behavior = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php');
+$registry = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointRegistry.php');
 $resolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointResolver.php');
+$resolution = file_get_contents($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointResolution.php');
 
-assert(false !== $explicitResolver && str_contains($explicitResolver, '_crud_entrypoint_service'), 'Explicit registered service lookup must remain first-class.');
-assert(false !== $resolver && strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Resolver must check explicit service ids before URI-derived class names.');
-assert(false !== $resolver && str_contains($resolver, 'CrudEntrypointResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED'), 'Resolver must fail softly when class exists but is not registered.');
-assert(false !== $resolver && str_contains($resolver, 'CrudEntrypointResolution::STATUS_MISSING'), 'Resolver must provide a missing-class null fallback.');
-assert(false !== $dispatcher && str_contains($dispatcher, 'CrudEntrypointOperationRunner'), 'Entrypoint dispatcher must delegate to the operation runner.');
-assert(false !== $dispatcher && str_contains($dispatcher, '$this->operationRunner->tryRun('), 'Entrypoint dispatcher must preserve fail-soft tryRun dispatch.');
+assert(false !== $resolver && strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Explicit service ids must be checked before URI-derived classes.');
+assert(false !== $resolver && str_contains($resolver, 'CrudDefaultEntrypointRegistry'), 'Resolver must select a contextual default service.');
+assert(false !== $resolver && str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when consumer service is absent.');
+assert(false !== $resolution && str_contains($resolution, 'fallbackReason'), 'Resolution diagnostics must preserve the fallback reason.');
+assert(false !== $abstract && str_contains($abstract, '#[Required]'), 'Base entrypoint must receive behavior without constructor coupling.');
+assert(false !== $abstract && str_contains($abstract, 'beforeDefault'), 'Base entrypoint must expose a pre-default hook.');
+assert(false !== $abstract && str_contains($abstract, 'afterDefault'), 'Base entrypoint must expose a post-default hook.');
+assert(false !== $abstract && str_contains($abstract, '$this->defaultBehavior->execute($context)'), 'A thin subclass must inherit executable behavior.');
+assert(false !== $behavior && str_contains($behavior, "'index' =>"), 'Default behavior must implement index.');
+assert(false !== $behavior && str_contains($behavior, "'show' =>"), 'Default behavior must implement show.');
+assert(false !== $behavior && str_contains($behavior, "'new', 'create' =>"), 'Default behavior must implement create flow.');
+assert(false !== $behavior && str_contains($behavior, "'edit', 'update' =>"), 'Default behavior must implement edit flow.');
+assert(false !== $behavior && str_contains($behavior, 'crud_operation_not_supported'), 'Unknown operations must end safely.');
+assert(false !== $registry && str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide an index object.');
+assert(false !== $registry && str_contains($registry, 'DefaultCrudEntrypointService'), 'Registry must provide a generic terminal object.');
 
-foreach (['isGrounded', 'get', 'post', 'put', 'patch', 'delete'] as $method) {
-    assert(false !== $abstract && str_contains($abstract, 'function '.$method.'('), sprintf('Abstract entrypoint must provide %s default.', $method));
-    assert(false !== $invoker && str_contains($invoker, $method), sprintf('Invoker must know %s hook.', $method));
-}
-
-$indexOperation = file_get_contents($root.'/src/Service/Crud/Operation/CrudIndexOperation.php');
-assert(false !== $indexOperation, 'Cannot read CrudIndexOperation.');
-assert(str_contains($indexOperation, 'CrudEntrypointDispatcherInterface'), 'CrudIndexOperation must depend on the typed entrypoint dispatcher contract.');
-assert(str_contains($indexOperation, '$this->entrypointDispatcher->tryRun('), 'CrudIndexOperation must dispatch the resolved CRUD context through the entrypoint dispatcher.');
-
-foreach (['CrudShowOperation', 'CrudCreateOperation', 'CrudEditOperation', 'CrudDeleteOperation'] as $operationClass) {
-    $path = sprintf('%s/src/Service/Crud/Operation/%s.php', $root, $operationClass);
-    $code = file_get_contents($path);
-    assert(false !== $code, sprintf('Cannot read %s.', $operationClass));
-    assert(str_contains($code, 'CrudEntrypointOperationRunner'), sprintf('%s must call entrypoint runner.', $operationClass));
-}
-
-fwrite(STDOUT, "PASS: URI-derived CRUD entrypoints are fail-soft, method-aware, and not collapsed into a per-resource mega-service.\n");
+fwrite(STDOUT, "PASS: entrypoints resolve explicit service, FQCN service, or contextual default behavior.\n");
