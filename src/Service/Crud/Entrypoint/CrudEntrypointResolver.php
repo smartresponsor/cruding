@@ -17,7 +17,7 @@ final readonly class CrudEntrypointResolver
         private CrudEntrypointExplicitServiceResolver $explicitServiceResolver,
         private CrudEntrypointClassNameResolver $classNameResolver,
         private CrudSurfaceServiceLocator $serviceLocator,
-        private NullCrudEntrypointService $nullService,
+        private CrudDefaultEntrypointRegistry $defaultRegistry,
     ) {
     }
 
@@ -64,24 +64,21 @@ final readonly class CrudEntrypointResolver
             );
         }
 
+        $fallbackReason = CrudEntrypointResolution::STATUS_MISSING;
         foreach ($candidateClassNames as $className) {
             if (($classExists[$className] ?? false) && !($containerHas[$className] ?? false)) {
-                return new CrudEntrypointResolution(
-                    service: $this->nullService,
-                    status: CrudEntrypointResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED,
-                    serviceId: $className,
-                    candidateServiceIds: $candidateServiceIds,
-                    candidateClassNames: $candidateClassNames,
-                    classExists: $classExists,
-                    containerHas: $containerHas,
-                );
+                $fallbackReason = CrudEntrypointResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED;
+                break;
             }
         }
 
+        $defaultService = $this->defaultRegistry->for($context);
+
         return new CrudEntrypointResolution(
-            service: $this->nullService,
-            status: CrudEntrypointResolution::STATUS_MISSING,
-            serviceId: null,
+            service: $defaultService,
+            status: CrudEntrypointResolution::STATUS_DEFAULT_SERVICE,
+            serviceId: $defaultService::class,
+            fallbackReason: $fallbackReason,
             candidateServiceIds: $candidateServiceIds,
             candidateClassNames: $candidateClassNames,
             classExists: $classExists,
