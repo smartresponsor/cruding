@@ -13,6 +13,10 @@ final readonly class CrudTokenizedRouteIntentResolver
     public const ROUTE_FAMILY_API = 'tokenized_api_crud';
     public const ACTOR_SCOPE_MY = 'my';
 
+    private const CONTEXT_PREFIX_API = 'api';
+    private const DEFAULT_BACKEND_CONTEXT_PREFIX = 'ea';
+    private const MAX_RESOURCE_TOKEN_COUNT = 2;
+
     /**
      * @var array<string, string>
      */
@@ -27,9 +31,40 @@ final readonly class CrudTokenizedRouteIntentResolver
         'bulk' => 'admin',
     ];
 
+    /**
+     * Operations that can terminate a route without an identity token.
+     *
+     * @var array<string, true>
+     */
+    private const COLLECTION_OPERATION = [
+        'index' => true,
+        'new' => true,
+        'create' => true,
+        'import' => true,
+        'bulk' => true,
+    ];
+
+    /**
+     * Operations that require a following id or slug token.
+     *
+     * @var array<string, true>
+     */
+    private const MEMBER_OPERATION = [
+        'show' => true,
+        'edit' => true,
+        'update' => true,
+        'archive' => true,
+        'restore' => true,
+        'duplicate' => true,
+        'delete' => true,
+        'verify' => true,
+        'pay' => true,
+    ];
+
     public function __construct(
         private CrudRouteTokenNormalizer $tokenNormalizer,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
+        private ?string $backendContextToken = null,
     ) {
     }
 
@@ -90,6 +125,9 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $identity = array_pop($tokens);
+            if (!$this->hasValidResourceTokenCount($tokens)) {
+                return null;
+            }
 
             return new CrudTokenizedRouteIntent(
                 routeFamily: self::ROUTE_FAMILY_API,
@@ -114,7 +152,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     /**
      * @param list<string> $tokens
      */
-    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): CrudTokenizedRouteIntent
+    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): ?CrudTokenizedRouteIntent
     {
         $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
         $count = count($tokens);
@@ -136,7 +174,15 @@ final readonly class CrudTokenizedRouteIntentResolver
         $beforeLast = $tokens[$count - 2] ?? null;
 
         if (isset($operationTokens[$last])) {
+            if (!isset(self::COLLECTION_OPERATION[$last])) {
+                return null;
+            }
+
             $resourceTokens = array_slice($tokens, 0, -1);
+            if (!$this->hasValidResourceTokenCount($resourceTokens)) {
+                return null;
+            }
+
             $operation = $last;
 
             return new CrudTokenizedRouteIntent(
@@ -152,7 +198,15 @@ final readonly class CrudTokenizedRouteIntentResolver
         }
 
         if (null !== $beforeLast && isset($operationTokens[$beforeLast])) {
+            if (!isset(self::MEMBER_OPERATION[$beforeLast])) {
+                return null;
+            }
+
             $resourceTokens = array_slice($tokens, 0, -2);
+            if (!$this->hasValidResourceTokenCount($resourceTokens)) {
+                return null;
+            }
+
             $operation = $beforeLast;
 
             return new CrudTokenizedRouteIntent(
@@ -167,19 +221,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             );
         }
 
-        $identity = $last;
-        $resourceTokens = array_slice($tokens, 0, -1);
-
-        return new CrudTokenizedRouteIntent(
-            routeFamily: $routeFamily,
-            resourcePath: implode('/', $resourceTokens),
-            operation: 'show',
-            surface: $defaultSurface,
-            identifierField: $this->identifierField($identity),
-            identifierValue: $identity,
-            tokens: $tokens,
-            actorScope: $actorScope,
-        );
+        return null;
     }
 
     /**
@@ -196,24 +238,67 @@ final readonly class CrudTokenizedRouteIntentResolver
     }
 
     /**
+     * Consumes contextual route prefixes before CRUD grammar checks.
+     *
+     * Context prefixes such as my, api, and a backend prefix like ea do not count
+     * as resourcePath tokens for the two-token CRUD grammar cap.
+     *
      * @param list<string> $tokens
      *
      * @return array{tokens: list<string>, actorScope: ?string}
      */
     private function consumeActorScope(array $tokens): array
     {
-        if ([] === $tokens) {
-            return ['tokens' => [], 'actorScope' => null];
-        }
+        $actorScope = null;
+        $remaining = array_values($tokens);
 
-        if (self::ACTOR_SCOPE_MY !== strtolower($tokens[0])) {
-            return ['tokens' => $tokens, 'actorScope' => null];
+        while ([] !== $remaining) {
+            $first = strtolower($remaining[0]);
+            if (self::ACTOR_SCOPE_MY === $first) {
+                $actorScope ??= self::ACTOR_SCOPE_MY;
+                array_shift($remaining);
+                continue;
+            }
+
+            if (self::CONTEXT_PREFIX_API === $first) {
+                array_shift($remaining);
+                continue;
+            }
+
+            if ('' !== $this->backendContextToken() && $this->backendContextToken() === $first) {
+                array_shift($remaining);
+                continue;
+            }
+
+            break;
         }
 
         return [
-            'tokens' => array_values(array_slice($tokens, 1)),
-            'actorScope' => self::ACTOR_SCOPE_MY,
+            'tokens' => array_values($remaining),
+            'actorScope' => $actorScope,
         ];
+    }
+
+    /**
+     * @param list<string> $resourceTokens
+     */
+    private function hasValidResourceTokenCount(array $resourceTokens): bool
+    {
+        $count = count($resourceTokens);
+
+        return $count >= 1 && $count <= self::MAX_RESOURCE_TOKEN_COUNT;
+    }
+
+    private function backendContextToken(): string
+    {
+        $token = $this->backendContextToken
+            ?? ($_ENV['CRUDING_BACKEND_CONTEXT_TOKEN'] ?? null)
+            ?? ($_ENV['CRUDING_BACKEND_ROUTE_TOKEN'] ?? null)
+            ?? ($_ENV['CRUDING_BACKEND_ROUTE_PREFIX'] ?? null)
+            ?? ($_ENV['EASYADMIN_ROUTE_PREFIX'] ?? null)
+            ?? self::DEFAULT_BACKEND_CONTEXT_PREFIX;
+
+        return $this->tokenNormalizer->token((string) $token);
     }
 
     private function identifierField(string $identity): string

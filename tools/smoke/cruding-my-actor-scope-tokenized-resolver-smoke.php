@@ -17,7 +17,6 @@ foreach ([
     require_once $root.'/'.$file;
 }
 
-
 if (!class_exists('Symfony\\Component\\HttpFoundation\\Request')) {
     eval(<<<'PHP'
 namespace Symfony\Component\HttpFoundation;
@@ -50,19 +49,20 @@ $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
 $resolver = new CrudTokenizedRouteIntentResolver(
     new CrudRouteTokenNormalizer(),
     new CrudReservedRouteTokenPolicy([], $operationTokens),
+    'ea',
 );
 
 $cases = [
     '/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
     '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/my/vendor/attachment/document/index' => ['resourcePath' => 'vendor/attachment/document', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
     '/api/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/api/my/vendor/attachment/document/verify/acme-file' => ['resourcePath' => 'vendor/attachment/document', 'operation' => 'verify', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file', 'api' => true],
+    '/my/api/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
+    '/ea/my/api/vendor/attachment/show/acme-file' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file', 'api' => true],
 ];
 
 foreach ($cases as $path => $expected) {
     $request = Request::create($path, 'GET');
-    $request->attributes->set('crudPath', str_starts_with($path, '/api/') ? substr($path, 5) : trim($path, '/'));
+    $request->attributes->set('crudPath', trim($path, '/'));
     $intent = ($expected['api'] ?? false) ? $resolver->resolveApi($request) : $resolver->resolveWeb($request);
 
     assert(null !== $intent, sprintf('%s must resolve to a tokenized intent.', $path));
@@ -72,6 +72,12 @@ foreach ($cases as $path => $expected) {
     assert($intent->isMyScoped(), sprintf('%s must be my-scoped.', $path));
     assert($expected['identifierField'] === $intent->identifierField, sprintf('%s identifierField mismatch.', $path));
     assert($expected['identifierValue'] === $intent->identifierValue, sprintf('%s identifierValue mismatch.', $path));
+}
+
+foreach (['/my/vendor/attachment/document/index', '/api/my/vendor/attachment/document/show/acme-file', '/ea/api/my/vendor/attachment/document/index'] as $path) {
+    $request = Request::create($path, 'GET');
+    $request->attributes->set('crudPath', trim($path, '/'));
+    assert(null === $resolver->resolveWeb($request), sprintf('%s must exceed semantic CRUD resource depth after context-prefix trimming.', $path));
 }
 
 $classResolver = new CrudEntrypointClassNameResolver();
@@ -95,7 +101,7 @@ foreach (['isActorScoped', 'actorScope', 'isMyScoped', 'isActorGrounded', 'actor
     assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudEntrypointContext missing %s().', $method));
 }
 
-fwrite(STDOUT, "PASS: /my actor scope is tokenized as context, not resourcePath, and does not require *My* FQCN entrypoints.\n");
+fwrite(STDOUT, "PASS: context prefixes are trimmed before CRUD grammar depth checks and my scope remains actor context.\n");
 
 /**
  * @return list<string>

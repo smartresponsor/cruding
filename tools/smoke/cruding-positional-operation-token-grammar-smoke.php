@@ -11,15 +11,41 @@ assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Tokenized catch-a
 assert(str_contains($resolver, '$beforeLast = $tokens[$count - 2] ?? null;'), 'Resolver must inspect the token immediately before identity.');
 assert(str_contains($resolver, 'array_slice($tokens, 0, -2)'), 'Resolver must remove operation+identity from resourcePath.');
 assert(str_contains($resolver, 'identifierField($last)'), 'Resolver must classify identity after operation-token classification.');
+assert(str_contains($resolver, 'MAX_RESOURCE_TOKEN_COUNT = 2'), 'Resolver must cap CRUD resource path depth before operation tokens.');
+assert(str_contains($resolver, 'hasValidResourceTokenCount($resourceTokens)'), 'Resolver must validate resource token count before creating intent.');
 
 foreach (['edit', 'update', 'delete', 'archive', 'restore', 'duplicate', 'verify', 'pay'] as $operation) {
-    $path = sprintf('/alpha/attachment/media/%s/123', $operation);
+    $path = sprintf('/alpha/beta/%s/123', $operation);
     $tokens = explode('/', trim($path, '/'));
     $beforeLast = $tokens[count($tokens) - 2];
     assert($operation === $beforeLast, sprintf('Generated path must place %s immediately before id/slug.', $operation));
 }
 
-fwrite(STDOUT, "PASS: operation-token classification is positional in PHP and independent of total URI depth.\n");
+foreach (['index', 'new', 'create', 'import', 'bulk'] as $operation) {
+    $path = sprintf('/alpha/beta/%s', $operation);
+    $tokens = explode('/', trim($path, '/'));
+    $last = $tokens[count($tokens) - 1];
+    assert($operation === $last, sprintf('Generated path must place collection operation %s at URI end.', $operation));
+}
+
+foreach (['/alpha/beta/gamma/index', '/alpha/beta/gamma/show/123'] as $path) {
+    $tokens = explode('/', trim($path, '/'));
+    $resourceTokensBeforeOperation = array_slice($tokens, 0, -1);
+    if ('123' === end($tokens)) {
+        $resourceTokensBeforeOperation = array_slice($tokens, 0, -2);
+    }
+    assert(count($resourceTokensBeforeOperation) > 2, sprintf('%s must exceed CRUD resource depth and be treated as business/non-CRUD.', $path));
+}
+
+foreach (['/alpha/edit/profile/123', '/alpha/show/profile/123'] as $path) {
+    $tokens = explode('/', trim($path, '/'));
+    $last = $tokens[count($tokens) - 1];
+    $beforeLast = $tokens[count($tokens) - 2];
+    assert(!in_array($beforeLast, ['edit', 'show'], true), sprintf('%s must not place operation token immediately before id/slug.', $path));
+    assert(!in_array($last, ['edit', 'show'], true), sprintf('%s must not place operation token at URI end.', $path));
+}
+
+fwrite(STDOUT, "PASS: operation-token classification is positional and capped to one or two semantic resource tokens.\n");
 
 function readFileStrict(string $path): string
 {
