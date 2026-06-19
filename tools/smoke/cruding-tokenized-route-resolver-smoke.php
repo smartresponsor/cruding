@@ -43,11 +43,13 @@ foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACT
 foreach ([
     "if (isset(\$operationTokens[\$last]))",
     "if (null !== \$beforeLast && isset(\$operationTokens[\$beforeLast]))",
-    "operation: 'show'",
+    'return null;',
     "operation: 'index'",
 ] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver missing grammar decision: %s.', $needle));
 }
+
+assert(!str_contains($resolver, '$identity = $last;'), 'Tokenized resolver must not infer identity/show from the final segment without an explicit operation token.');
 
 foreach (['CrudIndexOperationInterface', 'CrudShowOperationInterface', 'CrudCreateOperationInterface', 'CrudEditOperationInterface', 'CrudDeleteOperationInterface', 'runEntrypointOnly', 'applyIntent'] as $needle) {
     assert(str_contains($controller, $needle), sprintf('Tokenized controller must contain %s.', $needle));
@@ -62,7 +64,7 @@ assert(str_contains($intent, 'actorScope'), 'Tokenized intent must expose actor 
 assert(str_contains($intent, 'isMyScoped'), 'Tokenized intent must expose my-scope helper.');
 assert(str_contains($intent, 'diagnostics'), 'Tokenized intent must expose diagnostics.');
 
-fwrite(STDOUT, "PASS: Symfony routes are resource-bounded structural catch-alls and Cruding tokenized resolver owns semantic grammar.\n");
+fwrite(STDOUT, "PASS: Symfony routes are resource-bounded structural catch-alls and Cruding tokenized resolver requires explicit operation tokens for multi-token intents.\n");
 
 function readFileStrict(string $path): string
 {
