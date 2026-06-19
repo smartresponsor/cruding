@@ -27,6 +27,36 @@ final readonly class CrudTokenizedRouteIntentResolver
         'bulk' => 'admin',
     ];
 
+    /**
+     * Operations that can terminate a route without an identity token.
+     *
+     * @var array<string, true>
+     */
+    private const COLLECTION_OPERATION = [
+        'index' => true,
+        'new' => true,
+        'create' => true,
+        'import' => true,
+        'bulk' => true,
+    ];
+
+    /**
+     * Operations that require a following id or slug token.
+     *
+     * @var array<string, true>
+     */
+    private const MEMBER_OPERATION = [
+        'show' => true,
+        'edit' => true,
+        'update' => true,
+        'archive' => true,
+        'restore' => true,
+        'duplicate' => true,
+        'delete' => true,
+        'verify' => true,
+        'pay' => true,
+    ];
+
     public function __construct(
         private CrudRouteTokenNormalizer $tokenNormalizer,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
@@ -114,7 +144,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     /**
      * @param list<string> $tokens
      */
-    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): CrudTokenizedRouteIntent
+    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): ?CrudTokenizedRouteIntent
     {
         $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
         $count = count($tokens);
@@ -136,6 +166,10 @@ final readonly class CrudTokenizedRouteIntentResolver
         $beforeLast = $tokens[$count - 2] ?? null;
 
         if (isset($operationTokens[$last])) {
+            if (!isset(self::COLLECTION_OPERATION[$last])) {
+                return null;
+            }
+
             $resourceTokens = array_slice($tokens, 0, -1);
             $operation = $last;
 
@@ -152,6 +186,10 @@ final readonly class CrudTokenizedRouteIntentResolver
         }
 
         if (null !== $beforeLast && isset($operationTokens[$beforeLast])) {
+            if (!isset(self::MEMBER_OPERATION[$beforeLast])) {
+                return null;
+            }
+
             $resourceTokens = array_slice($tokens, 0, -2);
             $operation = $beforeLast;
 
@@ -167,19 +205,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             );
         }
 
-        $identity = $last;
-        $resourceTokens = array_slice($tokens, 0, -1);
-
-        return new CrudTokenizedRouteIntent(
-            routeFamily: $routeFamily,
-            resourcePath: implode('/', $resourceTokens),
-            operation: 'show',
-            surface: $defaultSurface,
-            identifierField: $this->identifierField($identity),
-            identifierValue: $identity,
-            tokens: $tokens,
-            actorScope: $actorScope,
-        );
+        return null;
     }
 
     /**
