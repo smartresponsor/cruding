@@ -171,6 +171,10 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $resourceTokens = array_slice($tokens, 0, -1);
+            if ([] === $resourceTokens) {
+                return null;
+            }
+
             $operation = $last;
 
             return new CrudTokenizedRouteIntent(
@@ -191,6 +195,10 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $resourceTokens = array_slice($tokens, 0, -2);
+            if ([] === $resourceTokens) {
+                return null;
+            }
+
             $operation = $beforeLast;
 
             return new CrudTokenizedRouteIntent(
