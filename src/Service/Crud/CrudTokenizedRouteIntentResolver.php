@@ -13,6 +13,8 @@ final readonly class CrudTokenizedRouteIntentResolver
     public const ROUTE_FAMILY_API = 'tokenized_api_crud';
     public const ACTOR_SCOPE_MY = 'my';
 
+    private const CONTEXT_PREFIX_API = 'api';
+    private const DEFAULT_BACKEND_CONTEXT_PREFIX = 'ea';
     private const MAX_RESOURCE_TOKEN_COUNT = 2;
 
     /**
@@ -62,6 +64,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     public function __construct(
         private CrudRouteTokenNormalizer $tokenNormalizer,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
+        private ?string $backendContextToken = null,
     ) {
     }
 
@@ -235,23 +238,44 @@ final readonly class CrudTokenizedRouteIntentResolver
     }
 
     /**
+     * Consumes contextual route prefixes before CRUD grammar checks.
+     *
+     * Context prefixes such as my, api, and a backend prefix like ea do not count
+     * as resourcePath tokens for the two-token CRUD grammar cap.
+     *
      * @param list<string> $tokens
      *
      * @return array{tokens: list<string>, actorScope: ?string}
      */
     private function consumeActorScope(array $tokens): array
     {
-        if ([] === $tokens) {
-            return ['tokens' => [], 'actorScope' => null];
-        }
+        $actorScope = null;
+        $remaining = array_values($tokens);
 
-        if (self::ACTOR_SCOPE_MY !== strtolower($tokens[0])) {
-            return ['tokens' => $tokens, 'actorScope' => null];
+        while ([] !== $remaining) {
+            $first = strtolower($remaining[0]);
+            if (self::ACTOR_SCOPE_MY === $first) {
+                $actorScope ??= self::ACTOR_SCOPE_MY;
+                array_shift($remaining);
+                continue;
+            }
+
+            if (self::CONTEXT_PREFIX_API === $first) {
+                array_shift($remaining);
+                continue;
+            }
+
+            if ('' !== $this->backendContextToken() && $this->backendContextToken() === $first) {
+                array_shift($remaining);
+                continue;
+            }
+
+            break;
         }
 
         return [
-            'tokens' => array_values(array_slice($tokens, 1)),
-            'actorScope' => self::ACTOR_SCOPE_MY,
+            'tokens' => array_values($remaining),
+            'actorScope' => $actorScope,
         ];
     }
 
@@ -263,6 +287,18 @@ final readonly class CrudTokenizedRouteIntentResolver
         $count = count($resourceTokens);
 
         return $count >= 1 && $count <= self::MAX_RESOURCE_TOKEN_COUNT;
+    }
+
+    private function backendContextToken(): string
+    {
+        $token = $this->backendContextToken
+            ?? ($_ENV['CRUDING_BACKEND_CONTEXT_TOKEN'] ?? null)
+            ?? ($_ENV['CRUDING_BACKEND_ROUTE_TOKEN'] ?? null)
+            ?? ($_ENV['CRUDING_BACKEND_ROUTE_PREFIX'] ?? null)
+            ?? ($_ENV['EASYADMIN_ROUTE_PREFIX'] ?? null)
+            ?? self::DEFAULT_BACKEND_CONTEXT_PREFIX;
+
+        return $this->tokenNormalizer->token((string) $token);
     }
 
     private function identifierField(string $identity): string
