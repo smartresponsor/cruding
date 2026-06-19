@@ -28,16 +28,28 @@ The operation token is valid only in one of these positions:
   -> operation=show
   -> slug=acme-inc
 
-/resource/attachment/media/edit/123
-  -> resourcePath=resource/attachment/media
+/resource/attachment/index
+  -> resourcePath=resource/attachment
+  -> operation=index
+
+/resource/attachment/edit/123
+  -> resourcePath=resource/attachment
   -> operation=edit
   -> id=123
-
-/resource/document/verify/acme-file
-  -> resourcePath=resource/document
-  -> operation=verify
-  -> slug=acme-file
 ```
+
+## CRUD resource depth rule
+
+Before the operation token, Cruding accepts only one or two resource tokens:
+
+```text
+/vendor/index
+/vendor/show/acme-inc
+/vendor/attachment/index
+/vendor/attachment/show/123
+```
+
+Three or more resource tokens before the operation token are business/non-CRUD route candidates and must not be consumed by the CRUD controller.
 
 Invalid examples:
 
@@ -45,6 +57,14 @@ Invalid examples:
 /access/password
   -> not a CRUD intent
   -> no implicit operation=show
+
+/vendor/attachment/media/index
+  -> three resource tokens before index
+  -> not a CRUD intent
+
+/vendor/attachment/media/show/123
+  -> three resource tokens before show
+  -> not a CRUD intent
 
 /resource/edit/profile/123
   -> edit is in the middle of the resource path
