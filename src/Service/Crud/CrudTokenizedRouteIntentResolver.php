@@ -13,6 +13,8 @@ final readonly class CrudTokenizedRouteIntentResolver
     public const ROUTE_FAMILY_API = 'tokenized_api_crud';
     public const ACTOR_SCOPE_MY = 'my';
 
+    private const MAX_RESOURCE_TOKEN_COUNT = 2;
+
     /**
      * @var array<string, string>
      */
@@ -120,6 +122,9 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $identity = array_pop($tokens);
+            if (!$this->hasValidResourceTokenCount($tokens)) {
+                return null;
+            }
 
             return new CrudTokenizedRouteIntent(
                 routeFamily: self::ROUTE_FAMILY_API,
@@ -171,7 +176,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $resourceTokens = array_slice($tokens, 0, -1);
-            if ([] === $resourceTokens) {
+            if (!$this->hasValidResourceTokenCount($resourceTokens)) {
                 return null;
             }
 
@@ -195,7 +200,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             }
 
             $resourceTokens = array_slice($tokens, 0, -2);
-            if ([] === $resourceTokens) {
+            if (!$this->hasValidResourceTokenCount($resourceTokens)) {
                 return null;
             }
 
@@ -248,6 +253,16 @@ final readonly class CrudTokenizedRouteIntentResolver
             'tokens' => array_values(array_slice($tokens, 1)),
             'actorScope' => self::ACTOR_SCOPE_MY,
         ];
+    }
+
+    /**
+     * @param list<string> $resourceTokens
+     */
+    private function hasValidResourceTokenCount(array $resourceTokens): bool
+    {
+        $count = count($resourceTokens);
+
+        return $count >= 1 && $count <= self::MAX_RESOURCE_TOKEN_COUNT;
     }
 
     private function identifierField(string $identity): string
