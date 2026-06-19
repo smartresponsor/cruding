@@ -114,7 +114,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     /**
      * @param list<string> $tokens
      */
-    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): CrudTokenizedRouteIntent
+    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): ?CrudTokenizedRouteIntent
     {
         $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
         $count = count($tokens);
@@ -167,19 +167,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             );
         }
 
-        $identity = $last;
-        $resourceTokens = array_slice($tokens, 0, -1);
-
-        return new CrudTokenizedRouteIntent(
-            routeFamily: $routeFamily,
-            resourcePath: implode('/', $resourceTokens),
-            operation: 'show',
-            surface: $defaultSurface,
-            identifierField: $this->identifierField($identity),
-            identifierValue: $identity,
-            tokens: $tokens,
-            actorScope: $actorScope,
-        );
+        return null;
     }
 
     /**
