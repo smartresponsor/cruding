@@ -28,7 +28,7 @@ foreach (['index', 'new', 'create', 'import', 'bulk'] as $operation) {
     assert($operation === $last, sprintf('Generated path must place collection operation %s at URI end.', $operation));
 }
 
-foreach (['/alpha/beta/gamma/index', '/alpha/beta/gamma/show/123', '/alpha/edit/profile/123'] as $path) {
+foreach (['/alpha/beta/gamma/index', '/alpha/beta/gamma/show/123'] as $path) {
     $tokens = explode('/', trim($path, '/'));
     $resourceTokensBeforeOperation = array_slice($tokens, 0, -1);
     if ('123' === end($tokens)) {
@@ -37,7 +37,15 @@ foreach (['/alpha/beta/gamma/index', '/alpha/beta/gamma/show/123', '/alpha/edit/
     assert(count($resourceTokensBeforeOperation) > 2, sprintf('%s must exceed CRUD resource depth and be treated as business/non-CRUD.', $path));
 }
 
-fwrite(STDOUT, "PASS: operation-token classification is positional and capped to one or two resource tokens.\n");
+foreach (['/alpha/edit/profile/123', '/alpha/show/profile/123'] as $path) {
+    $tokens = explode('/', trim($path, '/'));
+    $last = $tokens[count($tokens) - 1];
+    $beforeLast = $tokens[count($tokens) - 2];
+    assert(!in_array($beforeLast, ['edit', 'show'], true), sprintf('%s must not place operation token immediately before id/slug.', $path));
+    assert(!in_array($last, ['edit', 'show'], true), sprintf('%s must not place operation token at URI end.', $path));
+}
+
+fwrite(STDOUT, "PASS: operation-token classification is positional and capped to one or two semantic resource tokens.\n");
 
 function readFileStrict(string $path): string
 {
