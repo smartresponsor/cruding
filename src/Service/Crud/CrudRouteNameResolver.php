@@ -54,10 +54,6 @@ final class CrudRouteNameResolver implements CrudRouteNameResolverInterface
             return ['crudPath' => $context->resourcePath];
         }
 
-        if ('show' === $operation && null !== $value) {
-            return ['crudPath' => $context->resourcePath.'/'.$value];
-        }
-
         $segments[] = $operation;
         if (null !== $value && '' !== $field) {
             $segments[] = (string) $value;
