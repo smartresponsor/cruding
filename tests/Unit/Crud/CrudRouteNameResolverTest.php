@@ -29,7 +29,7 @@ final class CrudRouteNameResolverTest extends TestCase
 
         self::assertSame(['crudPath' => 'product/price'], $resolver->parameters($context, null, null, 'index'));
         self::assertSame(['crudPath' => 'product/price/new'], $resolver->parameters($context, null, null, 'new'));
-        self::assertSame(['crudPath' => 'product/price/gold'], $resolver->parameters($context, 'gold', 'slug', 'show'));
+        self::assertSame(['crudPath' => 'product/price/show/gold'], $resolver->parameters($context, 'gold', 'slug', 'show'));
         self::assertSame(['crudPath' => 'product/price/edit/gold'], $resolver->parameters($context, 'gold', 'slug', 'edit'));
         self::assertSame(['crudPath' => 'product/price/delete/gold'], $resolver->parameters($context, 'gold', 'slug', 'delete'));
     }
