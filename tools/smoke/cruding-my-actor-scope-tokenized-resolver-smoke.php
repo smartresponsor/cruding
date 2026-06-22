@@ -10,9 +10,9 @@ foreach ([
     'src/Service/Crud/CrudRouteTokenNormalizer.php',
     'src/Service/Crud/CrudReservedRouteTokenPolicy.php',
     'src/Service/Crud/CrudTokenizedRouteIntentResolver.php',
-    'src/Service/Crud/CrudActorScopeContextResolver.php',
+    'src/Resolver/Crud/CrudActorScopeContextResolver.php',
     'src/Dto/Crud/Entrypoint/CrudEntrypointContext.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php',
+    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
 ] as $file) {
     require_once $root.'/'.$file;
 }
@@ -42,7 +42,7 @@ use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
 use App\Cruding\Service\Crud\CrudRouteTokenNormalizer;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver;
+use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
@@ -80,7 +80,7 @@ foreach (['/my/vendor/attachment/document/index', '/api/my/vendor/attachment/doc
     assert(null === $resolver->resolveWeb($request), sprintf('%s must exceed semantic CRUD resource depth after context-prefix trimming.', $path));
 }
 
-$classResolver = new CrudEntrypointClassNameResolver();
+$classResolver = new CrudServiceClassNameResolver();
 $context = new CrudContext(
     surface: 'public',
     operation: 'index',

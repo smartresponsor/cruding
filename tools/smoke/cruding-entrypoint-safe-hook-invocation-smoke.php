@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$invokerPath = $root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php';
-$runnerPath = $root.'/src/Service/Crud/Entrypoint/CrudEntrypointOperationRunner.php';
+$invokerPath = $root.'/src/Invoker/Crud/CrudServiceInvoker.php';
+$runnerPath = $root.'/src/Runner/Crud/CrudServiceRunner.php';
 
 $invoker = file_get_contents($invokerPath);
 $runner = file_get_contents($runnerPath);
 
-assert(false !== $invoker, 'Cannot read CrudEntrypointInvoker.');
-assert(false !== $runner, 'Cannot read CrudEntrypointOperationRunner.');
+assert(false !== $invoker, 'Cannot read CrudServiceInvoker.');
+assert(false !== $runner, 'Cannot read CrudServiceRunner.');
 
 assert(str_contains($invoker, 'is_callable([$entrypoint, $method])'), 'Entrypoint invoker must use public-callable hook detection.');
 assert(!str_contains($invoker, 'method_exists($entrypoint'), 'Entrypoint invoker must not use method_exists() for hook dispatch because private/protected methods are not safely callable.');

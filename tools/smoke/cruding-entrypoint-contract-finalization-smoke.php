@@ -6,11 +6,11 @@ $root = dirname(__DIR__, 2);
 
 $result = readRequired($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointResult.php');
 $resolution = readRequired($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointResolution.php');
-$abstract = readRequired($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
-$behavior = readRequired($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php');
-$registry = readRequired($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointRegistry.php');
-$resolver = readRequired($root.'/src/Service/Crud/Entrypoint/CrudEntrypointResolver.php');
-$invoker = readRequired($root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php');
+$abstract = readRequired($root.'/src/Service/Crud/AbstractCrudService.php');
+$behavior = readRequired($root.'/src/Service/Crud/CrudDefaultServiceBehavior.php');
+$registry = readRequired($root.'/src/Service/Crud/CrudDefaultServiceRegistry.php');
+$resolver = readRequired($root.'/src/Resolver/Crud/CrudServiceResolver.php');
+$invoker = readRequired($root.'/src/Invoker/Crud/CrudServiceInvoker.php');
 
 foreach (['STATUS_DEFAULT_BEHAVIOR', 'STATUS_DEFAULT_BEHAVIOR_UNAVAILABLE'] as $constant) {
     assert(str_contains($result, 'public const '.$constant), sprintf('Result must expose %s.', $constant));
@@ -25,7 +25,7 @@ assert(str_contains($abstract, '$this->defaultBehavior->execute($context)'), 'A 
 assert(str_contains($behavior, 'CrudEntrypointBehaviorInterface'), 'Default behavior must implement the executable contract.');
 assert(str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide action-specific defaults.');
 assert(strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Explicit service ids must remain first.');
-assert(str_contains($resolver, 'CrudDefaultEntrypointRegistry'), 'Resolver must select a contextual default service.');
+assert(str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');
 assert(str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when no consumer service is selected.');
 assert(str_contains($invoker, 'CrudEntrypointResult::STATUS_NO_ENTRYPOINT_OVERRIDE'), 'Invoker must keep safe normalization for consumer overrides.');
 

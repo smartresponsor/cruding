@@ -6,8 +6,8 @@ namespace App\Cruding\Service\Surface;
 
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Dto\Surface\CrudRouteContext;
-use App\Cruding\Service\Crud\CrudEntityClassResolver;
-use App\Cruding\Service\Crud\CrudFormTypeResolver;
+use App\Cruding\Resolver\Crud\CrudEntityClassResolver;
+use App\Cruding\Resolver\Crud\CrudFormTypeResolver;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;

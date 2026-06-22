@@ -12,11 +12,11 @@ interface ObjectManager { public function getMetadataFactory(): object; }
 PHPSTUB);
 }
 
-require_once $root.'/src/Service/Crud/CrudResourcePathParser.php';
-require_once $root.'/src/Service/Crud/CrudEntityClassResolver.php';
+require_once $root.'/src/Parser/Crud/CrudResourcePathParser.php';
+require_once $root.'/src/Resolver/Crud/CrudEntityClassResolver.php';
 
-use App\Cruding\Service\Crud\CrudEntityClassResolver;
-use App\Cruding\Service\Crud\CrudResourcePathParser;
+use App\Cruding\Resolver\Crud\CrudEntityClassResolver;
+use App\Cruding\Parser\Crud\CrudResourcePathParser;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 
@@ -74,7 +74,7 @@ assert($classes[3] === $resolver->resolve('vendor/catalog/attachment/media'));
 assert($classes[4] === $resolver->resolve('attachment'));
 assert(null === $resolver->tryResolve('vendor/catalog/attachment'));
 
-$source = file_get_contents($root.'/src/Service/Crud/CrudEntityClassResolver.php');
+$source = file_get_contents($root.'/src/Resolver/Crud/CrudEntityClassResolver.php');
 assert(is_string($source));
 assert(!str_contains($source, '->tail('), 'Entity resolver must not fallback from vendor/attachment to bare attachment.');
 assert(!str_contains($source, 'normalizeEntityAlias'), 'Entity resolver must not use basename alias as semantic fallback.');

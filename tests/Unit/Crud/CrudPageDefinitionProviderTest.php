@@ -7,7 +7,7 @@ namespace App\Cruding\Tests\Unit\Crud;
 use App\Cruding\Dto\Crud\CrudAccessContext;
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Dto\Crud\CrudOwnership;
-use App\Cruding\Service\Crud\CrudPageDefinitionProvider;
+use App\Cruding\Provider\Crud\CrudPageDefinitionProvider;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;

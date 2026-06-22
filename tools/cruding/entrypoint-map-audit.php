@@ -11,13 +11,13 @@ if (is_file($autoload)) {
 
 foreach ([
     'src/Dto/Crud/CrudContext.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php',
+    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
 ] as $requiredFile) {
     require_once $root.'/'.$requiredFile;
 }
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver;
+use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
 
 $options = parseArguments($argv);
 $paths = $options['path'] ?? [];
@@ -28,7 +28,7 @@ if ([] === $paths) {
 }
 
 $appSrc = rtrim((string) ($options['app-src'][0] ?? 'src'), '/\\');
-$classResolver = new CrudEntrypointClassNameResolver();
+$classResolver = new CrudServiceClassNameResolver();
 $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
 $rows = [];
 

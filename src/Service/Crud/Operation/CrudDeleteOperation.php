@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
-use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
+use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
@@ -33,7 +33,7 @@ final readonly class CrudDeleteOperation implements CrudDeleteOperationInterface
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private UrlGeneratorInterface $urlGenerator,
         private CsrfTokenManagerInterface $csrfTokenManager,
-        private CrudEntrypointOperationRunner $entrypointRunner,
+        private CrudServiceRunner $entrypointRunner,
     ) {
     }
 

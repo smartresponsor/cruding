@@ -22,7 +22,7 @@ Examples:
 - `/alpha/attachment/media/edit/123` -> `App\Service\Http\Alpha\Attachment\Media\AlphaAttachmentMediaEditService`
 - `/alpha/attachment/media/archive/sample-entry` -> `App\Service\Http\Alpha\Attachment\Media\AlphaAttachmentMediaArchiveService`
 
-These classes are extension points, not controllers. They may be empty, extend `AbstractCrudEntrypointService`, or implement one or more optional entrypoint interfaces.
+These classes are extension points, not controllers. They may be empty, extend `AbstractCrudService`, or implement one or more optional entrypoint interfaces.
 
 ## Safe service shapes
 
@@ -37,7 +37,7 @@ final class AlphaIndexService
 Abstract default service:
 
 ```php
-final class AlphaIndexService extends AbstractCrudEntrypointService
+final class AlphaIndexService extends AbstractCrudService
 {
 }
 ```

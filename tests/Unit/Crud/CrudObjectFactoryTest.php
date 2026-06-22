@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Service\Crud\CrudObjectFactory;
+use App\Cruding\Factory\Crud\CrudObjectFactory;
 use PHPUnit\Framework\TestCase;
 
 final class CrudObjectFactoryTest extends TestCase

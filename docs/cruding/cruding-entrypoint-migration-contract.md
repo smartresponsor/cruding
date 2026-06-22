@@ -13,7 +13,7 @@ The migration contract is intentionally read-only:
 1. Explicit registered service key / service id.
 2. URI-derived granular entrypoint class.
 3. Class exists but is not registered: fail-soft diagnostic.
-4. Class missing: `NullCrudEntrypointService` fallback.
+4. Class missing: `NullCrudService` fallback.
 
 The current registered service/key lookup remains first priority.
 
@@ -48,7 +48,7 @@ final class AlphaIndexService
 Abstract defaults:
 
 ```php
-final class AlphaIndexService extends AbstractCrudEntrypointService
+final class AlphaIndexService extends AbstractCrudService
 {
 }
 ```

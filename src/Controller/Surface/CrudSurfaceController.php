@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Controller\Surface;
 
 use App\Cruding\Dto\Surface\CrudSurfaceRequest;
-use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Surface\CrudRouteShapeResolver;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceGenericFallback;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator;

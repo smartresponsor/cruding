@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 cruding_api_tokenized_catch_all:
     path: /api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiTokenizedController
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
     methods: [GET, POST, PUT, PATCH, DELETE]
     defaults:
         _crud_surface: public

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
-use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointDispatcher;
+use App\Cruding\Dispatcher\Crud\CrudServiceDispatcher;
+use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointDispatcherInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -23,8 +23,8 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
         private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
-        #[Autowire(service: CrudEntrypointDispatcher::class)]
-        private CrudEntrypointDispatcherInterface $entrypointDispatcher,
+        #[Autowire(service: CrudServiceDispatcher::class)]
+        private CrudServiceDispatcherInterface $entrypointDispatcher,
     ) {
     }
 

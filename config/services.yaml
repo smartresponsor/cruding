@@ -48,7 +48,7 @@ services:
             $serviceInvoker: '@App\Cruding\Service\Crud\Surface\CrudSurfaceServiceInvoker'
             $providerLocator: '@App\Cruding\Service\Crud\Surface\CrudSurfaceProviderLocator'
             $genericFallback: '@App\Cruding\Service\Crud\Surface\CrudSurfaceGenericFallback'
-            $notFoundResponseFactory: '@App\Cruding\Service\Crud\CrudNotFoundResponseFactory'
+            $notFoundResponseFactory: '@App\Cruding\Factory\Crud\CrudNotFoundResponseFactory'
             $debug: '%kernel.debug%'
             $logger: '@?logger'
 
@@ -56,13 +56,13 @@ services:
         resource: '../src/Controller/Api/Crud/'
         tags: ['controller.service_arguments']
 
-    App\Cruding\Controller\Crud\CrudTokenizedController:
+    App\Cruding\Controller\Crud\CrudController:
         public: true
         tags: ['controller.service_arguments']
         arguments:
-            $routeMapMatcher: '@App\Cruding\Service\Crud\Surface\CrudRouteMapMatcher'
+            $routeMapMatcher: '@App\Cruding\Service\Crud\CrudRouteMapMatcher'
 
-    App\Cruding\Controller\Api\Crud\CrudApiTokenizedController:
+    App\Cruding\Controller\Api\Crud\CrudApiController:
         public: true
         tags: ['controller.service_arguments']
 
@@ -85,18 +85,18 @@ services:
         arguments:
             $providers: !tagged_iterator cruding.surface_provider
 
-    App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface: '@App\Cruding\Service\Crud\CrudContextResolver'
+    App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface: '@App\Cruding\Resolver\Crud\CrudContextResolver'
     App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface: '@App\Cruding\Service\Crud\CrudObjectFinder'
-    App\Cruding\ServiceInterface\Crud\CrudObjectFactoryInterface: '@App\Cruding\Service\Crud\CrudObjectFactory'
-    App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface: '@App\Cruding\Service\Crud\CrudFormHandler'
-    App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface: '@App\Cruding\Service\Crud\CrudRouteNameResolver'
-    App\Cruding\ServiceInterface\Crud\CrudCapabilityResolverInterface: '@App\Cruding\Service\Crud\CrudCapabilityResolver'
-    App\Cruding\ServiceInterface\Crud\CrudOwnershipResolverInterface: '@App\Cruding\Service\Crud\CrudOwnershipResolver'
-    App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface: '@App\Cruding\Service\Crud\CrudAccessContextBuilder'
-    App\Cruding\ServiceInterface\Crud\CrudMutationGuardInterface: '@App\Cruding\Service\Crud\CrudMutationGuard'
-    App\Cruding\ServiceInterface\Crud\CrudApiInputHandlerInterface: '@App\Cruding\Service\Crud\CrudApiInputHandler'
+    App\Cruding\ServiceInterface\Crud\CrudObjectFactoryInterface: '@App\Cruding\Factory\Crud\CrudObjectFactory'
+    App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface: '@App\Cruding\Handler\Crud\CrudFormHandler'
+    App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface: '@App\Cruding\Resolver\Crud\CrudRouteNameResolver'
+    App\Cruding\ServiceInterface\Crud\CrudCapabilityResolverInterface: '@App\Cruding\Resolver\Crud\CrudCapabilityResolver'
+    App\Cruding\ServiceInterface\Crud\CrudOwnershipResolverInterface: '@App\Cruding\Resolver\Crud\CrudOwnershipResolver'
+    App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface: '@App\Cruding\Builder\Crud\CrudAccessContextBuilder'
+    App\Cruding\ServiceInterface\Crud\CrudMutationGuardInterface: '@App\Cruding\Guard\Crud\CrudMutationGuard'
+    App\Cruding\ServiceInterface\Crud\CrudApiInputHandlerInterface: '@App\Cruding\Handler\Crud\CrudApiInputHandler'
     App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface: '@App\Cruding\Service\Crud\CrudApiResponder'
-    App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Service\Crud\CrudPageDefinitionProvider'
+    App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface: '@App\Cruding\Provider\Crud\CrudPageDefinitionProvider'
     App\Cruding\ServiceInterface\Crud\Surface\CrudInterfacingProviderSurfaceBuilderInterface: '@App\Cruding\Service\Crud\Surface\CrudInterfacingProviderSurfaceBuilder'
 
     App\Cruding\Service\Crud\Runtime\CrudRuntimeScopeReader:

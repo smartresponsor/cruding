@@ -8,18 +8,18 @@ $requiredFiles = [
     'src/Dto/Crud/Entrypoint/CrudEntrypointContext.php',
     'src/Dto/Crud/Entrypoint/CrudEntrypointResult.php',
     'src/Dto/Crud/Entrypoint/CrudEntrypointResolution.php',
-    'src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php',
-    'src/Service/Crud/Entrypoint/AbstractCrudIndexService.php',
-    'src/Service/Crud/Entrypoint/AbstractCrudShowService.php',
-    'src/Service/Crud/Entrypoint/AbstractCrudCreateService.php',
-    'src/Service/Crud/Entrypoint/AbstractCrudEditService.php',
-    'src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php',
-    'src/Service/Crud/Entrypoint/CrudDefaultEntrypointRegistry.php',
-    'src/Service/Crud/Entrypoint/DefaultCrudEntrypointService.php',
-    'src/Service/Crud/Entrypoint/DefaultCrudIndexService.php',
-    'src/Service/Crud/Entrypoint/DefaultCrudShowService.php',
-    'src/Service/Crud/Entrypoint/DefaultCrudCreateService.php',
-    'src/Service/Crud/Entrypoint/DefaultCrudEditService.php',
+    'src/Service/Crud/AbstractCrudService.php',
+    'src/Service/Crud/AbstractCrudIndexService.php',
+    'src/Service/Crud/AbstractCrudShowService.php',
+    'src/Service/Crud/AbstractCrudCreateService.php',
+    'src/Service/Crud/AbstractCrudEditService.php',
+    'src/Service/Crud/CrudDefaultServiceBehavior.php',
+    'src/Service/Crud/CrudDefaultServiceRegistry.php',
+    'src/Service/Crud/DefaultCrudService.php',
+    'src/Service/Crud/DefaultCrudIndexService.php',
+    'src/Service/Crud/DefaultCrudShowService.php',
+    'src/Service/Crud/DefaultCrudCreateService.php',
+    'src/Service/Crud/DefaultCrudEditService.php',
     'src/ServiceInterface/Crud/Entrypoint/CrudEntrypointBehaviorInterface.php',
 ];
 
@@ -28,9 +28,9 @@ foreach ($requiredFiles as $relativePath) {
 }
 
 require_once $root.'/src/Dto/Crud/CrudContext.php';
-require_once $root.'/src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php';
+require_once $root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php';
 
-$classNameResolver = new App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver();
+$classNameResolver = new App\Cruding\Resolver\Crud\CrudServiceClassNameResolver();
 $candidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\CrudContext(
     surface: 'public',
     operation: 'edit',
@@ -61,14 +61,14 @@ assert([
     'App\\Service\\Http\\Vendor\\VendorIndexService',
 ] === $componentCandidates, 'Component entrypoint must be preferred before the host fallback class.');
 
-$abstract = file_get_contents($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
-$behavior = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointBehavior.php');
-$registry = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudDefaultEntrypointRegistry.php');
-$resolver = file_get_contents($root.'/src/Service/Crud/Entrypoint/CrudEntrypointResolver.php');
+$abstract = file_get_contents($root.'/src/Service/Crud/AbstractCrudService.php');
+$behavior = file_get_contents($root.'/src/Service/Crud/CrudDefaultServiceBehavior.php');
+$registry = file_get_contents($root.'/src/Service/Crud/CrudDefaultServiceRegistry.php');
+$resolver = file_get_contents($root.'/src/Resolver/Crud/CrudServiceResolver.php');
 $resolution = file_get_contents($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointResolution.php');
 
 assert(false !== $resolver && strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Explicit service ids must be checked before URI-derived classes.');
-assert(false !== $resolver && str_contains($resolver, 'CrudDefaultEntrypointRegistry'), 'Resolver must select a contextual default service.');
+assert(false !== $resolver && str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');
 assert(false !== $resolver && str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when consumer service is absent.');
 assert(false !== $resolution && str_contains($resolution, 'fallbackReason'), 'Resolution diagnostics must preserve the fallback reason.');
 assert(false !== $abstract && str_contains($abstract, '#[Required]'), 'Base entrypoint must receive behavior without constructor coupling.');
@@ -81,6 +81,6 @@ assert(false !== $behavior && str_contains($behavior, "'new', 'create' =>"), 'De
 assert(false !== $behavior && str_contains($behavior, "'edit', 'update' =>"), 'Default behavior must implement edit flow.');
 assert(false !== $behavior && str_contains($behavior, 'crud_operation_not_supported'), 'Unknown operations must end safely.');
 assert(false !== $registry && str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide an index object.');
-assert(false !== $registry && str_contains($registry, 'DefaultCrudEntrypointService'), 'Registry must provide a generic terminal object.');
+assert(false !== $registry && str_contains($registry, 'DefaultCrudService'), 'Registry must provide a generic terminal object.');
 
 fwrite(STDOUT, "PASS: entrypoints resolve explicit service, component FQCN, host FQCN, or contextual default behavior.\n");

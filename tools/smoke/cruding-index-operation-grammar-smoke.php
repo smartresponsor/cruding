@@ -6,7 +6,7 @@ $root = dirname(__DIR__, 2);
 $resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
 $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
 $operation = readFileStrict($root.'/src/Service/Crud/Operation/CrudIndexOperation.php');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudTokenizedController.php');
+$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
 
 assert(!str_contains($routes, 'cruding_index_named:'), 'Static /{resourcePath}/index route must be removed; index is resolved from tokens.');
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Tokenized catch-all must replace index-specific routes.');

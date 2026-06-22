@@ -31,9 +31,9 @@ Examples using neutral sample resources:
   -> App\Service\Http\Alpha\Attachment\Media\AlphaAttachmentMediaArchiveService
 ```
 
-The route controller may be a shared core controller, but the component extension point remains operation-specific because the operation token is preserved in `CrudContext::operation` and used by `CrudEntrypointClassNameResolver`.
+The route controller may be a shared core controller, but the component extension point remains operation-specific because the operation token is preserved in `CrudContext::operation` and used by `CrudServiceClassNameResolver`.
 
-All configured UI CRUD operation tokens must reach `CrudEntrypointOperationRunner` before falling back to the default Cruding operation flow:
+All configured UI CRUD operation tokens must reach `CrudServiceRunner` before falling back to the default Cruding operation flow:
 
 ```text
 index
@@ -51,7 +51,7 @@ restore
 duplicate
 ```
 
-Entrypoints may be empty, extend `AbstractCrudEntrypointService`, or implement one or more optional method interfaces. Absence of a class is not a crash condition.
+Entrypoints may be empty, extend `AbstractCrudService`, or implement one or more optional method interfaces. Absence of a class is not a crash condition.
 
 Supported optional hooks:
 

@@ -8,12 +8,12 @@ use App\Cruding\Dto\Crud\CrudAccessContext;
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Dto\Crud\CrudOwnership;
 use App\Cruding\Dto\Crud\CrudPageDefinition;
-use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Operation\CrudIndexOperation;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointDispatcherInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
 use App\Cruding\ServiceInterface\Crud\Surface\CrudInterfacingProviderSurfaceBuilderInterface;
 use App\Cruding\Value\Surface\CrudSurfaceContract;
 use PHPUnit\Framework\TestCase;
@@ -50,7 +50,7 @@ final class CrudIndexOperationTest extends TestCase
             ->with($request)
             ->willReturn($context);
 
-        $entrypointDispatcher = $this->createMock(CrudEntrypointDispatcherInterface::class);
+        $entrypointDispatcher = $this->createMock(CrudServiceDispatcherInterface::class);
         $entrypointDispatcher->expects(self::once())
             ->method('tryRun')
             ->with($request, $context)

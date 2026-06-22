@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 $tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudTokenizedController.php');
-$classResolver = readFileStrict($root.'/src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php');
+$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
+$classResolver = readFileStrict($root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php');
 $context = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointContext.php');
-$invoker = readFileStrict($root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php');
-$abstract = readFileStrict($root.'/src/Service/Crud/Entrypoint/AbstractCrudEntrypointService.php');
+$invoker = readFileStrict($root.'/src/Invoker/Crud/CrudServiceInvoker.php');
+$abstract = readFileStrict($root.'/src/Service/Crud/AbstractCrudService.php');
 
 $configOperations = extractConfiguredOperations($tokens);
 assert([] !== $configOperations, 'Configured CRUD operation token list must not be empty.');
@@ -17,7 +17,7 @@ foreach (['index', 'show', 'new', 'create', 'edit', 'update', 'delete', 'bulk', 
     assert(in_array($operation, $configOperations, true), sprintf('Operation token "%s" must remain configured.', $operation));
 }
 
-foreach (['CrudEntrypointOperationRunner', 'runEntrypointOnly', 'DEFAULT_OPERATION_HANDLER'] as $needle) {
+foreach (['CrudServiceRunner', 'runEntrypointOnly', 'DEFAULT_OPERATION_HANDLER'] as $needle) {
     assert(str_contains($controller, $needle), sprintf('Tokenized controller must keep entrypoint parity via %s.', $needle));
 }
 

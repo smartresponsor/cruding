@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$invokerPath = $root.'/src/Service/Crud/Entrypoint/CrudEntrypointInvoker.php';
-$resolverPath = $root.'/src/Service/Crud/Entrypoint/CrudEntrypointResolver.php';
+$invokerPath = $root.'/src/Invoker/Crud/CrudServiceInvoker.php';
+$resolverPath = $root.'/src/Resolver/Crud/CrudServiceResolver.php';
 $resultPath = $root.'/src/Dto/Crud/Entrypoint/CrudEntrypointResult.php';
 
 $invoker = file_get_contents($invokerPath);
 $resolver = file_get_contents($resolverPath);
 $result = file_get_contents($resultPath);
 
-assert(false !== $invoker, 'Cannot read CrudEntrypointInvoker.');
-assert(false !== $resolver, 'Cannot read CrudEntrypointResolver.');
+assert(false !== $invoker, 'Cannot read CrudServiceInvoker.');
+assert(false !== $resolver, 'Cannot read CrudServiceResolver.');
 assert(false !== $result, 'Cannot read CrudEntrypointResult.');
 
 assert(str_contains($resolver, 'is_callable($service)'), 'Resolver must keep invokable services raw instead of wrapping them as passive services.');

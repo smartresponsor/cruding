@@ -38,10 +38,10 @@ foreach ([
 $factory = file_get_contents($root . '/src/Service/Crud/Surface/CrudSurfaceContractFactory.php') ?: '';
 $surfaceContract = file_get_contents($root . '/src/Value/Surface/CrudSurfaceContract.php') ?: '';
 $builder = file_get_contents($root . '/src/Service/Crud/Surface/CrudInterfacingProviderSurfaceBuilder.php') ?: '';
-$pageProvider = file_get_contents($root . '/src/Service/Crud/CrudPageDefinitionProvider.php') ?: '';
+$pageProvider = file_get_contents($root . '/src/Provider/Crud/CrudPageDefinitionProvider.php') ?: '';
 $extension = file_get_contents($root . '/src/DependencyInjection/CrudingExtension.php') ?: '';
 $configuration = file_get_contents($root . '/src/DependencyInjection/Configuration.php') ?: '';
-$contextResolver = file_get_contents($root . '/src/Service/Crud/CrudContextResolver.php') ?: '';
+$contextResolver = file_get_contents($root . '/src/Resolver/Crud/CrudContextResolver.php') ?: '';
 $routes = file_get_contents($root . '/config/routes.yaml') ?: '';
 $services = file_get_contents($root . '/config/services.yaml') ?: '';
 $composer = file_get_contents($root . '/composer.json') ?: '';

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\Crud;
 
 use App\Cruding\Contract\Capability\CrudSluggableInterface;
-use App\Cruding\Service\Crud\CrudCapabilityResolver;
+use App\Cruding\Resolver\Crud\CrudCapabilityResolver;
 use PHPUnit\Framework\TestCase;
 
 final class CrudCapabilityResolverTest extends TestCase

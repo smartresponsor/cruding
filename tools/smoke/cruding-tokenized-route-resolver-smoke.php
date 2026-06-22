@@ -7,8 +7,8 @@ $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
 $apiRoutes = readFileStrict($root.'/config/routes/cruding_api_crud.yaml');
 $routeIndex = readFileStrict($root.'/config/routes.yaml');
 $resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudTokenizedController.php');
-$apiController = readFileStrict($root.'/src/Controller/Api/Crud/CrudApiTokenizedController.php');
+$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
+$apiController = readFileStrict($root.'/src/Controller/Api/Crud/CrudApiController.php');
 $tokenNormalizer = readFileStrict($root.'/src/Service/Crud/CrudRouteTokenNormalizer.php');
 $intent = readFileStrict($root.'/src/Dto/Crud/CrudTokenizedRouteIntent.php');
 
@@ -23,7 +23,7 @@ assert(!str_contains($routes, 'resourcePath:'), 'CRUD route YAML must not contai
 assert(!str_contains($routes, 'operationToken:'), 'CRUD route YAML must not contain semantic operationToken requirements.');
 assert(!str_contains($routes, 'slug:'), 'CRUD route YAML must not contain semantic slug requirements.');
 assert(!str_contains($routes, '_crud_operation:'), 'CRUD route YAML must not hardcode operation decisions.');
-assert(str_contains($routes, 'App\\Cruding\\Controller\\Crud\\CrudTokenizedController'), 'CRUD catch-all must dispatch into tokenized controller.');
+assert(str_contains($routes, 'App\\Cruding\\Controller\\Crud\\CrudController'), 'CRUD catch-all must dispatch into tokenized controller.');
 
 assert(str_contains($apiRoutes, 'cruding_api_tokenized_catch_all:'), 'Missing tokenized API catch-all route.');
 assert(str_contains($apiRoutes, 'path: /api/{crudPath}'), 'API route must capture raw API path for PHP token resolver.');

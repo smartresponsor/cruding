@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Crud\CrudRouteNameResolver;
+use App\Cruding\Resolver\Crud\CrudRouteNameResolver;
 use PHPUnit\Framework\TestCase;
 
 final class CrudRouteNameResolverTest extends TestCase

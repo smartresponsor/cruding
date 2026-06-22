@@ -84,7 +84,7 @@ Internal/admin identity exposes `user_id` only when `ROLE_ADMIN` or `ROLE_SUPER_
 ----
 Added:
   docs/cruding/cruding-my-actor-scope-tokenized-resolver.md
-  src/Service/Crud/CrudActorScopeContextResolver.php
+  src/Resolver/Crud/CrudActorScopeContextResolver.php
   tools/smoke/cruding-my-actor-scope-tokenized-resolver-smoke.php
 
 Changed:
@@ -93,7 +93,7 @@ Changed:
   src/Dto/Crud/CrudTokenizedRouteIntent.php
   src/Dto/Crud/Entrypoint/CrudEntrypointContext.php
   src/Service/Crud/CrudTokenizedRouteIntentResolver.php
-  src/Service/Crud/Entrypoint/CrudEntrypointOperationRunner.php
+  src/Runner/Crud/CrudServiceRunner.php
   tools/cruding/entrypoint-map-audit.php
   tools/cruding/entrypoint-skeleton-preview.php
   tools/smoke/cruding-entrypoint-migration-contract-smoke.php

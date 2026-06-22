@@ -11,13 +11,13 @@ if (is_file($autoload)) {
 
 foreach ([
     'src/Dto/Crud/CrudContext.php',
-    'src/Service/Crud/Entrypoint/CrudEntrypointClassNameResolver.php',
+    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
 ] as $requiredFile) {
     require_once $root.'/'.$requiredFile;
 }
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointClassNameResolver;
+use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
 
 $options = parseArguments($argv);
 $path = (string) ($options['path'][0] ?? '');
@@ -39,7 +39,7 @@ $context = new CrudContext(
     formTypeClass: null,
 );
 
-$classResolver = new CrudEntrypointClassNameResolver();
+$classResolver = new CrudServiceClassNameResolver();
 $candidates = $classResolver->candidateClassNames($context);
 if ([] === $candidates) {
     fwrite(STDERR, sprintf("Cannot derive entrypoint class for path %s.\n", $path));
@@ -215,7 +215,7 @@ function renderSkeleton(string $namespace, string $shortName, string $style): st
     $header = "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n";
 
     return match ($style) {
-        'abstract' => $header."\nuse App\\Cruding\\Service\\Crud\\Entrypoint\\AbstractCrudEntrypointService;\n\nfinal class {$shortName} extends AbstractCrudEntrypointService\n{\n}\n",
+        'abstract' => $header."\nuse App\\Cruding\\Service\\Crud\\Entrypoint\\AbstractCrudService;\n\nfinal class {$shortName} extends AbstractCrudService\n{\n}\n",
         'get' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudGetEntrypointInterface;\n\nfinal class {$shortName} implements CrudGetEntrypointInterface\n{\n    public function get(CrudEntrypointContext ".'$'."context): ?CrudEntrypointResult\n    {\n        return null;\n    }\n}\n",
         'post' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudPostEntrypointInterface;\n\nfinal class {$shortName} implements CrudPostEntrypointInterface\n{\n    public function post(CrudEntrypointContext ".'$'."context): ?CrudEntrypointResult\n    {\n        return null;\n    }\n}\n",
         default => $header."\nfinal class {$shortName}\n{\n}\n",

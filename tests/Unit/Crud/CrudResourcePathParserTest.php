@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Service\Crud\CrudResourcePathParser;
+use App\Cruding\Parser\Crud\CrudResourcePathParser;
 use PHPUnit\Framework\TestCase;
 
 final class CrudResourcePathParserTest extends TestCase

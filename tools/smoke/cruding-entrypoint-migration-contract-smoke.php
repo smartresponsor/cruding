@@ -41,7 +41,7 @@ $skeletonOutput = shell_exec($skeletonCommand);
 assert(is_string($skeletonOutput), 'Skeleton preview did not return output.');
 assert(str_contains($skeletonOutput, 'writeAction: false'), 'Skeleton preview must be explicitly read-only.');
 assert(str_contains($skeletonOutput, 'namespace App\Service\Http\Alpha\Attachment\Media;'), 'Skeleton preview must keep URI-derived namespace.');
-assert(str_contains($skeletonOutput, 'final class AlphaAttachmentMediaArchiveService extends AbstractCrudEntrypointService'), 'Skeleton preview must generate a self-documenting abstract-based entrypoint.');
+assert(str_contains($skeletonOutput, 'final class AlphaAttachmentMediaArchiveService extends AbstractCrudService'), 'Skeleton preview must generate a self-documenting abstract-based entrypoint.');
 assert(!str_contains($skeletonOutput, 'AlphaCrudService'), 'Skeleton preview must not generate a resource mega-service.');
 
 $getCommand = escapeshellcmd($php).' '.escapeshellarg($skeletonPreview).' --path=/alpha/index --style=get';

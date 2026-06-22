@@ -387,3 +387,16 @@ dev composer.json
 
 prod \www\App\config\kernel\runtime_scope.prod.lock
 dev \www\App\config\kernel\runtime_scope.prod.lock
+## console-mcp Patch Discipline
+
+- Prefer the smallest possible patch scope.
+- Default to one file per patch.
+- Run `dryRun: true` before every non-trivial `apply_patch` call.
+- Do not retry the same broad multi-file hunk after a format failure; reduce scope immediately.
+- Prefer wrapper-first rename waves: add canonical file, retarget runtime, retarget tests, then remove legacy only after checks pass.
+- If path policy blocks a direct read, do not repeat the same failing read attempt; use surrounding references or wrapper-first retargeting.
+- Use full-file replacement only for small text files when line-hunk patching is unstable.
+- Update canonical runtime paths before tests and smoke scripts during rename work.
+- After each logical patch wave, run the smallest relevant check before continuing.
+- If a change set grows beyond a few files, restate it as ordered micro-steps before patching.
+

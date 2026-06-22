@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
-use App\Cruding\Service\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
+use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\Crud\Entrypoint\CrudEntrypointOperationRunner;
 use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -28,7 +28,7 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
         private CrudSurfaceContractFactory $surfaceContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
-        private CrudEntrypointOperationRunner $entrypointRunner,
+        private CrudServiceRunner $entrypointRunner,
     ) {
     }
 

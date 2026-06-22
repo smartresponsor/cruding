@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Service\Crud\CrudFormTypeResolver;
+use App\Cruding\Resolver\Crud\CrudFormTypeResolver;
 use App\Tests\Fixture\Entity\ProductEntity;
 use App\Tests\Fixture\Form\ProductEntityType;
 use PHPUnit\Framework\TestCase;
