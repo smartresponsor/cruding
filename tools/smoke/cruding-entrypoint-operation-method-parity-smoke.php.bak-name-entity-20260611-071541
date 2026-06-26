@@ -6,7 +6,7 @@ $root = dirname(__DIR__, 2);
 $tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
 $controller = readFileStrict($root.'/src/Controller/Crud/CrudTokenizedController.php');
 $classResolver = readFileStrict($root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php');
-$context = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointContext.php');
+$context = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudServiceContext.php');
 $invoker = readFileStrict($root.'/src/Invoker/Crud/CrudServiceInvoker.php');
 $abstract = readFileStrict($root.'/src/Service/Crud/AbstractCrudService.php');
 

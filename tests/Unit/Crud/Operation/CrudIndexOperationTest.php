@@ -10,22 +10,22 @@ use App\Cruding\Dto\Crud\CrudOwnership;
 use App\Cruding\Dto\Crud\CrudPageDefinition;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Operation\CrudIndexOperation;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
-use App\Cruding\ServiceInterface\Crud\Surface\CrudInterfacingProviderSurfaceBuilderInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\ServiceInterface\Crud\Resource\CrudInterfacingProviderResourceBuilderInterface;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 final class CrudIndexOperationTest extends TestCase
 {
-    public function testBuildsIndexSurfaceFromResolvedContext(): void
+    public function testBuildsIndexviewFromResolvedContext(): void
     {
         $request = Request::create('/document/index');
         $context = new CrudContext(
-            surface: 'public',
+            view: 'public',
             operation: 'index',
             resourcePath: 'document',
             entityClass: 'App\\Tests\\Fixture\\Entity\\DocumentEntity',
@@ -62,17 +62,17 @@ final class CrudIndexOperationTest extends TestCase
             ->with($context)
             ->willReturn($page);
 
-        $surfaceBuilder = $this->createStub(CrudInterfacingProviderSurfaceBuilderInterface::class);
-        $surfaceBuilder->method('build')->willReturn([]);
+        $viewBuilder = $this->createStub(CrudInterfacingProviderResourceBuilderInterface::class);
+        $viewBuilder->method('build')->willReturn([]);
 
         $operation = new CrudIndexOperation(
             $contextResolver,
             $pageDefinitionProvider,
-            new CrudSurfaceContractFactory($surfaceBuilder),
+            new CrudResourceContractFactory($viewBuilder),
             new CrudNotFoundResponseFactory(),
             $entrypointDispatcher,
         );
 
-        self::assertInstanceOf(CrudSurfaceContract::class, $operation->handle($request));
+        self::assertInstanceOf(CrudResourceContract::class, $operation->handle($request));
     }
 }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Cruding\Invoker\Crud;
 
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResult;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudDeleteEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGetEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGroundedEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPatchEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPostEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPutEntrypointInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudDeleteServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGetServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGroundedServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPatchServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPostServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPutServiceInterface;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Response;
 
 final class CrudServiceInvoker
@@ -20,15 +20,15 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    public function invoke(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics = []): CrudEntrypointResult
+    public function invoke(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics = []): CrudServiceResult
     {
         $grounding = $this->groundingDecision($entrypoint, $context, $resolutionDiagnostics);
-        if ($grounding instanceof CrudEntrypointResult) {
+        if ($grounding instanceof CrudServiceResult) {
             return $grounding;
         }
 
         if (!$grounding) {
-            return CrudEntrypointResult::notGrounded([
+            return CrudServiceResult::notGrounded([
                 'entrypoint' => $entrypoint::class,
                 'resolution' => $resolutionDiagnostics,
             ]);
@@ -36,11 +36,11 @@ final class CrudServiceInvoker
 
         $method = $context->httpMethod();
         $result = match ($method) {
-            CrudEntrypointContext::HTTP_GET => $this->callGet($entrypoint, $context, $resolutionDiagnostics),
-            CrudEntrypointContext::HTTP_POST => $this->callPost($entrypoint, $context, $resolutionDiagnostics),
-            CrudEntrypointContext::HTTP_PUT => $this->callPut($entrypoint, $context, $resolutionDiagnostics),
-            CrudEntrypointContext::HTTP_PATCH => $this->callPatch($entrypoint, $context, $resolutionDiagnostics),
-            CrudEntrypointContext::HTTP_DELETE => $this->callDelete($entrypoint, $context, $resolutionDiagnostics),
+            CrudServiceContext::HTTP_GET => $this->callGet($entrypoint, $context, $resolutionDiagnostics),
+            CrudServiceContext::HTTP_POST => $this->callPost($entrypoint, $context, $resolutionDiagnostics),
+            CrudServiceContext::HTTP_PUT => $this->callPut($entrypoint, $context, $resolutionDiagnostics),
+            CrudServiceContext::HTTP_PATCH => $this->callPatch($entrypoint, $context, $resolutionDiagnostics),
+            CrudServiceContext::HTTP_DELETE => $this->callDelete($entrypoint, $context, $resolutionDiagnostics),
             default => null,
         };
         $dispatchedMethod = $method;
@@ -56,16 +56,16 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function groundingDecision(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): bool|CrudEntrypointResult
+    private function groundingDecision(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): bool|CrudServiceResult
     {
-        if (!$entrypoint instanceof CrudGroundedEntrypointInterface && !$this->isPublicCallable($entrypoint, 'isGrounded')) {
+        if (!$entrypoint instanceof CrudGroundedServiceInterface && !$this->isPublicCallable($entrypoint, 'isGrounded')) {
             return true;
         }
 
         try {
             return (bool) $entrypoint->isGrounded($context);
         } catch (\Throwable $exception) {
-            return CrudEntrypointResult::continueDefault(CrudEntrypointResult::STATUS_ENTRYPOINT_GROUNDING_FAILED, [
+            return CrudServiceResult::continueDefault(CrudServiceResult::STATUS_ENTRYPOINT_GROUNDING_FAILED, [
                 'entrypoint' => $entrypoint::class,
                 'method' => 'isGrounded',
                 'exception' => $exception::class,
@@ -78,9 +78,9 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callGet(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callGet(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
-        if (!$entrypoint instanceof CrudGetEntrypointInterface && !$this->isPublicCallable($entrypoint, 'get')) {
+        if (!$entrypoint instanceof CrudGetServiceInterface && !$this->isPublicCallable($entrypoint, 'get')) {
             return null;
         }
 
@@ -90,9 +90,9 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callPost(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callPost(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
-        if (!$entrypoint instanceof CrudPostEntrypointInterface && !$this->isPublicCallable($entrypoint, 'post')) {
+        if (!$entrypoint instanceof CrudPostServiceInterface && !$this->isPublicCallable($entrypoint, 'post')) {
             return null;
         }
 
@@ -102,9 +102,9 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callPut(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callPut(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
-        if (!$entrypoint instanceof CrudPutEntrypointInterface && !$this->isPublicCallable($entrypoint, 'put')) {
+        if (!$entrypoint instanceof CrudPutServiceInterface && !$this->isPublicCallable($entrypoint, 'put')) {
             return null;
         }
 
@@ -114,9 +114,9 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callPatch(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callPatch(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
-        if (!$entrypoint instanceof CrudPatchEntrypointInterface && !$this->isPublicCallable($entrypoint, 'patch')) {
+        if (!$entrypoint instanceof CrudPatchServiceInterface && !$this->isPublicCallable($entrypoint, 'patch')) {
             return null;
         }
 
@@ -126,9 +126,9 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callDelete(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callDelete(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
-        if (!$entrypoint instanceof CrudDeleteEntrypointInterface && !$this->isPublicCallable($entrypoint, 'delete')) {
+        if (!$entrypoint instanceof CrudDeleteServiceInterface && !$this->isPublicCallable($entrypoint, 'delete')) {
             return null;
         }
 
@@ -138,12 +138,12 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callHook(object $entrypoint, string $method, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callHook(object $entrypoint, string $method, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
         try {
             return $entrypoint->{$method}($context);
         } catch (\Throwable $exception) {
-            return CrudEntrypointResult::continueDefault(CrudEntrypointResult::STATUS_ENTRYPOINT_HOOK_FAILED, [
+            return CrudServiceResult::continueDefault(CrudServiceResult::STATUS_ENTRYPOINT_HOOK_FAILED, [
                 'entrypoint' => $entrypoint::class,
                 'method' => $method,
                 'exception' => $exception::class,
@@ -156,12 +156,12 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function callLegacyInvokable(object $entrypoint, CrudEntrypointContext $context, array $resolutionDiagnostics): mixed
+    private function callLegacyInvokable(object $entrypoint, CrudServiceContext $context, array $resolutionDiagnostics): mixed
     {
         try {
             return $entrypoint($context->request);
         } catch (\Throwable $exception) {
-            return CrudEntrypointResult::continueDefault(CrudEntrypointResult::STATUS_LEGACY_INVOKABLE_FAILED, [
+            return CrudServiceResult::continueDefault(CrudServiceResult::STATUS_LEGACY_INVOKABLE_FAILED, [
                 'entrypoint' => $entrypoint::class,
                 'method' => '__invoke',
                 'exception' => $exception::class,
@@ -179,29 +179,29 @@ final class CrudServiceInvoker
     /**
      * @param array<string, mixed> $resolutionDiagnostics
      */
-    private function normalizeResult(mixed $result, object $entrypoint, string $method, array $resolutionDiagnostics): CrudEntrypointResult
+    private function normalizeResult(mixed $result, object $entrypoint, string $method, array $resolutionDiagnostics): CrudServiceResult
     {
-        if ($result instanceof CrudEntrypointResult) {
+        if ($result instanceof CrudServiceResult) {
             return $result;
         }
 
         if ($result instanceof Response) {
-            return CrudEntrypointResult::response($result, diagnostics: ['resolution' => $resolutionDiagnostics]);
+            return CrudServiceResult::response($result, diagnostics: ['resolution' => $resolutionDiagnostics]);
         }
 
-        if ($result instanceof CrudSurfaceContract) {
-            return CrudEntrypointResult::surfaceContract($result, diagnostics: ['resolution' => $resolutionDiagnostics]);
+        if ($result instanceof CrudResourceContract) {
+            return CrudServiceResult::viewContract($result, diagnostics: ['resolution' => $resolutionDiagnostics]);
         }
 
         if (null === $result) {
-            return CrudEntrypointResult::continueDefault(CrudEntrypointResult::STATUS_NO_ENTRYPOINT_OVERRIDE, [
+            return CrudServiceResult::continueDefault(CrudServiceResult::STATUS_NO_ENTRYPOINT_OVERRIDE, [
                 'entrypoint' => $entrypoint::class,
                 'method' => $method,
                 'resolution' => $resolutionDiagnostics,
             ]);
         }
 
-        return CrudEntrypointResult::continueDefault(CrudEntrypointResult::STATUS_INVALID_ENTRYPOINT_RESULT_IGNORED, [
+        return CrudServiceResult::continueDefault(CrudServiceResult::STATUS_INVALID_ENTRYPOINT_RESULT_IGNORED, [
             'entrypoint' => $entrypoint::class,
             'method' => $method,
             'resultType' => get_debug_type($result),

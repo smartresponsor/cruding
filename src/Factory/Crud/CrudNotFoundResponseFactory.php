@@ -18,7 +18,7 @@ final readonly class CrudNotFoundResponseFactory
             'reason' => $reason,
             'resourcePath' => (string) $request->attributes->get('resourcePath', ''),
             'operation' => (string) $request->attributes->get('_crud_operation', 'unknown'),
-            'surface' => (string) $request->attributes->get('_crud_surface', 'public'),
+            'view' => (string) $request->attributes->get('_crud_view', 'public'),
             'diagnostics' => $this->diagnostics($request, $metadata),
         ], Response::HTTP_NOT_FOUND);
     }
@@ -31,7 +31,7 @@ final readonly class CrudNotFoundResponseFactory
             'reason' => $reason,
             'resourcePath' => (string) $request->attributes->get('resourcePath', ''),
             'operation' => (string) $request->attributes->get('_crud_operation', 'unknown'),
-            'surface' => (string) $request->attributes->get('_crud_surface', 'public'),
+            'view' => (string) $request->attributes->get('_crud_view', 'public'),
             'diagnostics' => $this->diagnostics($request, $metadata),
         ], Response::HTTP_BAD_REQUEST);
     }
@@ -69,8 +69,8 @@ final readonly class CrudNotFoundResponseFactory
             return null;
         }
 
-        if (str_starts_with($routeName, 'cruding_surface_')) {
-            return 'surface';
+        if (str_starts_with($routeName, 'cruding_resource_')) {
+            return 'view';
         }
 
         if (str_starts_with($routeName, 'cruding_api_')) {
@@ -87,12 +87,12 @@ final readonly class CrudNotFoundResponseFactory
     private function interpretation(?string $routeName, Request $request): ?string
     {
         $family = $this->routeFamily($routeName);
-        if ('surface' === $family) {
-            return 'Cruding surface grammar matched; a surface provider, generic fallback, or route-map entry must serve it.';
+        if ('view' === $family) {
+            return 'Cruding View grammar matched; a resource provider, generic fallback, or route-map entry must serve it.';
         }
 
         if ('classic_crud' === $family) {
-            return 'Classic CRUD grammar matched; Cruding will resolve resourcePath as an entity/resource, not as a multi-token business surface.';
+            return 'Classic CRUD grammar matched; Cruding will resolve resourcePath as an entity/resource, not as a multi-token business view.';
         }
 
         if ('api_crud' === $family) {

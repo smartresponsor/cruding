@@ -8,6 +8,7 @@ use App\Cruding\Dto\Crud\CrudTokenizedRouteIntent;
 use App\Cruding\Resolver\Crud\CrudActorScopeContextResolver;
 use App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudApiCreateOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudApiDeleteOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudApiIndexOperationInterface;
@@ -30,6 +31,7 @@ final class CrudApiController extends AbstractController
         private readonly CrudApiUpdateOperationInterface $updateOperation,
         private readonly CrudApiDeleteOperationInterface $deleteOperation,
         private readonly CrudApiProblemResponseFactory $problemResponseFactory,
+        private readonly CrudRuntimeRouteGuard $runtimeRouteGuard,
     ) {
     }
 
@@ -40,10 +42,15 @@ final class CrudApiController extends AbstractController
             return $this->problemResponseFactory->notFound('crud_route_intent_not_found', ['path' => $request->getPathInfo()]);
         }
 
+        if (!$this->runtimeRouteGuard->allowsResourcePath($intent->resourcePath)) {
+            return $this->problemResponseFactory->notFound('crud_runtime_resource_not_allowed', ['intent' => $intent->diagnostics()]);
+        }
+
         $this->applyIntent($request, $intent);
 
         return match ($intent->operation) {
             'index' => $this->indexOperation->handle($request),
+            'read' => $this->showOperation->handle($request),
             'show' => $this->showOperation->handle($request),
             'create' => $this->createOperation->handle($request),
             'update' => $this->updateOperation->handle($request),
@@ -58,7 +65,7 @@ final class CrudApiController extends AbstractController
     {
         $request->attributes->set('resourcePath', $intent->resourcePath);
         $request->attributes->set('_crud_operation', $intent->operation);
-        $request->attributes->set('_crud_surface', $intent->surface);
+        $request->attributes->set('_crud_view', $intent->view);
         $request->attributes->set('_crud_route_family', $intent->routeFamily);
         $request->attributes->set('_crud_route_tokens', $intent->tokens);
         $this->actorScopeContextResolver->apply($request, $intent);

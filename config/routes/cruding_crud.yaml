@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # Symfony Router is intentionally kept as a delivery layer only.
 # It must not decide whether a URI segment is an operation, identity, slug,
-# surface, or business token. Cruding parses the matched path into tokens and
+# view, or business token. Cruding parses the matched path into tokens and
 # resolves grammar in PHP through CrudTokenizedRouteIntentResolver.
 #
 # Canonical examples resolved by Cruding, not by route regex:
@@ -12,11 +12,21 @@
 #   /vendor/attachment/media/edit/123     -> resourcePath=vendor/attachment/media, operation=edit, id=123
 #   /vendor/document/verify/sample-entry  -> resourcePath=vendor/document, operation=verify, slug=sample-entry
 # ---------------------------------------------------------------------------
+cruding_actor_my_tokenized_catch_all:
+    path: /my/{crudPath}
+    controller: App\Cruding\Controller\Crud\CrudController
+    methods: [GET, POST, PUT, PATCH, DELETE]
+    defaults:
+        _crud_view: public
+        _crud_actor: my
+    requirements:
+        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+
 cruding_tokenized_catch_all:
     path: /{crudPath}
     controller: App\Cruding\Controller\Crud\CrudController
     methods: [GET, POST, PUT, PATCH, DELETE]
     defaults:
-        _crud_surface: public
+        _crud_view: public
     requirements:
-        crudPath: '%cruding.resource_requirement%(?:/.*)?'
+        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 
-foreach (['Api', 'Runtime', 'Surface'] as $directory) {
+foreach (['Api', 'Runtime', 'view'] as $directory) {
     if (is_dir($root.'/src/Service/'.$directory)) {
         exit(1);
     }

@@ -8,7 +8,7 @@ Role folders describe what a class does:
 - `Entrypoint` — route-owned callable service resolution and invocation.
 - `Operation` — executable CRUD use-case operations.
 - `Runtime` — runtime inventory, lock, token, and route policy readers/guards.
-- `Surface` — surface route parsing, matching, provider lookup, and payload building.
+- `view` — view route parsing, matching, provider lookup, and payload building.
 
 Class names use the `Crud` prefix and an explicit role suffix such as `Resolver`, `Builder`, `Factory`, `Reader`, `Guard`, `Policy`, `Handler`, `Invoker`, `Locator`, `Provider`, or `Operation`.
 

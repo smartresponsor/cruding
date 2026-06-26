@@ -12,7 +12,7 @@ $root = dirname(__DIR__, 2);
 $requiredFiles = [
     'src/DependencyInjection/CrudingExtension.php',
     'src/DependencyInjection/Configuration.php',
-    'src/Service/Crud/Surface/CrudSurfaceContractFactory.php',
+    'src/Service/Crud/Resource/CrudResourceContractFactory.php',
     'config/routes/cruding_crud.yaml',
     'config/routes/cruding_api_crud.yaml',
 ];
@@ -27,7 +27,7 @@ foreach ($requiredFiles as $relativePath) {
 foreach ([
     'src/Service/Crud/CrudTemplateResolver.php',
     'src/ServiceInterface/Crud/CrudTemplateResolverInterface.php',
-    'src/Service/Crud/CrudSurfaceResponseFactory.php',
+    'src/Service/Crud/CrudResourceResponseFactory.php',
     'templates/crud/index.html.twig',
 ] as $legacyFile) {
     if (is_file($root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $legacyFile))) {
@@ -35,9 +35,9 @@ foreach ([
     }
 }
 
-$factory = file_get_contents($root . '/src/Service/Crud/Surface/CrudSurfaceContractFactory.php') ?: '';
-$surfaceContract = file_get_contents($root . '/src/Value/Surface/CrudSurfaceContract.php') ?: '';
-$builder = file_get_contents($root . '/src/Service/Crud/Surface/CrudInterfacingProviderSurfaceBuilder.php') ?: '';
+$factory = file_get_contents($root . '/src/Service/Crud/Resource/CrudResourceContractFactory.php') ?: '';
+$viewContract = file_get_contents($root . '/src/Value/Resource/CrudResourceContract.php') ?: '';
+$builder = file_get_contents($root . '/src/Service/Crud/Resource/CrudInterfacingProviderResourceBuilder.php') ?: '';
 $pageProvider = file_get_contents($root . '/src/Provider/Crud/CrudPageDefinitionProvider.php') ?: '';
 $extension = file_get_contents($root . '/src/DependencyInjection/CrudingExtension.php') ?: '';
 $configuration = file_get_contents($root . '/src/DependencyInjection/Configuration.php') ?: '';
@@ -50,11 +50,11 @@ if (!str_contains($contextResolver, '$this->resourcePathParser->normalize')) {
     guard_fail('CrudContextResolver must normalize the incoming resourcePath before lookup/rendering.');
 }
 
-if (str_contains($factory . $surfaceContract . $builder . $pageProvider, '.html.twig')) {
+if (str_contains($factory . $viewContract . $builder . $pageProvider, '.html.twig')) {
     guard_fail('Cruding source must not contain producer-owned Twig template paths.');
 }
 
-if (str_contains($factory . $surfaceContract . $builder . $pageProvider, 'CrudTemplateResolver')) {
+if (str_contains($factory . $viewContract . $builder . $pageProvider, 'CrudTemplateResolver')) {
     guard_fail('Cruding source must not depend on a producer-owned template resolver.');
 }
 
@@ -82,7 +82,7 @@ if (str_contains($composer, 'objecting/object') || str_contains($composer, '../O
 }
 
 $forbiddenRuntimeNeedles = [
-    'provider_surface.html.twig',
+    'provider_view.html.twig',
     'bridgeComponent',
     'bridgeResource',
     "'vendor' ===",
@@ -90,7 +90,7 @@ $forbiddenRuntimeNeedles = [
 ];
 
 foreach ($forbiddenRuntimeNeedles as $needle) {
-    if (str_contains($factory . $surfaceContract . $builder . $pageProvider, $needle)) {
+    if (str_contains($factory . $viewContract . $builder . $pageProvider, $needle)) {
         guard_fail(sprintf('Forbidden rendering drift remains in runtime code: %s', $needle));
     }
 }

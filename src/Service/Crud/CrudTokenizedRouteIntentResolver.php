@@ -20,7 +20,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     /**
      * @var array<string, string>
      */
-    private const SURFACE_BY_OPERATION = [
+    private const view_BY_OPERATION = [
         'edit' => 'admin',
         'update' => 'admin',
         'delete' => 'admin',
@@ -51,6 +51,7 @@ final readonly class CrudTokenizedRouteIntentResolver
      */
     private const MEMBER_OPERATION = [
         'show' => true,
+        'read' => true,
         'edit' => true,
         'update' => true,
         'archive' => true,
@@ -83,7 +84,7 @@ final readonly class CrudTokenizedRouteIntentResolver
         return $this->resolveTokens(
             tokens: $scoped['tokens'],
             routeFamily: self::ROUTE_FAMILY_WEB,
-            defaultSurface: 'public',
+            defaultView: 'public',
             actorScope: $scoped['actorScope'],
         );
     }
@@ -116,7 +117,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                     routeFamily: self::ROUTE_FAMILY_API,
                     resourcePath: implode('/', $tokens),
                     operation: $operation,
-                    surface: 'public',
+                    view: 'public',
                     identifierField: null,
                     identifierValue: null,
                     tokens: $tokens,
@@ -133,7 +134,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                 routeFamily: self::ROUTE_FAMILY_API,
                 resourcePath: implode('/', $tokens),
                 operation: $operation,
-                surface: 'public',
+                view: 'public',
                 identifierField: $this->identifierField($identity),
                 identifierValue: $identity,
                 tokens: [...$tokens, $identity],
@@ -144,7 +145,7 @@ final readonly class CrudTokenizedRouteIntentResolver
         return $this->resolveTokens(
             tokens: $tokens,
             routeFamily: self::ROUTE_FAMILY_API,
-            defaultSurface: 'public',
+            defaultView: 'public',
             actorScope: $actorScope,
         );
     }
@@ -152,7 +153,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     /**
      * @param list<string> $tokens
      */
-    private function resolveTokens(array $tokens, string $routeFamily, string $defaultSurface, ?string $actorScope = null): ?CrudTokenizedRouteIntent
+    private function resolveTokens(array $tokens, string $routeFamily, string $defaultView, ?string $actorScope = null): ?CrudTokenizedRouteIntent
     {
         $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
         $count = count($tokens);
@@ -162,7 +163,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                 routeFamily: $routeFamily,
                 resourcePath: implode('/', $tokens),
                 operation: 'index',
-                surface: $defaultSurface,
+                view: $defaultView,
                 identifierField: null,
                 identifierValue: null,
                 tokens: $tokens,
@@ -189,7 +190,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                 routeFamily: $routeFamily,
                 resourcePath: implode('/', $resourceTokens),
                 operation: $operation,
-                surface: $this->surfaceFor($operation, null, $defaultSurface),
+                view: $this->viewFor($operation, null, $defaultView),
                 identifierField: null,
                 identifierValue: null,
                 tokens: $tokens,
@@ -213,7 +214,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                 routeFamily: $routeFamily,
                 resourcePath: implode('/', $resourceTokens),
                 operation: $operation,
-                surface: $this->surfaceFor($operation, $last, $defaultSurface),
+                view: $this->viewFor($operation, $last, $defaultView),
                 identifierField: $this->identifierField($last),
                 identifierValue: $last,
                 tokens: $tokens,
@@ -250,22 +251,38 @@ final readonly class CrudTokenizedRouteIntentResolver
     private function consumeActorScope(array $tokens): array
     {
         $actorScope = null;
+        $apiSeen = false;
+        $backendSeen = false;
         $remaining = array_values($tokens);
 
         while ([] !== $remaining) {
             $first = strtolower($remaining[0]);
             if (self::ACTOR_SCOPE_MY === $first) {
+                if (null !== $actorScope) {
+                    return ['tokens' => [], 'actorScope' => null];
+                }
+
                 $actorScope ??= self::ACTOR_SCOPE_MY;
                 array_shift($remaining);
                 continue;
             }
 
             if (self::CONTEXT_PREFIX_API === $first) {
+                if ($apiSeen) {
+                    return ['tokens' => [], 'actorScope' => null];
+                }
+
+                $apiSeen = true;
                 array_shift($remaining);
                 continue;
             }
 
             if ('' !== $this->backendContextToken() && $this->backendContextToken() === $first) {
+                if ($backendSeen) {
+                    return ['tokens' => [], 'actorScope' => null];
+                }
+
+                $backendSeen = true;
                 array_shift($remaining);
                 continue;
             }
@@ -286,7 +303,17 @@ final readonly class CrudTokenizedRouteIntentResolver
     {
         $count = count($resourceTokens);
 
-        return $count >= 1 && $count <= self::MAX_RESOURCE_TOKEN_COUNT;
+        if ($count < 1 || $count > self::MAX_RESOURCE_TOKEN_COUNT) {
+            return false;
+        }
+
+        foreach ($resourceTokens as $resourceToken) {
+            if (in_array($resourceToken, [self::ACTOR_SCOPE_MY, self::CONTEXT_PREFIX_API, $this->backendContextToken()], true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function backendContextToken(): string
@@ -306,12 +333,12 @@ final readonly class CrudTokenizedRouteIntentResolver
         return preg_match('/^\d+$/', $identity) ? 'id' : 'slug';
     }
 
-    private function surfaceFor(string $operation, ?string $identity, string $defaultSurface): string
+    private function viewFor(string $operation, ?string $identity, string $defaultView): string
     {
         if (null !== $identity && !preg_match('/^\d+$/', $identity)) {
             return 'public';
         }
 
-        return self::SURFACE_BY_OPERATION[$operation] ?? $defaultSurface;
+        return self::view_BY_OPERATION[$operation] ?? $defaultView;
     }
 }

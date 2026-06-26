@@ -6,7 +6,7 @@ W06 introduced the canonical route protection model:
 
 - `APP_RUNTIME_SCOPE` contains runtime components/packages and is reserved from Cruding root entity routes.
 - `APP_RUNTIME_ENTITY` contains business/entity first-segment URL resources and drives Symfony route requirements.
-- `APP_RUNTIME_SURFACE_TOKEN` contains surface grammar tokens and is separate from runtime scope and runtime entity tokens.
+- `APP_RUNTIME_VIEW_TOKEN` contains View grammar tokens and is separate from runtime scope and runtime entity tokens.
 - reserved root tokens must not be captured by Cruding root catch-all routes.
 
 W07 does not change route geometry, route prefixes, import order, or catch-all doctrine. It only makes the W06 policy testable through Symfony's router matcher.
@@ -30,7 +30,7 @@ Default env values used by the script:
 ```env
 APP_RUNTIME_SCOPE="cruding,viewing,interfacing,administering,accessing"
 APP_RUNTIME_ENTITY="alpha,attachment,media,beta,gamma"
-APP_RUNTIME_SURFACE_TOKEN="show,index,card,table,gallery,compact,full,detail,list"
+APP_RUNTIME_VIEW_TOKEN="show,index,card,table,gallery,compact,full,detail,list"
 ```
 
 ## Command
@@ -65,7 +65,7 @@ It also verifies that declared entity roots match Cruding routes when `APP_RUNTI
 /{firstAllowedEntity}/
 /api/{firstAllowedEntity}
 /api/{firstAllowedEntity}/
-/{firstAllowedEntity}/attachment/media/{firstSurfaceToken}/123
+/{firstAllowedEntity}/attachment/media/{firstViewToken}/123
 ```
 
 ## Empty entity mode
@@ -115,5 +115,5 @@ The desired behavior is:
 /viewing      => no Cruding match
 /interfacing  => no Cruding match
 /alpha       => Cruding match when alpha is in APP_RUNTIME_ENTITY
-/alpha/attachment/media/show/123 => Cruding surface token match when alpha is allowed and show is a surface token
+/alpha/attachment/media/show/123 => Cruding view token match when alpha is allowed and show is a view token
 ```

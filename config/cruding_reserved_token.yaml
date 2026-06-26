@@ -16,7 +16,7 @@ parameters:
         - administering
         - cruding
 
-    cruding.reserved_route_token.surface:
+    cruding.reserved_route_token.view:
         - card
         - table
         - gallery
@@ -28,6 +28,7 @@ parameters:
     cruding.reserved_route_token.operation:
         - index
         - show
+        - read
         - new
         - create
         - edit

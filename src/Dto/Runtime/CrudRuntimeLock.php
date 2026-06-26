@@ -12,7 +12,7 @@ final readonly class CrudRuntimeLock
     /**
      * @param list<string> $scopeTokens
      * @param list<string> $entityTokens
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $reservedTokens
      * @param list<string> $packageNames
      */
@@ -22,7 +22,7 @@ final readonly class CrudRuntimeLock
         public bool $found,
         public array $scopeTokens,
         public array $entityTokens,
-        public array $surfaceTokens,
+        public array $viewTokens,
         public array $reservedTokens,
         public array $packageNames,
     ) {

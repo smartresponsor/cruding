@@ -11,13 +11,14 @@ use App\Cruding\Resolver\Crud\CrudActorScopeContextResolver;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\Service\Crud\CrudRouteMapMatcher;
 use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
+use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudDeleteOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudEditOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudShowOperationInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 final class CrudController extends AbstractController
 {
     private const DEFAULT_OPERATION_HANDLER = [
-        'index' => 'index', 'show' => 'show', 'new' => 'create', 'create' => 'create',
+        'index' => 'index', 'show' => 'show', 'read' => 'show', 'new' => 'create', 'create' => 'create',
         'import' => 'create', 'bulk' => 'create', 'edit' => 'edit', 'update' => 'edit',
         'archive' => 'edit', 'restore' => 'edit', 'duplicate' => 'edit', 'delete' => 'delete',
     ];
@@ -43,15 +44,20 @@ final class CrudController extends AbstractController
         private readonly CrudEditOperationInterface $editOperation,
         private readonly CrudDeleteOperationInterface $deleteOperation,
         private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
+        private readonly CrudRuntimeRouteGuard $runtimeRouteGuard,
         private readonly ?CrudRouteMapMatcher $routeMapMatcher = null,
     ) {
     }
 
-    public function __invoke(Request $request): Response|CrudSurfaceContract
+    public function __invoke(Request $request): Response|CrudResourceContract
     {
         $intent = $this->intentResolver->resolveWeb($request);
         if (null === $intent || '' === $intent->resourcePath) {
             return $this->notFoundResponseFactory->create($request, 'crud_route_intent_not_found');
+        }
+
+        if (!$this->runtimeRouteGuard->allowsResourcePath($intent->resourcePath)) {
+            return $this->notFoundResponseFactory->create($request, 'crud_runtime_resource_not_allowed', ['intent' => $intent->diagnostics()]);
         }
 
         $this->applyRouteMapEntry($request);
@@ -72,7 +78,7 @@ final class CrudController extends AbstractController
         return $this->runEntrypointOnly($request, $intent);
     }
 
-    private function runEntrypointOnly(Request $request, CrudTokenizedRouteIntent $intent): Response|CrudSurfaceContract
+    private function runEntrypointOnly(Request $request, CrudTokenizedRouteIntent $intent): Response|CrudResourceContract
     {
         $context = $this->contextResolver->tryResolve($request) ?? $this->syntheticContext($intent);
         $result = $this->entrypointRunner->run($request, $context);
@@ -84,7 +90,7 @@ final class CrudController extends AbstractController
         return $this->notFoundResponseFactory->create($request, 'crud_entrypoint_not_found', [
             'intent' => $intent->diagnostics(),
             'entrypointTrace' => $result->diagnostics()['entrypointTrace'] ?? $result->diagnostics(),
-            'interpretation' => 'Tokenized CRUD route matched, but no explicit or URI-derived entrypoint returned a response or surface contract.',
+            'interpretation' => 'Tokenized CRUD route matched, but no explicit or URI-derived entrypoint returned a response or view contract.',
         ]);
     }
 
@@ -92,7 +98,7 @@ final class CrudController extends AbstractController
     {
         $request->attributes->set('resourcePath', $intent->resourcePath);
         $request->attributes->set('_crud_operation', $intent->operation);
-        $request->attributes->set('_crud_surface', $intent->surface);
+        $request->attributes->set('_crud_view', $intent->view);
         $request->attributes->set('_crud_route_family', $intent->routeFamily);
         $request->attributes->set('_crud_route_tokens', $intent->tokens);
         $this->actorScopeContextResolver->apply($request, $intent);
@@ -125,7 +131,7 @@ final class CrudController extends AbstractController
     private function syntheticContext(CrudTokenizedRouteIntent $intent): CrudContext
     {
         return new CrudContext(
-            surface: $intent->surface,
+            view: $intent->view,
             operation: $intent->operation,
             resourcePath: $intent->resourcePath,
             entityClass: '',

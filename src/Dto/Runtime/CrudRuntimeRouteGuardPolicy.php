@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Cruding\Dto\Runtime;
 
 /**
- * Immutable route guard policy derived from runtime scope/entity/surface tokens.
+ * Immutable route guard policy derived from runtime scope/entity/view tokens.
  */
 final readonly class CrudRuntimeRouteGuardPolicy
 {
     /**
      * @param list<string> $scopeTokens
      * @param list<string> $entityTokens
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $reservedRootTokens
      * @param list<string> $operationTokens
      * @param list<string> $resourcePathReservedTokens
@@ -22,7 +22,7 @@ final readonly class CrudRuntimeRouteGuardPolicy
     public function __construct(
         public array $scopeTokens,
         public array $entityTokens,
-        public array $surfaceTokens,
+        public array $viewTokens,
         public array $reservedRootTokens,
         public array $operationTokens,
         public array $resourcePathReservedTokens,
@@ -30,7 +30,7 @@ final readonly class CrudRuntimeRouteGuardPolicy
         public array $conflictingEntityTokens,
         public string $resourceRequirement,
         public string $resourcePathRequirement,
-        public string $surfaceTokenRequirement,
+        public string $viewTokenRequirement,
         public string $identitySlugRequirement,
     ) {
     }

@@ -6,7 +6,7 @@ W08 adds a verification layer above the W06/W07 route matcher protection.
 
 - `APP_RUNTIME_SCOPE` is the requested runtime component/package set.
 - `APP_RUNTIME_ENTITY` is the requested business/entity first-segment set used by route requirements.
-- `APP_RUNTIME_SURFACE_TOKEN` is surface grammar, not a root entity set.
+- `APP_RUNTIME_VIEW_TOKEN` is View grammar, not a root entity set.
 - `config/kernel/runtime_scope.*lock.php` is the accepted runtime decision lock.
 - `composer.json` and `composer.lock` are the package inventory evidence.
 
@@ -22,7 +22,7 @@ W08 adds a verification layer above the W06/W07 route matcher protection.
 return [
     'scope' => ['cruding', 'viewing', 'interfacing'],
     'entity' => ['alpha', 'attachment', 'media', 'product', 'category'],
-    'surface_token' => ['show', 'index', 'card', 'table', 'gallery', 'compact', 'full', 'detail', 'list'],
+    'view_token' => ['show', 'index', 'card', 'table', 'gallery', 'compact', 'full', 'detail', 'list'],
     'packages' => [
         'cruding/crud',
         'viewing/view',
@@ -35,7 +35,7 @@ Equivalent keys accepted by the reader:
 
 - scope: `scope`, `runtime_scope`, `APP_RUNTIME_SCOPE`
 - entity: `entity`, `runtime_entity`, `APP_RUNTIME_ENTITY`
-- surface token: `surface_token`, `surface_tokens`, `runtime_surface_token`, `APP_RUNTIME_SURFACE_TOKEN`
+- view token: `view_token`, `view_tokens`, `runtime_view_token`, `APP_RUNTIME_VIEW_TOKEN`
 - reserved: `reserved`, `reserved_tokens`, `runtime_reserved`, `APP_RUNTIME_RESERVED`
 - packages: `packages`, `package_names`, `composer_packages`
 

@@ -47,7 +47,7 @@ assert(!str_contains($skeletonOutput, 'AlphaCrudService'), 'Skeleton preview mus
 $getCommand = escapeshellcmd($php).' '.escapeshellarg($skeletonPreview).' --path=/alpha/index --style=get';
 $getOutput = shell_exec($getCommand);
 assert(is_string($getOutput), 'GET skeleton preview did not return output.');
-assert(str_contains($getOutput, 'implements CrudGetEntrypointInterface'), 'GET skeleton preview must use optional method-specific interface.');
-assert(str_contains($getOutput, 'public function get(CrudEntrypointContext $context): ?CrudEntrypointResult'), 'GET skeleton preview must include the optional get hook.');
+assert(str_contains($getOutput, 'implements CrudGetServiceInterface'), 'GET skeleton preview must use optional method-specific interface.');
+assert(str_contains($getOutput, 'public function get(CrudServiceContext $context): ?CrudServiceResult'), 'GET skeleton preview must include the optional get hook.');
 
 fwrite(STDOUT, "PASS: Entrypoint migration contract tooling is read-only, URI-derived, self-documenting, and does not promote a mega-service.\n");

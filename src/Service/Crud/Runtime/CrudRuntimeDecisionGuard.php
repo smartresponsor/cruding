@@ -50,7 +50,7 @@ final readonly class CrudRuntimeDecisionGuard
         if ($lock->found) {
             $errors = array_merge($errors, $this->missingFromLock('APP_RUNTIME_SCOPE', $policy->scopeTokens, $lock->scopeTokens));
             $errors = array_merge($errors, $this->missingFromLock('APP_RUNTIME_ENTITY', $policy->entityTokens, $lock->entityTokens));
-            $warnings = array_merge($warnings, $this->missingFromLock('APP_RUNTIME_SURFACE_TOKEN', $policy->surfaceTokens, $lock->surfaceTokens));
+            $warnings = array_merge($warnings, $this->missingFromLock('APP_RUNTIME_VIEW_TOKEN', $policy->viewTokens, $lock->viewTokens));
         }
 
         foreach ($policy->scopeTokens as $scopeToken) {
@@ -98,6 +98,7 @@ final readonly class CrudRuntimeDecisionGuard
     /**
      * @param list<string> $requestedTokens
      * @param list<string> $lockedTokens
+     *
      * @return list<string>
      */
     private function missingFromLock(string $label, array $requestedTokens, array $lockedTokens): array

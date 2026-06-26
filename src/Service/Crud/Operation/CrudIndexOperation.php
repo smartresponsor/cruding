@@ -6,12 +6,12 @@ namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Dispatcher\Crud\CrudServiceDispatcher;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,14 +21,14 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
     public function __construct(
         private CrudContextResolverInterface $contextResolver,
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private CrudSurfaceContractFactory $surfaceContractFactory,
+        private CrudResourceContractFactory $viewContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         #[Autowire(service: CrudServiceDispatcher::class)]
         private CrudServiceDispatcherInterface $entrypointDispatcher,
     ) {
     }
 
-    public function handle(Request $request): Response|CrudSurfaceContract
+    public function handle(Request $request): Response|CrudResourceContract
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
@@ -40,6 +40,6 @@ final readonly class CrudIndexOperation implements CrudIndexOperationInterface
             return $entrypointResult;
         }
 
-        return $this->surfaceContractFactory->create($this->pageDefinitionProvider->provideIndex($context));
+        return $this->viewContractFactory->create($this->pageDefinitionProvider->provideIndex($context));
     }
 }

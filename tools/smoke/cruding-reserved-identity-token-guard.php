@@ -7,22 +7,22 @@ require_once __DIR__.'/../../src/Service/Crud/CrudReservedRouteTokenPolicy.php';
 use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
 
 $configPath = __DIR__.'/../../config/cruding_reserved_token.yaml';
-$surfaceTokens = readParameterTokenList($configPath, 'cruding.reserved_route_token.surface');
+$viewTokens = readParameterTokenList($configPath, 'cruding.reserved_route_token.view');
 $operationTokens = readParameterTokenList($configPath, 'cruding.reserved_route_token.operation');
 
-$runtimePolicy = new CrudReservedRouteTokenPolicy($surfaceTokens, $operationTokens);
+$runtimePolicy = new CrudReservedRouteTokenPolicy($viewTokens, $operationTokens);
 foreach (['index', 'show', 'import', 'assign', 'approve', 'pay'] as $token) {
     assert('reserved_operation_token_not_routed' === $runtimePolicy->reasonForIdentityToken($token), sprintf('Expected operation token %s to be reserved as identity.', $token));
 }
 
 foreach (['card', 'table'] as $token) {
-    assert('reserved_surface_token_not_routed' === $runtimePolicy->reasonForIdentityToken($token), sprintf('Expected surface token %s to be reserved as identity.', $token));
+    assert('reserved_view_token_not_routed' === $runtimePolicy->reasonForIdentityToken($token), sprintf('Expected view token %s to be reserved as identity.', $token));
 }
 
 assert(null === $runtimePolicy->reasonForIdentityToken('acme-inc'));
 assert(null === $runtimePolicy->reasonForIdentityToken('123abc'));
 
-fwrite(STDOUT, "PASS: reserved identity token policy still blocks surface/operation tokens from identity classification after tokenized routing.\n");
+fwrite(STDOUT, "PASS: reserved identity token policy still blocks view/operation tokens from identity classification after tokenized routing.\n");
 
 /**
  * @return list<string>

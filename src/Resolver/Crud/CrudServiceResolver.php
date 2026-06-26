@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Cruding\Resolver\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResolution;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceServiceLocator;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointServiceInterface;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResolution;
+use App\Cruding\Service\Crud\CrudDefaultServiceRegistry;
+use App\Cruding\Service\Crud\Resource\CrudResourceServiceLocator;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CrudServiceResolver
@@ -16,12 +17,12 @@ final readonly class CrudServiceResolver
     public function __construct(
         private CrudExplicitServiceResolver $explicitServiceResolver,
         private CrudServiceClassNameResolver $classNameResolver,
-        private CrudSurfaceServiceLocator $serviceLocator,
+        private CrudResourceServiceLocator $serviceLocator,
         private CrudDefaultServiceRegistry $defaultRegistry,
     ) {
     }
 
-    public function resolve(Request $request, CrudContext $context): CrudEntrypointResolution
+    public function resolve(Request $request, CrudContext $context): CrudServiceResolution
     {
         $candidateServiceIds = $this->explicitServiceResolver->candidateServiceIds($request, $context);
         $candidateClassNames = $this->classNameResolver->candidateClassNames($context);
@@ -34,9 +35,9 @@ final readonly class CrudServiceResolver
                 continue;
             }
 
-            return new CrudEntrypointResolution(
+            return new CrudServiceResolution(
                 service: $this->normalize($this->serviceLocator->get($serviceId)),
-                status: CrudEntrypointResolution::STATUS_REGISTERED_SERVICE,
+                status: CrudServiceResolution::STATUS_REGISTERED_SERVICE,
                 serviceId: $serviceId,
                 candidateServiceIds: $candidateServiceIds,
                 candidateClassNames: $candidateClassNames,
@@ -53,9 +54,9 @@ final readonly class CrudServiceResolver
                 continue;
             }
 
-            return new CrudEntrypointResolution(
+            return new CrudServiceResolution(
                 service: $this->normalize($this->serviceLocator->get($className)),
-                status: CrudEntrypointResolution::STATUS_URI_DERIVED_SERVICE,
+                status: CrudServiceResolution::STATUS_URI_DERIVED_SERVICE,
                 serviceId: $className,
                 candidateServiceIds: $candidateServiceIds,
                 candidateClassNames: $candidateClassNames,
@@ -64,19 +65,19 @@ final readonly class CrudServiceResolver
             );
         }
 
-        $fallbackReason = CrudEntrypointResolution::STATUS_MISSING;
+        $fallbackReason = CrudServiceResolution::STATUS_MISSING;
         foreach ($candidateClassNames as $className) {
             if (($classExists[$className] ?? false) && !($containerHas[$className] ?? false)) {
-                $fallbackReason = CrudEntrypointResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED;
+                $fallbackReason = CrudServiceResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED;
                 break;
             }
         }
 
         $defaultService = $this->defaultRegistry->for($context);
 
-        return new CrudEntrypointResolution(
+        return new CrudServiceResolution(
             service: $defaultService,
-            status: CrudEntrypointResolution::STATUS_DEFAULT_SERVICE,
+            status: CrudServiceResolution::STATUS_DEFAULT_SERVICE,
             serviceId: $defaultService::class,
             fallbackReason: $fallbackReason,
             candidateServiceIds: $candidateServiceIds,
@@ -88,11 +89,11 @@ final readonly class CrudServiceResolver
 
     private function normalize(object $service): object
     {
-        if ($service instanceof CrudEntrypointServiceInterface) {
+        if ($service instanceof CrudServiceInterface) {
             return $service;
         }
 
-        foreach (CrudEntrypointContext::SUPPORTED_HTTP_METHODS as $method) {
+        foreach (CrudServiceContext::SUPPORTED_HTTP_METHODS as $method) {
             if (is_callable([$service, $method])) {
                 return $service;
             }

@@ -44,7 +44,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $actions,
             [
                 'resourcePath' => $context->resourcePath,
-                'surface' => $context->surface,
+                'view' => $context->view,
                 'operation' => $context->operation,
             ],
         );
@@ -75,12 +75,12 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $context,
             $access,
             sprintf('%s show', $context->resourcePath),
-            'show',
+            'detail',
             [$object],
             $actions,
             [
                 'resourcePath' => $context->resourcePath,
-                'surface' => $context->surface,
+                'view' => $context->view,
                 'operation' => $context->operation,
                 'identifierField' => $context->identifierField,
                 'identifierValue' => $context->identifierValue,
@@ -108,7 +108,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             ],
             [
                 'resourcePath' => $context->resourcePath,
-                'surface' => $context->surface,
+                'view' => $context->view,
                 'operation' => $context->operation,
                 'formView' => $formView,
             ],
@@ -146,7 +146,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             $actions,
             [
                 'resourcePath' => $context->resourcePath,
-                'surface' => $context->surface,
+                'view' => $context->view,
                 'operation' => $context->operation,
                 'formView' => $formView,
             ],

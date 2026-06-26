@@ -24,5 +24,5 @@ Validation performed:
 Not included in this wave:
 
 - Catch-all route safety redesign.
-- SOLID decomposition of large surface/route services.
+- SOLID decomposition of large view/route services.
 - Controller boundary redesign under Viewing.

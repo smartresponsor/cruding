@@ -4,74 +4,74 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud;
 
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResult;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudDeleteEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointBehaviorInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointServiceInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGetEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGroundedEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPatchEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPostEntrypointInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPutEntrypointInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudDeleteServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGetServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudGroundedServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPatchServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPostServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudPutServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceBehaviorInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceInterface;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractCrudService implements CrudEntrypointServiceInterface, CrudGroundedEntrypointInterface, CrudGetEntrypointInterface, CrudPostEntrypointInterface, CrudPutEntrypointInterface, CrudPatchEntrypointInterface, CrudDeleteEntrypointInterface
+abstract class AbstractCrudService implements CrudServiceInterface, CrudGroundedServiceInterface, CrudGetServiceInterface, CrudPostServiceInterface, CrudPutServiceInterface, CrudPatchServiceInterface, CrudDeleteServiceInterface
 {
-    private ?CrudEntrypointBehaviorInterface $defaultBehavior = null;
+    private ?CrudServiceBehaviorInterface $defaultBehavior = null;
 
     #[Required]
     final public function setDefaultBehavior(
         #[Autowire(service: CrudDefaultServiceBehavior::class)]
-        CrudEntrypointBehaviorInterface $defaultBehavior,
+        CrudServiceBehaviorInterface $defaultBehavior,
     ): void {
         $this->defaultBehavior = $defaultBehavior;
     }
 
-    public function isGrounded(CrudEntrypointContext $context): bool
+    public function isGrounded(CrudServiceContext $context): bool
     {
         return true;
     }
 
-    public function get(CrudEntrypointContext $context): CrudEntrypointResult|Response|CrudSurfaceContract|null
+    public function get(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
     {
         return $this->executeDefault($context);
     }
 
-    public function post(CrudEntrypointContext $context): CrudEntrypointResult|Response|CrudSurfaceContract|null
+    public function post(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
     {
         return $this->executeDefault($context);
     }
 
-    public function put(CrudEntrypointContext $context): CrudEntrypointResult|Response|CrudSurfaceContract|null
+    public function put(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
     {
         return $this->executeDefault($context);
     }
 
-    public function patch(CrudEntrypointContext $context): CrudEntrypointResult|Response|CrudSurfaceContract|null
+    public function patch(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
     {
         return $this->executeDefault($context);
     }
 
-    public function delete(CrudEntrypointContext $context): CrudEntrypointResult|Response|CrudSurfaceContract|null
+    public function delete(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
     {
         return $this->executeDefault($context);
     }
 
-    protected function beforeDefault(CrudEntrypointContext $context): ?CrudEntrypointResult
+    protected function beforeDefault(CrudServiceContext $context): ?CrudServiceResult
     {
         return null;
     }
 
-    protected function afterDefault(CrudEntrypointContext $context, CrudEntrypointResult $result): CrudEntrypointResult
+    protected function afterDefault(CrudServiceContext $context, CrudServiceResult $result): CrudServiceResult
     {
         return $result;
     }
 
-    final protected function executeDefault(CrudEntrypointContext $context): CrudEntrypointResult
+    final protected function executeDefault(CrudServiceContext $context): CrudServiceResult
     {
         $before = $this->beforeDefault($context);
         if (null !== $before) {
@@ -79,8 +79,8 @@ abstract class AbstractCrudService implements CrudEntrypointServiceInterface, Cr
         }
 
         if (null === $this->defaultBehavior) {
-            return CrudEntrypointResult::continueDefault(
-                CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR_UNAVAILABLE,
+            return CrudServiceResult::continueDefault(
+                CrudServiceResult::STATUS_DEFAULT_BEHAVIOR_UNAVAILABLE,
                 [
                     'entrypoint' => static::class,
                     'resourcePath' => $context->resourcePath(),

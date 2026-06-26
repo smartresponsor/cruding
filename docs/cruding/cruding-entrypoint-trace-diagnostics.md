@@ -4,8 +4,8 @@ Cruding entrypoint resolution is fail-soft, but it must also be observable. The 
 
 ## Contract
 
-- `CrudServiceRunner::run()` returns the full `CrudEntrypointResult`.
-- `CrudServiceRunner::tryRun()` keeps the existing `Response|CrudSurfaceContract|null` API.
+- `CrudServiceRunner::run()` returns the full `CrudServiceResult`.
+- `CrudServiceRunner::tryRun()` keeps the existing `Response|CrudResourceContract|null` API.
 - Every `run()` result carries `entrypointTrace` diagnostics.
 - The trace includes HTTP method, route name, path, resource path, operation, result status, payload/default decision, and service resolution details.
 

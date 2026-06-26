@@ -22,11 +22,11 @@ final readonly class CrudAccessContextBuilder implements CrudAccessContextBuilde
     {
         $capabilities = $this->capabilityResolver->resolve($context, $object);
         $ownership = $this->ownershipResolver->resolve($object);
-        $isAdminSurface = $context->isAdminSurface();
+        $isAdminView = $context->isAdminView();
 
-        $canView = $isAdminSurface ? $ownership->isAdmin : true;
-        $canEdit = $isAdminSurface ? $ownership->isAdmin : ($ownership->isAdmin || $ownership->canMutate());
-        $canDelete = $isAdminSurface ? $ownership->isAdmin : ($ownership->isAdmin || $ownership->canMutate());
+        $canView = $isAdminView ? $ownership->isAdmin : true;
+        $canEdit = $isAdminView ? $ownership->isAdmin : ($ownership->isAdmin || $ownership->canMutate());
+        $canDelete = $isAdminView ? $ownership->isAdmin : ($ownership->isAdmin || $ownership->canMutate());
 
         return new CrudAccessContext(
             $context,

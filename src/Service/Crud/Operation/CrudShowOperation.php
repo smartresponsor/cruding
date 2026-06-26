@@ -7,13 +7,13 @@ namespace App\Cruding\Service\Crud\Operation;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudShowOperationInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -25,22 +25,22 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
         private CrudObjectFinderInterface $objectFinder,
         private CrudAccessContextBuilderInterface $accessContextBuilder,
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private CrudSurfaceContractFactory $surfaceContractFactory,
+        private CrudResourceContractFactory $viewContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudReservedRouteTokenPolicy $reservedRouteTokenPolicy,
         private CrudServiceRunner $entrypointRunner,
     ) {
     }
 
-    public function handle(Request $request): Response|CrudSurfaceContract
+    public function handle(Request $request): Response|CrudResourceContract
     {
         $reservedTokenReason = $this->reservedTokenReason($request);
         if (null !== $reservedTokenReason) {
             return $this->notFoundResponseFactory->create($request, $reservedTokenReason, [
                 'token' => (string) $request->attributes->get('slug', ''),
-                'reservedSurfaceTokens' => $this->reservedRouteTokenPolicy->surfaceTokens(),
+                'reservedviewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
                 'reservedOperationTokens' => $this->reservedRouteTokenPolicy->operationTokens(),
-                'interpretation' => 'Classic CRUD show grammar matched, but the identity token is reserved for a business surface or CRUD operation; Cruding refuses to treat it as an entity slug.',
+                'interpretation' => 'Classic CRUD show grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
             ]);
         }
 
@@ -70,7 +70,7 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
             return $entrypointResult;
         }
 
-        return $this->surfaceContractFactory->create($this->pageDefinitionProvider->provideShow($context, $object), $object);
+        return $this->viewContractFactory->create($this->pageDefinitionProvider->provideShow($context, $object), $object);
     }
 
     private function reservedTokenReason(Request $request): ?string

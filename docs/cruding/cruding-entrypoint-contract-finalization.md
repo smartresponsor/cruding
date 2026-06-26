@@ -15,16 +15,16 @@ The existing explicit service lookup remains first priority.
 
 The stable public entrypoint API consists of:
 
-- `CrudEntrypointContext`
-- `CrudEntrypointResult`
-- `CrudEntrypointResolution`
-- `CrudEntrypointServiceInterface`
-- `CrudGroundedEntrypointInterface`
-- `CrudGetEntrypointInterface`
-- `CrudPostEntrypointInterface`
-- `CrudPutEntrypointInterface`
-- `CrudPatchEntrypointInterface`
-- `CrudDeleteEntrypointInterface`
+- `CrudServiceContext`
+- `CrudServiceResult`
+- `CrudServiceResolution`
+- `CrudServiceInterface`
+- `CrudGroundedServiceInterface`
+- `CrudGetServiceInterface`
+- `CrudPostServiceInterface`
+- `CrudPutServiceInterface`
+- `CrudPatchServiceInterface`
+- `CrudDeleteServiceInterface`
 - `AbstractCrudService`
 - `PassiveCrudService`
 - `NullCrudService`
@@ -54,7 +54,7 @@ A concrete entrypoint may implement only the hooks it needs. Missing hooks conti
 
 ## Status constants
 
-Status values are defined by constants on `CrudEntrypointResult` and `CrudEntrypointResolution`. New code should not introduce ad-hoc status string literals inside the entrypoint runtime.
+Status values are defined by constants on `CrudServiceResult` and `CrudServiceResolution`. New code should not introduce ad-hoc status string literals inside the entrypoint runtime.
 
 ## Non-goals
 

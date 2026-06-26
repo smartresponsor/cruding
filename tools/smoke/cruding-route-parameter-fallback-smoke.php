@@ -7,7 +7,7 @@ $servicesPath = $root.'/config/services.yaml';
 $routes = [
     $root.'/config/routes/cruding_crud.yaml',
     $root.'/config/routes/cruding_api_crud.yaml',
-    $root.'/config/routes/cruding_surface.yaml',
+    $root.'/config/routes/cruding_resource.yaml',
 ];
 
 $services = file_get_contents($servicesPath);
@@ -19,7 +19,7 @@ if (false === $services) {
 $requiredParameters = [
     'cruding.resource_requirement',
     'cruding.resource_path_requirement',
-    'cruding.surface_token_requirement',
+    'cruding.view_token_requirement',
     'cruding.operation_token_requirement',
     'cruding.identity_slug_requirement',
 ];

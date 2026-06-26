@@ -30,7 +30,7 @@ $style = strtolower((string) ($options['style'][0] ?? 'empty'));
 $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
 $intent = resolveIntent($path, $operationTokens);
 $context = new CrudContext(
-    surface: (string) ($options['surface'][0] ?? 'public'),
+    view: (string) ($options['view'][0] ?? 'public'),
     operation: $intent['operation'],
     resourcePath: $intent['resourcePath'],
     entityClass: (string) ($options['entity-class'][0] ?? ''),
@@ -216,8 +216,8 @@ function renderSkeleton(string $namespace, string $shortName, string $style): st
 
     return match ($style) {
         'abstract' => $header."\nuse App\\Cruding\\Service\\Crud\\Entrypoint\\AbstractCrudService;\n\nfinal class {$shortName} extends AbstractCrudService\n{\n}\n",
-        'get' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudGetEntrypointInterface;\n\nfinal class {$shortName} implements CrudGetEntrypointInterface\n{\n    public function get(CrudEntrypointContext ".'$'."context): ?CrudEntrypointResult\n    {\n        return null;\n    }\n}\n",
-        'post' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudEntrypointResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudPostEntrypointInterface;\n\nfinal class {$shortName} implements CrudPostEntrypointInterface\n{\n    public function post(CrudEntrypointContext ".'$'."context): ?CrudEntrypointResult\n    {\n        return null;\n    }\n}\n",
+        'get' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudGetServiceInterface;\n\nfinal class {$shortName} implements CrudGetServiceInterface\n{\n    public function get(CrudServiceContext ".'$'."context): ?CrudServiceResult\n    {\n        return null;\n    }\n}\n",
+        'post' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudPostServiceInterface;\n\nfinal class {$shortName} implements CrudPostServiceInterface\n{\n    public function post(CrudServiceContext ".'$'."context): ?CrudServiceResult\n    {\n        return null;\n    }\n}\n",
         default => $header."\nfinal class {$shortName}\n{\n}\n",
     };
 }

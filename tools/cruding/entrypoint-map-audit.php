@@ -35,7 +35,7 @@ $rows = [];
 foreach ($paths as $path) {
     $intent = resolveIntent((string) $path, $operationTokens);
     $context = new CrudContext(
-        surface: (string) ($options['surface'][0] ?? 'public'),
+        view: (string) ($options['view'][0] ?? 'public'),
         operation: $intent['operation'],
         resourcePath: $intent['resourcePath'],
         entityClass: (string) ($options['entity-class'][0] ?? ''),

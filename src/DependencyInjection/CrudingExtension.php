@@ -7,7 +7,7 @@ namespace App\Cruding\DependencyInjection;
 use App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader;
 use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
 use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
-use App\Cruding\ServiceInterface\Surface\CrudSurfaceProviderInterface;
+use App\Cruding\ServiceInterface\Crud\Resource\CrudResourceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -32,10 +32,10 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
          *     route_guard: array{
          *         runtime_scope_env: string,
          *         runtime_entity_env: string,
-         *         runtime_surface_token_env: string,
+         *         runtime_view_token_env: string,
          *         runtime_reserved_env: string,
          *         reserved_tokens: list<string>,
-         *         surface_tokens: list<string>,
+         *         view_tokens: list<string>,
          *         operation_tokens: list<string>,
          *         resource_path_reserved_tokens: list<string>,
          *         runtime_lock_glob: string,
@@ -53,13 +53,13 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $routeGuard = $config['route_guard'];
         $normalizer = new CrudRuntimeTokenNormalizer();
         $defaultReservedRootTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.root');
-        $defaultSurfaceTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.surface');
+        $defaultviewTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.view');
         $defaultOperationTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.operation');
         $defaultResourcePathReservedTokens = $this->parameterTokenList($container, 'cruding.reserved_route_token.resource_path_only');
         $policyBuilder = new CrudRuntimeRouteGuardPolicyBuilder(
             normalizer: $normalizer,
             defaultReservedRootTokens: $defaultReservedRootTokens,
-            defaultSurfaceTokens: $defaultSurfaceTokens,
+            defaultviewTokens: $defaultviewTokens,
             defaultOperationTokens: $defaultOperationTokens,
             defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
         );
@@ -73,7 +73,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $scopeRaw = $this->readEnvironmentValue($routeGuard['runtime_scope_env']);
         $entityRaw = $this->readEnvironmentValue($routeGuard['runtime_entity_env']);
-        $surfaceTokenRaw = $this->readEnvironmentValue($routeGuard['runtime_surface_token_env']);
+        $viewTokenRaw = $this->readEnvironmentValue($routeGuard['runtime_view_token_env']);
         $reservedRaw = $this->readEnvironmentValue($routeGuard['runtime_reserved_env']);
 
         $lockScopeTokens = $this->fallbackLockTokens($runtimeLock->scopeTokens, $runtimeLock->path, [
@@ -88,12 +88,12 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             'APP_RUNTIME_ENTITY',
             'runtime.routing.entities',
         ]);
-        $lockSurfaceTokens = $this->fallbackLockTokens($runtimeLock->surfaceTokens, $runtimeLock->path, [
-            'surface_token',
-            'surface_tokens',
-            'runtime_surface_token',
-            'APP_RUNTIME_SURFACE_TOKEN',
-            'runtime.routing.surface_tokens',
+        $lockviewTokens = $this->fallbackLockTokens($runtimeLock->viewTokens, $runtimeLock->path, [
+            'view_token',
+            'view_tokens',
+            'runtime_view_token',
+            'APP_RUNTIME_VIEW_TOKEN',
+            'runtime.routing.view_tokens',
         ]);
         $lockReservedTokens = $this->fallbackLockTokens($runtimeLock->reservedTokens, $runtimeLock->path, [
             'reserved',
@@ -105,16 +105,16 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $effectiveScopeRaw = $this->fallbackCsv($scopeRaw, $lockScopeTokens);
         $effectiveEntityRaw = $this->fallbackCsv($entityRaw, $lockEntityTokens);
-        $effectiveSurfaceTokenRaw = $this->fallbackCsv($surfaceTokenRaw, $lockSurfaceTokens);
+        $effectiveviewTokenRaw = $this->fallbackCsv($viewTokenRaw, $lockviewTokens);
         $effectiveReservedRaw = $this->fallbackCsv($reservedRaw, $lockReservedTokens);
 
         $policy = $policyBuilder->build(
             scopeRaw: $effectiveScopeRaw,
             entityRaw: $effectiveEntityRaw,
-            surfaceTokenRaw: $effectiveSurfaceTokenRaw,
+            viewTokenRaw: $effectiveviewTokenRaw,
             reservedRaw: $effectiveReservedRaw,
             configuredReservedTokens: $routeGuard['reserved_tokens'],
-            configuredSurfaceTokens: $routeGuard['surface_tokens'],
+            configuredviewTokens: $routeGuard['view_tokens'],
             configuredOperationTokens: $routeGuard['operation_tokens'],
             configuredResourcePathReservedTokens: $routeGuard['resource_path_reserved_tokens'],
         );
@@ -123,10 +123,10 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             $policy = $policyBuilder->build(
                 scopeRaw: implode(',', $lockScopeTokens),
                 entityRaw: implode(',', $lockEntityTokens),
-                surfaceTokenRaw: implode(',', $lockSurfaceTokens),
+                viewTokenRaw: implode(',', $lockviewTokens),
                 reservedRaw: implode(',', $lockReservedTokens),
                 configuredReservedTokens: $routeGuard['reserved_tokens'],
-                configuredSurfaceTokens: $routeGuard['surface_tokens'],
+                configuredviewTokens: $routeGuard['view_tokens'],
                 configuredOperationTokens: $routeGuard['operation_tokens'],
                 configuredResourcePathReservedTokens: $routeGuard['resource_path_reserved_tokens'],
             );
@@ -134,7 +134,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $finalScopeTokens = [] !== $policy->scopeTokens ? $policy->scopeTokens : $normalizer->csvToTokenList($effectiveScopeRaw);
         $finalEntityTokens = [] !== $policy->entityTokens ? $policy->entityTokens : $normalizer->csvToTokenList($effectiveEntityRaw);
-        $finalSurfaceTokens = [] !== $policy->surfaceTokens ? $policy->surfaceTokens : $normalizer->csvToTokenList($effectiveSurfaceTokenRaw);
+        $finalviewTokens = [] !== $policy->viewTokens ? $policy->viewTokens : $normalizer->csvToTokenList($effectiveviewTokenRaw);
         $finalReservedTokens = $policy->reservedRootTokens;
         $finalConflictingEntityTokens = $policy->conflictingEntityTokens;
         $finalAllowedResourceTokens = $policy->allowedResourceTokens;
@@ -165,7 +165,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $finalResourcePathRequirement = $policy->resourcePathRequirement;
         if ('(?!)(?:/[a-z0-9][a-z0-9_-]*)*' === $finalResourcePathRequirement || str_starts_with($finalResourcePathRequirement, '(?!.*')) {
             $reservedSegmentRequirement = $normalizer->alternationRequirement(array_merge(
-                $finalSurfaceTokens,
+                $finalviewTokens,
                 $policy->operationTokens,
                 $policy->resourcePathReservedTokens,
             ));
@@ -178,7 +178,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
 
         $container->setParameter('cruding.runtime_scope_env', $routeGuard['runtime_scope_env']);
         $container->setParameter('cruding.runtime_entity_env', $routeGuard['runtime_entity_env']);
-        $container->setParameter('cruding.runtime_surface_token_env', $routeGuard['runtime_surface_token_env']);
+        $container->setParameter('cruding.runtime_view_token_env', $routeGuard['runtime_view_token_env']);
         $container->setParameter('cruding.runtime_reserved_env', $routeGuard['runtime_reserved_env']);
         $container->setParameter('cruding.runtime_lock_glob', $routeGuard['runtime_lock_glob']);
         $container->setParameter('cruding.runtime_require_lock', $routeGuard['require_runtime_lock']);
@@ -189,15 +189,15 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('cruding.runtime_lock_found', $runtimeLock->found);
         $container->setParameter('cruding.runtime_lock_scope_tokens', $lockScopeTokens);
         $container->setParameter('cruding.runtime_lock_entity_tokens', $lockEntityTokens);
-        $container->setParameter('cruding.runtime_lock_surface_tokens', $lockSurfaceTokens);
+        $container->setParameter('cruding.runtime_lock_view_tokens', $lockviewTokens);
         $container->setParameter('cruding.runtime_lock_reserved_tokens', $lockReservedTokens);
         $container->setParameter('cruding.runtime_effective_scope_raw', $effectiveScopeRaw);
         $container->setParameter('cruding.runtime_effective_entity_raw', $effectiveEntityRaw);
-        $container->setParameter('cruding.runtime_effective_surface_token_raw', $effectiveSurfaceTokenRaw);
+        $container->setParameter('cruding.runtime_effective_view_token_raw', $effectiveviewTokenRaw);
         $container->setParameter('cruding.runtime_effective_reserved_raw', $effectiveReservedRaw);
         $container->setParameter('cruding.runtime_scope_tokens', $finalScopeTokens);
         $container->setParameter('cruding.runtime_entity_tokens', $finalEntityTokens);
-        $container->setParameter('cruding.runtime_surface_tokens', $finalSurfaceTokens);
+        $container->setParameter('cruding.runtime_view_tokens', $finalviewTokens);
         $container->setParameter('cruding.runtime_operation_tokens', $policy->operationTokens);
         $container->setParameter('cruding.runtime_resource_path_reserved_tokens', $policy->resourcePathReservedTokens);
         $container->setParameter('cruding.runtime_reserved_tokens', $finalReservedTokens);
@@ -205,15 +205,15 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('cruding.runtime_conflicting_entity_tokens', $finalConflictingEntityTokens);
         $container->setParameter('cruding.resource_requirement', $finalResourceRequirement);
         $container->setParameter('cruding.resource_path_requirement', $finalResourcePathRequirement);
-        $container->setParameter('cruding.surface_token_requirement', $policy->surfaceTokenRequirement);
+        $container->setParameter('cruding.view_token_requirement', $policy->viewTokenRequirement);
         $container->setParameter('cruding.operation_token_requirement', $normalizer->alternationRequirement($policy->operationTokens));
         $container->setParameter('cruding.identity_slug_requirement', $policy->identitySlugRequirement);
         $container->setParameter('cruding.capability_map', $config['capability_map']);
         $container->setParameter('cruding.entity_class_alias_map', $config['entity_class_alias_map']);
         $container->setParameter('cruding.form_type_map', $config['form_type_map']);
 
-        $container->registerForAutoconfiguration(CrudSurfaceProviderInterface::class)
-            ->addTag('cruding.surface_provider');
+        $container->registerForAutoconfiguration(CrudResourceProviderInterface::class)
+            ->addTag('cruding.resource_provider');
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -264,6 +264,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     /**
      * @param list<string> $primaryTokens
      * @param list<string> $paths
+     *
      * @return list<string>
      */
     private function fallbackLockTokens(array $primaryTokens, ?string $lockPath, array $paths): array

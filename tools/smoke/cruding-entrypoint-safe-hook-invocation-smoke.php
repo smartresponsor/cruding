@@ -15,8 +15,8 @@ assert(false !== $runner, 'Cannot read CrudServiceRunner.');
 assert(str_contains($invoker, 'is_callable([$entrypoint, $method])'), 'Entrypoint invoker must use public-callable hook detection.');
 assert(!str_contains($invoker, 'method_exists($entrypoint'), 'Entrypoint invoker must not use method_exists() for hook dispatch because private/protected methods are not safely callable.');
 assert(str_contains($invoker, 'catch (\\Throwable $exception)'), 'Entrypoint hook dispatch must be fail-soft around hook calls.');
-assert(str_contains($invoker, 'CrudEntrypointResult::STATUS_ENTRYPOINT_HOOK_FAILED'), 'Entrypoint hook failures must degrade to continue-default diagnostics.');
-assert(str_contains($invoker, 'CrudEntrypointResult::STATUS_ENTRYPOINT_GROUNDING_FAILED'), 'Entrypoint grounding failures must degrade to continue-default diagnostics.');
+assert(str_contains($invoker, 'CrudServiceResult::STATUS_ENTRYPOINT_HOOK_FAILED'), 'Entrypoint hook failures must degrade to continue-default diagnostics.');
+assert(str_contains($invoker, 'CrudServiceResult::STATUS_ENTRYPOINT_GROUNDING_FAILED'), 'Entrypoint grounding failures must degrade to continue-default diagnostics.');
 
 foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
     $needle = '$this->callHook($entrypoint, \'' . $method . '\'';
@@ -24,6 +24,6 @@ foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
 }
 
 
-assert(str_contains($runner, 'CrudEntrypointContext'), 'Entrypoint operation runner must continue to build normalized context for hook dispatch.');
+assert(str_contains($runner, 'CrudServiceContext'), 'Entrypoint operation runner must continue to build normalized context for hook dispatch.');
 
 fwrite(STDOUT, "PASS: EntryPoint hooks use public-callable fail-soft dispatch and cannot crash on private/protected/failing hooks.\n");

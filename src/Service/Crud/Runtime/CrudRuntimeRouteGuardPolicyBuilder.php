@@ -10,14 +10,14 @@ final class CrudRuntimeRouteGuardPolicyBuilder
 {
     /**
      * @param list<string> $defaultReservedRootTokens
-     * @param list<string> $defaultSurfaceTokens
+     * @param list<string> $defaultviewTokens
      * @param list<string> $defaultOperationTokens
      * @param list<string> $defaultResourcePathReservedTokens
      */
     public function __construct(
         private readonly CrudRuntimeTokenNormalizer $normalizer,
         private readonly array $defaultReservedRootTokens = [],
-        private readonly array $defaultSurfaceTokens = [],
+        private readonly array $defaultviewTokens = [],
         private readonly array $defaultOperationTokens = [],
         private readonly array $defaultResourcePathReservedTokens = [],
     ) {
@@ -25,26 +25,26 @@ final class CrudRuntimeRouteGuardPolicyBuilder
 
     /**
      * @param list<string> $configuredReservedTokens
-     * @param list<string> $configuredSurfaceTokens
+     * @param list<string> $configuredviewTokens
      * @param list<string> $configuredOperationTokens
      * @param list<string> $configuredResourcePathReservedTokens
      */
     public function build(
         string $scopeRaw,
         string $entityRaw,
-        string $surfaceTokenRaw,
+        string $viewTokenRaw,
         string $reservedRaw,
         array $configuredReservedTokens = [],
-        array $configuredSurfaceTokens = [],
+        array $configuredviewTokens = [],
         array $configuredOperationTokens = [],
         array $configuredResourcePathReservedTokens = [],
     ): CrudRuntimeRouteGuardPolicy {
         $scopeTokens = $this->normalizer->csvToTokenList($scopeRaw);
         $entityTokens = $this->normalizer->csvToTokenList($entityRaw);
-        $runtimeSurfaceTokens = $this->normalizer->csvToTokenList($surfaceTokenRaw);
+        $runtimeviewTokens = $this->normalizer->csvToTokenList($viewTokenRaw);
         $runtimeReservedTokens = $this->normalizer->csvToTokenList($reservedRaw);
 
-        $surfaceTokens = $this->mergeTokenLists($this->defaultSurfaceTokens, $configuredSurfaceTokens, $runtimeSurfaceTokens);
+        $viewTokens = $this->mergeTokenLists($this->defaultviewTokens, $configuredviewTokens, $runtimeviewTokens);
         $operationTokens = $this->mergeTokenLists($this->defaultOperationTokens, $configuredOperationTokens);
         $resourcePathReservedTokens = $this->mergeTokenLists($this->defaultResourcePathReservedTokens, $configuredResourcePathReservedTokens);
         $reservedRootTokens = $this->mergeTokenLists(
@@ -68,14 +68,14 @@ final class CrudRuntimeRouteGuardPolicyBuilder
 
         $allowedResourceTokens = array_values($allowed);
         $resourceRequirement = $this->normalizer->alternationRequirement($allowedResourceTokens);
-        $surfaceTokenRequirement = $this->normalizer->alternationRequirement($surfaceTokens);
-        $identitySlugRequirement = $this->identitySlugRequirement($surfaceTokens, $operationTokens);
-        $resourcePathRequirement = $this->resourcePathRequirement($resourceRequirement, $surfaceTokens, $operationTokens, $resourcePathReservedTokens);
+        $viewTokenRequirement = $this->normalizer->alternationRequirement($viewTokens);
+        $identitySlugRequirement = $this->identitySlugRequirement($viewTokens, $operationTokens);
+        $resourcePathRequirement = $this->resourcePathRequirement($resourceRequirement, $viewTokens, $operationTokens, $resourcePathReservedTokens);
 
         return new CrudRuntimeRouteGuardPolicy(
             scopeTokens: $scopeTokens,
             entityTokens: $entityTokens,
-            surfaceTokens: $surfaceTokens,
+            viewTokens: $viewTokens,
             reservedRootTokens: $reservedRootTokens,
             operationTokens: $operationTokens,
             resourcePathReservedTokens: $resourcePathReservedTokens,
@@ -83,19 +83,19 @@ final class CrudRuntimeRouteGuardPolicyBuilder
             conflictingEntityTokens: array_values($conflicts),
             resourceRequirement: $resourceRequirement,
             resourcePathRequirement: $resourcePathRequirement,
-            surfaceTokenRequirement: $surfaceTokenRequirement,
+            viewTokenRequirement: $viewTokenRequirement,
             identitySlugRequirement: $identitySlugRequirement,
         );
     }
 
     /**
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $operationTokens
      * @param list<string> $resourcePathReservedTokens
      */
-    private function resourcePathRequirement(string $resourceRequirement, array $surfaceTokens, array $operationTokens, array $resourcePathReservedTokens): string
+    private function resourcePathRequirement(string $resourceRequirement, array $viewTokens, array $operationTokens, array $resourcePathReservedTokens): string
     {
-        $reservedTokens = $this->mergeTokenLists($surfaceTokens, $operationTokens, $resourcePathReservedTokens);
+        $reservedTokens = $this->mergeTokenLists($viewTokens, $operationTokens, $resourcePathReservedTokens);
         if ([] === $reservedTokens) {
             return sprintf('%s(?:/[a-z0-9][a-z0-9_-]*)*', $resourceRequirement);
         }
@@ -108,12 +108,12 @@ final class CrudRuntimeRouteGuardPolicyBuilder
     }
 
     /**
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $operationTokens
      */
-    private function identitySlugRequirement(array $surfaceTokens, array $operationTokens): string
+    private function identitySlugRequirement(array $viewTokens, array $operationTokens): string
     {
-        $reservedTokens = $this->mergeTokenLists($surfaceTokens, $operationTokens);
+        $reservedTokens = $this->mergeTokenLists($viewTokens, $operationTokens);
         if ([] === $reservedTokens) {
             return '[A-Za-z0-9][A-Za-z0-9_-]*';
         }

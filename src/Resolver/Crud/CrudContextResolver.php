@@ -6,6 +6,7 @@ namespace App\Cruding\Resolver\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Exception\Crud\CrudResourceNotFoundException;
+use App\Cruding\Parser\Crud\CrudResourcePathParser;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,7 +37,7 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
             return null;
         }
 
-        $surface = (string) $request->attributes->get('_crud_surface', 'public');
+        $view = (string) $request->attributes->get('_crud_view', 'public');
         $operation = (string) $request->attributes->get('_crud_operation', 'index');
         $entityClass = $this->entityClassResolver->tryResolve($resourcePath);
         if (null === $entityClass) {
@@ -47,7 +48,7 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
         $identifierValue = $request->attributes->get($identifierField);
 
         return new CrudContext(
-            surface: $surface,
+            view: $view,
             operation: $operation,
             resourcePath: $resourcePath,
             entityClass: $entityClass,

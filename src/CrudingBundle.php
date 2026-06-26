@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding;
 
-use App\Cruding\DependencyInjection\Compiler\CrudSurfaceServiceLocatorPass;
+use App\Cruding\DependencyInjection\Compiler\CrudResourceServiceLocatorPass;
 use App\Cruding\DependencyInjection\CrudingExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
@@ -16,7 +16,7 @@ final class CrudingBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new CrudSurfaceServiceLocatorPass());
+        $container->addCompilerPass(new CrudResourceServiceLocatorPass());
     }
 
     public function getContainerExtension(): ?ExtensionInterface

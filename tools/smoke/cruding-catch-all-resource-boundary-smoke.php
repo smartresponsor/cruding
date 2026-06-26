@@ -15,8 +15,8 @@ foreach ($routes as $routeFile) {
         exit(1);
     }
 
-    if (!str_contains($content, "crudPath: '%cruding.resource_requirement%(?:/.*)?'")) {
-        fwrite(STDERR, sprintf("Unbounded tokenized catch-all detected in %s.\n", $routeFile));
+    if (!str_contains($content, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'")) {
+        fwrite(STDERR, sprintf("Expected bounded tokenized path payload regex in %s.\n", $routeFile));
         exit(1);
     }
 

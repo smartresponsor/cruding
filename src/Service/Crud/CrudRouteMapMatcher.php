@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud;
 
-use App\Cruding\Dto\Surface\CrudRouteMapEntry;
+use App\Cruding\Dto\Resource\CrudRouteMapEntry;
+use App\Cruding\Service\Crud\Resource\CrudRouteMapLoader;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

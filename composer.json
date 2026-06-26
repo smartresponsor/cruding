@@ -67,7 +67,7 @@
       "@php tools/smoke/cruding-resource-path-operation-suffix-regex-smoke.php",
       "@php tools/smoke/cruding-route-parameter-fallback-smoke.php",
       "@php tools/smoke/cruding-single-route-runtime-smoke.php",
-      "@php tools/smoke/cruding-tokenized-before-legacy-surface-route-order-smoke.php",
+      "@php tools/smoke/cruding-tokenized-before-legacy-resource-route-order-smoke.php",
       "@php tools/smoke/cruding-tokenized-controller-service-registration-smoke.php",
       "@php tools/smoke/cruding-tokenized-route-resolver-smoke.php",
       "@php tools/smoke/cruding-uri-entrypoint-extension-smoke.php"

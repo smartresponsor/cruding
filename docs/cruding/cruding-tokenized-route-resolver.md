@@ -101,4 +101,4 @@ Invalid examples:
   -> not an operation token
 ```
 
-Symfony Router does not decide whether a token is context, resource, operation, id, slug, or surface. Cruding owns that semantic layer.
+Symfony Router does not decide whether a token is context, resource, operation, id, slug, or view. Cruding owns that semantic layer.

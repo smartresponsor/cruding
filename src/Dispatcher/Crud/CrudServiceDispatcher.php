@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Cruding\Dispatcher\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResult;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
+use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,12 +18,12 @@ final readonly class CrudServiceDispatcher implements CrudServiceDispatcherInter
     {
     }
 
-    public function run(Request $request, CrudContext $crudContext, ?object $object = null): CrudEntrypointResult
+    public function run(Request $request, CrudContext $crudContext, ?object $object = null): CrudServiceResult
     {
         return $this->operationRunner->run($request, $crudContext, $object);
     }
 
-    public function tryRun(Request $request, CrudContext $crudContext, ?object $object = null): Response|CrudSurfaceContract|null
+    public function tryRun(Request $request, CrudContext $crudContext, ?object $object = null): Response|CrudResourceContract|null
     {
         return $this->operationRunner->tryRun($request, $crudContext, $object);
     }

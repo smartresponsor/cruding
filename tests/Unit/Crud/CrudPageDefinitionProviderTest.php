@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CrudPageDefinitionProviderTest extends TestCase
 {
-    public function testProvideIndexBuildsSurfaceReadyPageDefinition(): void
+    public function testProvideIndexBuildsviewReadyPageDefinition(): void
     {
         $context = new CrudContext('public', 'index', 'product', 'App\\Cruding\\Entity\\Product', 'slug', null, 'App\\Cruding\\Form\\ProductType', 'crud');
         $access = new CrudAccessContext(
@@ -102,7 +102,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
         self::assertSame($objects, $page->objects);
         self::assertCount(1, $page->actions);
         self::assertSame('new', $page->actions[0]->nameEntity);
-        self::assertSame('cruding_new', $page->actions[0]->routeName);
+        self::assertSame('cruding_tokenized_catch_all', $page->actions[0]->routeName);
         self::assertSame('product', $page->meta['resourcePath']);
     }
 

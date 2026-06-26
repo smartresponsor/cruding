@@ -14,7 +14,7 @@ final readonly class CrudRuntimeRouteGuard
     /**
      * @param list<string> $scopeTokens
      * @param list<string> $entityTokens
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $reservedRootTokens
      * @param list<string> $operationTokens
      * @param list<string> $resourcePathReservedTokens
@@ -24,7 +24,7 @@ final readonly class CrudRuntimeRouteGuard
     public function __construct(
         private array $scopeTokens,
         private array $entityTokens,
-        private array $surfaceTokens,
+        private array $viewTokens,
         private array $reservedRootTokens,
         private array $operationTokens,
         private array $resourcePathReservedTokens,
@@ -32,7 +32,7 @@ final readonly class CrudRuntimeRouteGuard
         private array $conflictingEntityTokens,
         private string $resourceRequirement,
         private string $resourcePathRequirement,
-        private string $surfaceTokenRequirement,
+        private string $viewTokenRequirement,
         private string $identitySlugRequirement,
     ) {
     }
@@ -42,7 +42,7 @@ final readonly class CrudRuntimeRouteGuard
         return new CrudRuntimeRouteGuardPolicy(
             scopeTokens: $this->scopeTokens,
             entityTokens: $this->entityTokens,
-            surfaceTokens: $this->surfaceTokens,
+            viewTokens: $this->viewTokens,
             reservedRootTokens: $this->reservedRootTokens,
             operationTokens: $this->operationTokens,
             resourcePathReservedTokens: $this->resourcePathReservedTokens,
@@ -50,7 +50,7 @@ final readonly class CrudRuntimeRouteGuard
             conflictingEntityTokens: $this->conflictingEntityTokens,
             resourceRequirement: $this->resourceRequirement,
             resourcePathRequirement: $this->resourcePathRequirement,
-            surfaceTokenRequirement: $this->surfaceTokenRequirement,
+            viewTokenRequirement: $this->viewTokenRequirement,
             identitySlugRequirement: $this->identitySlugRequirement,
         );
     }

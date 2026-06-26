@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud;
 
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResult;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Service\Crud\Operation\CrudIdentifierReader;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointBehaviorInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceBehaviorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehaviorInterface
+final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorInterface
 {
     public function __construct(
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
-        private CrudSurfaceContractFactory $surfaceContractFactory,
+        private CrudResourceContractFactory $viewContractFactory,
         private CrudFormHandlerInterface $formHandler,
         private CrudRouteNameResolverInterface $routeNameResolver,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
@@ -29,7 +29,7 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
     ) {
     }
 
-    public function execute(CrudEntrypointContext $context): CrudEntrypointResult
+    public function execute(CrudServiceContext $context): CrudServiceResult
     {
         return match ($context->operation()) {
             'index' => $this->index($context),
@@ -41,34 +41,34 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
         };
     }
 
-    private function index(CrudEntrypointContext $context): CrudEntrypointResult
+    private function index(CrudServiceContext $context): CrudServiceResult
     {
-        return CrudEntrypointResult::surfaceContract(
-            $this->surfaceContractFactory->create(
+        return CrudServiceResult::viewContract(
+            $this->viewContractFactory->create(
                 $this->pageDefinitionProvider->provideIndex($context->crudContext),
             ),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
-    private function show(CrudEntrypointContext $context): CrudEntrypointResult
+    private function show(CrudServiceContext $context): CrudServiceResult
     {
         if (null === $context->object) {
             return $this->notFound($context, 'crud_resource_not_found');
         }
 
-        return CrudEntrypointResult::surfaceContract(
-            $this->surfaceContractFactory->create(
+        return CrudServiceResult::viewContract(
+            $this->viewContractFactory->create(
                 $this->pageDefinitionProvider->provideShow($context->crudContext, $context->object),
                 $context->object,
             ),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
-    private function create(CrudEntrypointContext $context): CrudEntrypointResult
+    private function create(CrudServiceContext $context): CrudServiceResult
     {
         if (null === $context->object || null === $context->crudContext->formTypeClass) {
             return $this->notFound($context, 'crud_resource_not_found');
@@ -87,17 +87,17 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
             $identifierValue = $this->identifierReader->read($context->object, $identifierField);
 
             if (null === $identifierValue) {
-                return CrudEntrypointResult::response(
+                return CrudServiceResult::response(
                     new RedirectResponse($this->urlGenerator->generate(
                         $this->routeNameResolver->resolveIndex($context->crudContext),
                         $this->routeNameResolver->parameters($context->crudContext, null, null, 'index'),
                     )),
-                    CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+                    CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
                     $this->diagnostics($context),
                 );
             }
 
-            return CrudEntrypointResult::response(
+            return CrudServiceResult::response(
                 new RedirectResponse($this->urlGenerator->generate(
                     $this->routeNameResolver->resolveShow($context->crudContext, $identifierField),
                     $this->routeNameResolver->parameters(
@@ -107,25 +107,25 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
                         'show',
                     ),
                 )),
-                CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+                CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
                 $this->diagnostics($context),
             );
         }
 
         $formView = $form->createView();
 
-        return CrudEntrypointResult::surfaceContract(
-            $this->surfaceContractFactory->create(
+        return CrudServiceResult::viewContract(
+            $this->viewContractFactory->create(
                 $this->pageDefinitionProvider->provideNew($context->crudContext, $context->object, $formView),
                 $context->object,
                 $formView,
             ),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
-    private function edit(CrudEntrypointContext $context): CrudEntrypointResult
+    private function edit(CrudServiceContext $context): CrudServiceResult
     {
         if (null === $context->object || null === $context->crudContext->formTypeClass) {
             return $this->notFound($context, 'crud_resource_not_found');
@@ -140,30 +140,30 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
         if ($form->isSubmitted() && $form->isValid()) {
             $this->formHandler->flush($context->object);
 
-            return CrudEntrypointResult::response(
+            return CrudServiceResult::response(
                 new RedirectResponse($this->urlGenerator->generate(
                     $this->routeNameResolver->resolveShow($context->crudContext),
                     $this->routeNameResolver->parameters($context->crudContext, null, null, 'show'),
                 )),
-                CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+                CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
                 $this->diagnostics($context),
             );
         }
 
         $formView = $form->createView();
 
-        return CrudEntrypointResult::surfaceContract(
-            $this->surfaceContractFactory->create(
+        return CrudServiceResult::viewContract(
+            $this->viewContractFactory->create(
                 $this->pageDefinitionProvider->provideEdit($context->crudContext, $context->object, $formView),
                 $context->object,
                 $formView,
             ),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
-    private function delete(CrudEntrypointContext $context): CrudEntrypointResult
+    private function delete(CrudServiceContext $context): CrudServiceResult
     {
         if (null === $context->object) {
             return $this->notFound($context, 'crud_resource_not_found');
@@ -171,36 +171,36 @@ final readonly class CrudDefaultServiceBehavior implements CrudEntrypointBehavio
 
         $this->formHandler->delete($context->object);
 
-        return CrudEntrypointResult::response(
+        return CrudServiceResult::response(
             new RedirectResponse($this->urlGenerator->generate(
                 $this->routeNameResolver->resolveIndex($context->crudContext),
                 $this->routeNameResolver->parameters($context->crudContext, null, null, 'index'),
             )),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
-    private function unsupported(CrudEntrypointContext $context): CrudEntrypointResult
+    private function unsupported(CrudServiceContext $context): CrudServiceResult
     {
         return $this->notFound($context, 'crud_operation_not_supported');
     }
 
-    private function notFound(CrudEntrypointContext $context, string $reason): CrudEntrypointResult
+    private function notFound(CrudServiceContext $context, string $reason): CrudServiceResult
     {
-        return CrudEntrypointResult::response(
+        return CrudServiceResult::response(
             $this->notFoundResponseFactory->create($context->request, $reason, [
                 'resourcePath' => $context->resourcePath(),
                 'operation' => $context->operation(),
                 'defaultBehavior' => self::class,
             ]),
-            CrudEntrypointResult::STATUS_DEFAULT_BEHAVIOR,
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );
     }
 
     /** @return array<string, mixed> */
-    private function diagnostics(CrudEntrypointContext $context): array
+    private function diagnostics(CrudServiceContext $context): array
     {
         return [
             'defaultBehavior' => self::class,

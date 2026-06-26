@@ -10,11 +10,11 @@ namespace App\Cruding\Service\Crud;
 final readonly class CrudReservedRouteTokenPolicy
 {
     /**
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
      * @param list<string> $operationTokens
      */
     public function __construct(
-        private array $surfaceTokens,
+        private array $viewTokens,
         private array $operationTokens,
     ) {
     }
@@ -26,8 +26,8 @@ final readonly class CrudReservedRouteTokenPolicy
             return null;
         }
 
-        if ($this->contains($this->surfaceTokens, $normalized)) {
-            return 'reserved_surface_token_not_routed';
+        if ($this->contains($this->viewTokens, $normalized)) {
+            return 'reserved_view_token_not_routed';
         }
 
         if ($this->contains($this->operationTokens, $normalized)) {
@@ -40,9 +40,9 @@ final readonly class CrudReservedRouteTokenPolicy
     /**
      * @return list<string>
      */
-    public function surfaceTokens(): array
+    public function viewTokens(): array
     {
-        return $this->normalizeList($this->surfaceTokens);
+        return $this->normalizeList($this->viewTokens);
     }
 
     /**

@@ -1,7 +1,7 @@
 param(
     [string]$RuntimeScope = "cruding,viewing,interfacing,administering,accessing",
     [string]$RuntimeEntity = "alpha,attachment,media,beta,gamma",
-    [string]$RuntimeSurfaceToken = "show,card,table,gallery,compact,full,detail,list",
+    [string]$RuntimeViewToken = "show,card,table,gallery,compact,full,detail,list",
     [string]$RuntimeReserved = "",
     [switch]$SkipCacheClear,
     [switch]$FailOnEmptyEntity
@@ -33,14 +33,14 @@ if (-not (Test-Path ".\bin\console")) {
 
 $env:APP_RUNTIME_SCOPE = $RuntimeScope
 $env:APP_RUNTIME_ENTITY = $RuntimeEntity
-$env:APP_RUNTIME_SURFACE_TOKEN = $RuntimeSurfaceToken
+$env:APP_RUNTIME_VIEW_TOKEN = $RuntimeViewToken
 if ($RuntimeReserved -ne "") {
     $env:APP_RUNTIME_RESERVED = $RuntimeReserved
 }
 
 Write-Host "APP_RUNTIME_SCOPE=$env:APP_RUNTIME_SCOPE"
 Write-Host "APP_RUNTIME_ENTITY=$env:APP_RUNTIME_ENTITY"
-Write-Host "APP_RUNTIME_SURFACE_TOKEN=$env:APP_RUNTIME_SURFACE_TOKEN"
+Write-Host "APP_RUNTIME_VIEW_TOKEN=$env:APP_RUNTIME_VIEW_TOKEN"
 if ($RuntimeReserved -ne "") {
     Write-Host "APP_RUNTIME_RESERVED=$env:APP_RUNTIME_RESERVED"
 }

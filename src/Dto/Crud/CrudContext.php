@@ -7,7 +7,7 @@ namespace App\Cruding\Dto\Crud;
 final readonly class CrudContext
 {
     public function __construct(
-        public string $surface,
+        public string $view,
         public string $operation,
         public string $resourcePath,
         public string $entityClass,
@@ -17,8 +17,8 @@ final readonly class CrudContext
     ) {
     }
 
-    public function isAdminSurface(): bool
+    public function isAdminView(): bool
     {
-        return 'admin' === $this->surface;
+        return 'admin' === $this->view;
     }
 }

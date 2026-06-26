@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudEntrypointServiceInterface;
+use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceInterface;
 
 final readonly class CrudDefaultServiceRegistry
 {
@@ -18,7 +18,7 @@ final readonly class CrudDefaultServiceRegistry
     ) {
     }
 
-    public function for(CrudContext $context): CrudEntrypointServiceInterface
+    public function for(CrudContext $context): CrudServiceInterface
     {
         return match ($context->operation) {
             'index' => $this->index,

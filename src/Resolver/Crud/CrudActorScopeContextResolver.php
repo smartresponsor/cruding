@@ -18,8 +18,11 @@ final readonly class CrudActorScopeContextResolver
 
     public function apply(Request $request, CrudTokenizedRouteIntent $intent): void
     {
-        $request->attributes->set('_crud_actor_scope', $intent->actorScope);
-        $request->attributes->set('_crud_actor_scoped', $intent->isActorScoped());
+        $actorScope = $intent->actorScope ?? $this->routeActorScope($request);
+        $isMyScoped = self::ACTOR_SCOPE_MY === $actorScope;
+
+        $request->attributes->set('_crud_actor_scope', $actorScope);
+        $request->attributes->set('_crud_actor_scoped', null !== $actorScope);
         $request->attributes->set('_crud_actor_scope_grounded', false);
         $request->attributes->set('_crud_actor_user_id', null);
         $request->attributes->set('_crud_actor_user_slug', null);
@@ -30,7 +33,7 @@ final readonly class CrudActorScopeContextResolver
         $request->attributes->set('_crud_actor_admin_identity_field', null);
         $request->attributes->set('_crud_actor_admin_identity_value', null);
 
-        if (!$intent->isMyScoped()) {
+        if (!$isMyScoped) {
             return;
         }
 
@@ -63,6 +66,13 @@ final readonly class CrudActorScopeContextResolver
             $request->attributes->set('_crud_actor_admin_identity_field', 'user_id');
             $request->attributes->set('_crud_actor_admin_identity_value', $userId);
         }
+    }
+
+    private function routeActorScope(Request $request): ?string
+    {
+        $actor = $request->attributes->get('_crud_actor');
+
+        return self::ACTOR_SCOPE_MY === $actor ? self::ACTOR_SCOPE_MY : null;
     }
 
     /**

@@ -11,7 +11,7 @@ foreach ([
     'src/Service/Crud/CrudReservedRouteTokenPolicy.php',
     'src/Service/Crud/CrudTokenizedRouteIntentResolver.php',
     'src/Resolver/Crud/CrudActorScopeContextResolver.php',
-    'src/Dto/Crud/Entrypoint/CrudEntrypointContext.php',
+    'src/Dto/Crud/Entrypoint/CrudServiceContext.php',
     'src/Resolver/Crud/CrudServiceClassNameResolver.php',
 ] as $file) {
     require_once $root.'/'.$file;
@@ -57,6 +57,7 @@ $cases = [
     '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
     '/api/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
     '/my/api/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
+    '/api/my/order/attachment/read/123' => ['resourcePath' => 'order/attachment', 'operation' => 'read', 'actorScope' => 'my', 'identifierField' => 'id', 'identifierValue' => '123', 'api' => true],
     '/ea/my/api/vendor/attachment/show/acme-file' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file', 'api' => true],
 ];
 
@@ -82,7 +83,7 @@ foreach (['/my/vendor/attachment/document/index', '/api/my/vendor/attachment/doc
 
 $classResolver = new CrudServiceClassNameResolver();
 $context = new CrudContext(
-    surface: 'public',
+    view: 'public',
     operation: 'index',
     resourcePath: 'vendor/attachment',
     entityClass: '',
@@ -96,9 +97,9 @@ foreach ($candidates as $candidate) {
     assert(!str_contains($candidate, 'VendorMyAttachmentIndexService'), 'My scope must not require a *My* FQCN candidate by default.');
 }
 
-$entrypointContext = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudEntrypointContext.php');
+$entrypointContext = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudServiceContext.php');
 foreach (['isActorScoped', 'actorScope', 'isMyScoped', 'isActorGrounded', 'actorUserId', 'actorUserSlug', 'actorIdentityField', 'actorAdminIdentityField'] as $method) {
-    assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudEntrypointContext missing %s().', $method));
+    assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContext missing %s().', $method));
 }
 
 fwrite(STDOUT, "PASS: context prefixes are trimmed before CRUD grammar depth checks and my scope remains actor context.\n");

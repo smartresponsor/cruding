@@ -26,7 +26,7 @@ final readonly class CrudRuntimeLockReader
                 found: false,
                 scopeTokens: [],
                 entityTokens: [],
-                surfaceTokens: [],
+                viewTokens: [],
                 reservedTokens: [],
                 packageNames: [],
             );
@@ -40,7 +40,7 @@ final readonly class CrudRuntimeLockReader
             found: true,
             scopeTokens: $this->readTokenList($payload, ['scope', 'runtime_scope', 'APP_RUNTIME_SCOPE', 'runtime.scope.components']),
             entityTokens: $this->readTokenList($payload, ['entity', 'runtime_entity', 'APP_RUNTIME_ENTITY', 'runtime.routing.entities']),
-            surfaceTokens: $this->readTokenList($payload, ['surface_token', 'surface_tokens', 'runtime_surface_token', 'APP_RUNTIME_SURFACE_TOKEN', 'runtime.routing.surface_tokens']),
+            viewTokens: $this->readTokenList($payload, ['view_token', 'view_tokens', 'runtime_view_token', 'APP_RUNTIME_VIEW_TOKEN', 'runtime.routing.view_tokens']),
             reservedTokens: $this->readTokenList($payload, ['reserved', 'reserved_tokens', 'runtime_reserved', 'APP_RUNTIME_RESERVED', 'runtime.routing.reserved_roots']),
             packageNames: $this->readPackageNames($payload),
         );
@@ -85,7 +85,8 @@ final readonly class CrudRuntimeLockReader
 
     /**
      * @param array<string, mixed> $payload
-     * @param list<string> $keys
+     * @param list<string>         $keys
+     *
      * @return list<string>
      */
     private function readTokenList(array $payload, array $keys): array
@@ -142,6 +143,7 @@ final readonly class CrudRuntimeLockReader
 
     /**
      * @param array<string, mixed> $payload
+     *
      * @return list<string>
      */
     private function readPackageNames(array $payload): array

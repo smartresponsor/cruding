@@ -53,11 +53,11 @@ No mandatory `*My*` FQCN class explosion was introduced.
   -> App\Service\Http\Vendor\Attachment\VendorAttachmentIndexService
 ----
 
-`my` is passed through `CrudEntrypointContext` as context. Existing URI-derived entrypoints may branch internally if they need current-user scoped behavior.
+`my` is passed through `CrudServiceContext` as context. Existing URI-derived entrypoints may branch internally if they need current-user scoped behavior.
 
 == Actor scope context
 
-`CrudEntrypointContext` now exposes:
+`CrudServiceContext` now exposes:
 
 [source,text]
 ----
@@ -91,7 +91,7 @@ Changed:
   src/Controller/Api/Crud/CrudApiTokenizedController.php
   src/Controller/Crud/CrudTokenizedController.php
   src/Dto/Crud/CrudTokenizedRouteIntent.php
-  src/Dto/Crud/Entrypoint/CrudEntrypointContext.php
+  src/Dto/Crud/Entrypoint/CrudServiceContext.php
   src/Service/Crud/CrudTokenizedRouteIntentResolver.php
   src/Runner/Crud/CrudServiceRunner.php
   tools/cruding/entrypoint-map-audit.php

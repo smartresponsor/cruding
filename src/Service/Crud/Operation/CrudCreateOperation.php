@@ -6,7 +6,7 @@ namespace App\Cruding\Service\Crud\Operation;
 
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
-use App\Cruding\Service\Crud\Surface\CrudSurfaceContractFactory;
+use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
@@ -14,7 +14,7 @@ use App\Cruding\ServiceInterface\Crud\CrudObjectFactoryInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudRouteNameResolverInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +29,7 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
         private CrudAccessContextBuilderInterface $accessContextBuilder,
         private CrudPageDefinitionProviderInterface $pageDefinitionProvider,
         private CrudObjectFactoryInterface $objectFactory,
-        private CrudSurfaceContractFactory $surfaceContractFactory,
+        private CrudResourceContractFactory $viewContractFactory,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudIdentifierReader $identifierReader,
         private UrlGeneratorInterface $urlGenerator,
@@ -37,7 +37,7 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
     ) {
     }
 
-    public function handle(Request $request): Response|CrudSurfaceContract
+    public function handle(Request $request): Response|CrudResourceContract
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
@@ -77,6 +77,6 @@ final readonly class CrudCreateOperation implements CrudCreateOperationInterface
 
         $page = $this->pageDefinitionProvider->provideNew($context, $object, $form->createView());
 
-        return $this->surfaceContractFactory->create($page, $object, $form->createView());
+        return $this->viewContractFactory->create($page, $object, $form->createView());
     }
 }

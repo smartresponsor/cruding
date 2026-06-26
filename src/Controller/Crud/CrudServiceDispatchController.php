@@ -8,7 +8,7 @@ use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +22,7 @@ final class CrudServiceDispatchController extends AbstractController
     ) {
     }
 
-    public function __invoke(Request $request): Response|CrudSurfaceContract
+    public function __invoke(Request $request): Response|CrudResourceContract
     {
         $operation = $this->operation($request);
         if ('' === $operation) {
@@ -30,7 +30,7 @@ final class CrudServiceDispatchController extends AbstractController
         }
 
         $request->attributes->set('_crud_operation', $operation);
-        $request->attributes->set('_crud_surface', (string) $request->attributes->get('_crud_surface', 'public'));
+        $request->attributes->set('_crud_view', (string) $request->attributes->get('_crud_view', 'public'));
 
         $context = $this->contextResolver->tryResolve($request) ?? $this->syntheticContext($request, $operation);
         $result = $this->entrypointRunner->run($request, $context);
@@ -42,7 +42,7 @@ final class CrudServiceDispatchController extends AbstractController
         return $this->notFoundResponseFactory->create($request, 'crud_entrypoint_not_found', [
             'operationToken' => $operation,
             'entrypointTrace' => $result->diagnostics()['entrypointTrace'] ?? $result->diagnostics(),
-            'interpretation' => 'Configured CRUD operation token route matched, but no URI-derived or explicit entrypoint returned a response or surface contract.',
+            'interpretation' => 'Configured CRUD operation token route matched, but no URI-derived or explicit entrypoint returned a response or view contract.',
         ]);
     }
 
@@ -62,7 +62,7 @@ final class CrudServiceDispatchController extends AbstractController
         $identifierValue = $request->attributes->get($identifierField);
 
         return new CrudContext(
-            surface: (string) $request->attributes->get('_crud_surface', 'public'),
+            view: (string) $request->attributes->get('_crud_view', 'public'),
             operation: $operation,
             resourcePath: trim((string) $request->attributes->get('resourcePath', ''), '/'),
             entityClass: '',

@@ -4,11 +4,21 @@
 # API method semantics are resolved in PHP. Route regex only captures the path
 # payload after /api/ so Cruding can classify tokens itself.
 # ---------------------------------------------------------------------------
+cruding_my_api_tokenized_catch_all:
+    path: /my/api/{crudPath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    methods: [GET, POST, PUT, PATCH, DELETE]
+    defaults:
+        _crud_view: public
+        _crud_actor: my
+    requirements:
+        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+
 cruding_api_tokenized_catch_all:
     path: /api/{crudPath}
     controller: App\Cruding\Controller\Api\Crud\CrudApiController
     methods: [GET, POST, PUT, PATCH, DELETE]
     defaults:
-        _crud_surface: public
+        _crud_view: public
     requirements:
-        crudPath: '%cruding.resource_requirement%(?:/.*)?'
+        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'

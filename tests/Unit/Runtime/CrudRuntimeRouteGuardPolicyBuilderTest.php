@@ -37,8 +37,8 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
                 'administering',
                 'cruding',
             ],
-            defaultSurfaceTokens: ['card', 'table', 'gallery', 'compact', 'full', 'detail', 'list'],
-            defaultOperationTokens: ['index', 'show', 'new', 'create', 'edit', 'update', 'delete', 'bulk', 'import', 'export', 'archive', 'restore', 'duplicate'],
+            defaultviewTokens: ['card', 'table', 'gallery', 'compact', 'full', 'detail', 'list'],
+            defaultOperationTokens: ['index', 'show', 'read', 'new', 'create', 'edit', 'update', 'delete', 'bulk', 'import', 'export', 'archive', 'restore', 'duplicate'],
             defaultResourcePathReservedTokens: ['audit', 'visibility', 'attach', 'detach'],
         );
     }
@@ -48,7 +48,7 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
         $policy = $this->builder->build(
             scopeRaw: 'cruding,viewing,interfacing,administering,accessing',
             entityRaw: 'alpha,attachment,media,product,category',
-            surfaceTokenRaw: 'card,table,gallery',
+            viewTokenRaw: 'card,table,gallery',
             reservedRaw: '',
         );
 
@@ -57,10 +57,10 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
         self::assertContains('interfacing', $policy->reservedRootTokens);
         self::assertFalse($policy->hasConflicts());
         self::assertContains('index', $policy->operationTokens);
-        self::assertContains('card', $policy->surfaceTokens);
+        self::assertContains('card', $policy->viewTokens);
 
         $matcher = $this->tokenizedMatcher();
-        self::assertSame('cruding_surface_token_item', $matcher->match('/alpha/attachment/media/card/123')['_route']);
+        self::assertSame('cruding_view_token_item', $matcher->match('/alpha/attachment/media/card/123')['_route']);
         self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha')['_route']);
         self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/index')['_route']);
         self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/attachment/media/edit/123')['_route']);
@@ -71,7 +71,7 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
         $policy = $this->builder->build(
             scopeRaw: 'cruding,viewing',
             entityRaw: 'alpha,viewing',
-            surfaceTokenRaw: 'card',
+            viewTokenRaw: 'card',
             reservedRaw: '',
         );
 
@@ -82,24 +82,24 @@ final class CrudRuntimeRouteGuardPolicyBuilderTest extends TestCase
         self::assertStringNotContainsString('viewing', $policy->resourceRequirement);
     }
 
-    public function testSurfaceTokensRemainBeforeTokenizedCatchAllRoutes(): void
+    public function testviewTokensRemainBeforeTokenizedCatchAllRoutes(): void
     {
         $matcher = $this->tokenizedMatcher();
 
-        self::assertSame('cruding_surface_token_item', $matcher->match('/alpha/attachment/media/card/acme-inc')['_route']);
+        self::assertSame('cruding_view_token_item', $matcher->match('/alpha/attachment/media/card/acme-inc')['_route']);
         self::assertSame('cruding_tokenized_catch_all', $matcher->match('/alpha/card')['_route']);
     }
 
     private function tokenizedMatcher(): UrlMatcher
     {
         $collection = new RouteCollection();
-        $collection->add('cruding_surface_token_item', new Route(
-            '/{resource}/{subject}/{surface}/{token}/{item}',
+        $collection->add('cruding_view_token_item', new Route(
+            '/{resource}/{subject}/{view}/{token}/{item}',
             [],
             [
                 'resource' => '[a-z][a-z0-9_-]*',
                 'subject' => '[A-Za-z0-9][A-Za-z0-9_-]*',
-                'surface' => '[a-z0-9][a-z0-9_-]*',
+                'view' => '[a-z0-9][a-z0-9_-]*',
                 'token' => 'card|table|gallery',
                 'item' => '[A-Za-z0-9][A-Za-z0-9_-]*',
             ],

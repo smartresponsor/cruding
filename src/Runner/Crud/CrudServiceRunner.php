@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Cruding\Runner\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointContext;
-use App\Cruding\Dto\Crud\Entrypoint\CrudEntrypointResult;
-use App\Cruding\Value\Surface\CrudSurfaceContract;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
+use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
+use App\Cruding\Invoker\Crud\CrudServiceInvoker;
+use App\Cruding\Resolver\Crud\CrudServiceResolver;
+use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,10 +21,10 @@ final readonly class CrudServiceRunner
     ) {
     }
 
-    public function run(Request $request, CrudContext $crudContext, ?object $object = null): CrudEntrypointResult
+    public function run(Request $request, CrudContext $crudContext, ?object $object = null): CrudServiceResult
     {
         $resolution = $this->resolver->resolve($request, $crudContext);
-        $context = new CrudEntrypointContext($request, $crudContext, $object);
+        $context = new CrudServiceContext($request, $crudContext, $object);
         $result = $this->invoker->invoke(
             $resolution->service,
             $context,
@@ -51,7 +53,7 @@ final readonly class CrudServiceRunner
         ]);
     }
 
-    public function tryRun(Request $request, CrudContext $crudContext, ?object $object = null): Response|CrudSurfaceContract|null
+    public function tryRun(Request $request, CrudContext $crudContext, ?object $object = null): Response|CrudResourceContract|null
     {
         $result = $this->run($request, $crudContext, $object);
 

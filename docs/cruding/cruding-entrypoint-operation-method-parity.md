@@ -64,6 +64,6 @@ patch(context)
 delete(context)
 ```
 
-`CrudEntrypointContext` exposes helper methods for operation and HTTP-method checks, including `isOperation()`, `isGet()`, `isPost()`, `isPut()`, `isPatch()`, and `isDelete()`.
+`CrudServiceContext` exposes helper methods for operation and HTTP-method checks, including `isOperation()`, `isGet()`, `isPost()`, `isPut()`, `isPatch()`, and `isDelete()`.
 
 `null` from a hook means: continue with the default Cruding engine behavior.

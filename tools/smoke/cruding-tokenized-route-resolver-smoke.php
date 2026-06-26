@@ -15,8 +15,8 @@ $intent = readFileStrict($root.'/src/Dto/Crud/CrudTokenizedRouteIntent.php');
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Missing tokenized CRUD catch-all route.');
 assert(str_contains($routes, 'path: /{crudPath}'), 'CRUD route must capture raw path for PHP token resolver.');
 assert(
-    str_contains($routes, "crudPath: '%cruding.resource_requirement%(?:/.*)?'"),
-    'CRUD route must use the structural resource-boundary catch-all requirement.',
+    str_contains($routes, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'"),
+    'CRUD route must use a bounded tokenized path payload requirement.',
 );
 assert(!str_contains($routes, "crudPath: '.+'"), 'CRUD route must not expose an unbounded global catch-all.');
 assert(!str_contains($routes, 'resourcePath:'), 'CRUD route YAML must not contain semantic resourcePath requirements.');
@@ -28,15 +28,15 @@ assert(str_contains($routes, 'App\\Cruding\\Controller\\Crud\\CrudController'), 
 assert(str_contains($apiRoutes, 'cruding_api_tokenized_catch_all:'), 'Missing tokenized API catch-all route.');
 assert(str_contains($apiRoutes, 'path: /api/{crudPath}'), 'API route must capture raw API path for PHP token resolver.');
 assert(
-    str_contains($apiRoutes, "crudPath: '%cruding.resource_requirement%(?:/.*)?'"),
-    'API route must use the structural resource-boundary catch-all requirement.',
+    str_contains($apiRoutes, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'"),
+    'API route must use a bounded tokenized path payload requirement.',
 );
 assert(!str_contains($apiRoutes, "crudPath: '.+'"), 'API route must not expose an unbounded global catch-all.');
 assert(!str_contains($apiRoutes, 'resourcePath:'), 'API route YAML must not contain semantic resourcePath requirements.');
 assert(strpos($routeIndex, 'cruding_api_crud:') < strpos($routeIndex, 'cruding_crud:'), 'API catch-all must be imported before generic CRUD catch-all.');
-assert(strpos($routeIndex, 'cruding_crud:') < strpos($routeIndex, 'cruding_surface:'), 'Tokenized CRUD catch-all must be imported before legacy surface fallback routes.');
+assert(strpos($routeIndex, 'cruding_crud:') < strpos($routeIndex, 'cruding_resource:'), 'Tokenized CRUD catch-all must be imported before legacy resource fallback routes.');
 
-foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACTOR_SCOPE_MY', 'operationTokens', 'identifierField', 'surfaceFor'] as $needle) {
+foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACTOR_SCOPE_MY', 'operationTokens', 'identifierField', 'viewFor'] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver must expose %s.', $needle));
 }
 

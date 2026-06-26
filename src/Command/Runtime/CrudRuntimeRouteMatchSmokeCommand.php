@@ -36,7 +36,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
         $this
             ->addOption('reserved-path', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Reserved path that must not match a Cruding route. Can be repeated.')
             ->addOption('cruding-path', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Path that must match a Cruding route. Can be repeated.')
-            ->addOption('skip-defaults', null, InputOption::VALUE_NONE, 'Do not add default reserved/entity/surface smoke paths.')
+            ->addOption('skip-defaults', null, InputOption::VALUE_NONE, 'Do not add default reserved/entity/view smoke paths.')
             ->addOption('fail-on-empty-entity', null, InputOption::VALUE_NONE, 'Fail when APP_RUNTIME_ENTITY produced no allowed resource tokens.');
     }
 
@@ -50,7 +50,7 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
 
         if (!$skipDefaults) {
             $reservedPaths = array_values(array_unique([...self::DEFAULT_RESERVED_PATHS, ...$reservedPaths]));
-            $crudingPaths = array_values(array_unique([...$this->defaultCrudingPaths($policy->allowedResourceTokens, $policy->surfaceTokens), ...$crudingPaths]));
+            $crudingPaths = array_values(array_unique([...$this->defaultCrudingPaths($policy->allowedResourceTokens, $policy->viewTokens), ...$crudingPaths]));
         }
 
         $output->writeln('<info>Cruding runtime route match smoke</info>');
@@ -113,24 +113,25 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
 
     /**
      * @param list<string> $allowedResourceTokens
-     * @param list<string> $surfaceTokens
+     * @param list<string> $viewTokens
+     *
      * @return list<string>
      */
-    private function defaultCrudingPaths(array $allowedResourceTokens, array $surfaceTokens): array
+    private function defaultCrudingPaths(array $allowedResourceTokens, array $viewTokens): array
     {
         if ([] === $allowedResourceTokens) {
             return [];
         }
 
         $resource = $allowedResourceTokens[0];
-        $surfaceToken = $surfaceTokens[0] ?? 'show';
+        $viewToken = $viewTokens[0] ?? 'show';
 
         return [
             '/'.$resource,
             '/'.$resource.'/',
             '/api/'.$resource,
             '/api/'.$resource.'/',
-            '/'.$resource.'/attachment/media/'.$surfaceToken.'/123',
+            '/'.$resource.'/attachment/media/'.$viewToken.'/123',
         ];
     }
 

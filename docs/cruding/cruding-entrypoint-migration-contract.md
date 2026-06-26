@@ -56,9 +56,9 @@ final class AlphaIndexService extends AbstractCrudService
 Optional method contract:
 
 ```php
-final class AlphaIndexService implements CrudGetEntrypointInterface
+final class AlphaIndexService implements CrudGetServiceInterface
 {
-    public function get(CrudEntrypointContext $context): ?CrudEntrypointResult
+    public function get(CrudServiceContext $context): ?CrudServiceResult
     {
         return null;
     }

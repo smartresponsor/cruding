@@ -50,7 +50,7 @@ if ($context->isMyScoped()) {
 }
 ```
 
-Actor scope values are exposed through `CrudEntrypointContext`:
+Actor scope values are exposed through `CrudServiceContext`:
 
 ```text
 isActorScoped()

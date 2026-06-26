@@ -31,10 +31,10 @@ final class CrudRuntimeRouteGuardCommand extends Command
         $this->writeList($output, 'runtime entity', $policy->entityTokens);
         $this->writeList($output, 'reserved root', $policy->reservedRootTokens);
         $this->writeList($output, 'allowed resource', $policy->allowedResourceTokens);
-        $this->writeList($output, 'surface token', $policy->surfaceTokens);
+        $this->writeList($output, 'view token', $policy->viewTokens);
         $output->writeln('resource requirement: '.$policy->resourceRequirement);
         $output->writeln('resource path requirement: '.$policy->resourcePathRequirement);
-        $output->writeln('surface token requirement: '.$policy->surfaceTokenRequirement);
+        $output->writeln('view token requirement: '.$policy->viewTokenRequirement);
 
         if ($policy->hasConflicts()) {
             foreach ($policy->conflictingEntityTokens as $token) {
