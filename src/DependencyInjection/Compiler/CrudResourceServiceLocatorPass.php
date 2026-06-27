@@ -63,6 +63,9 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
 
     private function isCanonicalHttpService(string $serviceId): bool
     {
-        return 1 === preg_match(self::HTTP_SERVICE_PATTERN, $serviceId);
+        return 1 === preg_match(self::HTTP_SERVICE_PATTERN, $serviceId)
+            || (str_starts_with($serviceId, 'App\\')
+                && str_contains($serviceId, '\\Service\\Runtime\\')
+                && str_ends_with($serviceId, 'Service'));
     }
 }

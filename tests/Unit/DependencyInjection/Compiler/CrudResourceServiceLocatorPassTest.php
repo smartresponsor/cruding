@@ -19,6 +19,7 @@ final class CrudResourceServiceLocatorPassTest extends TestCase
         $container->setDefinition(CrudResourceServiceLocator::class, new Definition(CrudResourceServiceLocator::class));
         $container->setDefinition('App\\Service\\Http\\Host\\HostIndexService', new Definition('App\\Service\\Http\\Host\\HostIndexService'));
         $container->setDefinition('component.document.index', new Definition('App\\Fixture\\Service\\Http\\Document\\DocumentIndexService'));
+        $container->setDefinition('App\\Vendoring\\Service\\Runtime\\Profile\\VendorProfileShowService', new Definition('App\\Vendoring\\Service\\Runtime\\Profile\\VendorProfileShowService'));
         $container->setDefinition('App\\Something\\ElseService', new Definition('App\\Something\\ElseService'));
         (new CrudResourceServiceLocatorPass())->process($container);
         $argument = $container->getDefinition(CrudResourceServiceLocator::class)->getArgument(0);
@@ -26,6 +27,7 @@ final class CrudResourceServiceLocatorPassTest extends TestCase
         $values = $argument->getValues();
         self::assertArrayHasKey('App\\Service\\Http\\Host\\HostIndexService', $values);
         self::assertArrayHasKey('component.document.index', $values);
+        self::assertArrayHasKey('App\\Vendoring\\Service\\Runtime\\Profile\\VendorProfileShowService', $values);
         self::assertArrayNotHasKey('App\\Something\\ElseService', $values);
     }
 
