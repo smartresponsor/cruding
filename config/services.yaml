@@ -81,6 +81,7 @@ services:
         resource: '../src/Service/Crud/'
         exclude:
             - '../src/Service/Crud/view/CrudResourcePayloadBuilder.php'
+            - '../src/Service/Crud/PassiveCrudService.php'
 
     App\Cruding\Invoker\Crud\:
         resource: '../src/Invoker/Crud/'

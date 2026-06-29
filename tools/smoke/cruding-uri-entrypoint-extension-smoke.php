@@ -31,7 +31,7 @@ require_once $root.'/src/Dto/Crud/CrudContext.php';
 require_once $root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php';
 
 $classNameResolver = new App\Cruding\Resolver\Crud\CrudServiceClassNameResolver();
-$candidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\CrudContext(
+$candidates = $classNameResolver->candidateShortClassNames(new App\Cruding\Dto\Crud\CrudContext(
     view: 'public',
     operation: 'edit',
     resourcePath: 'vendor/attachment/document',
@@ -42,11 +42,11 @@ $candidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\C
 ));
 
 assert([
-    'App\\Service\\Http\\Vendor\\Attachment\\Document\\VendorAttachmentDocumentEditService',
-    'App\\Service\\Http\\Vendor\\Attachment\\Document\\AttachmentDocumentEditService',
-] === $candidates, 'Host entrypoint service names must remain canonical.');
+    'VendorAttachmentDocumentEditService',
+    'AttachmentDocumentEditService',
+] === $candidates, 'Host entrypoint short service names must remain canonical.');
 
-$componentCandidates = $classNameResolver->candidateClassNames(new App\Cruding\Dto\Crud\CrudContext(
+$componentCandidates = $classNameResolver->candidateShortClassNames(new App\Cruding\Dto\Crud\CrudContext(
     view: 'public',
     operation: 'index',
     resourcePath: 'vendor',
@@ -57,9 +57,8 @@ $componentCandidates = $classNameResolver->candidateClassNames(new App\Cruding\D
 ));
 
 assert([
-    'App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService',
-    'App\\Service\\Http\\Vendor\\VendorIndexService',
-] === $componentCandidates, 'Component entrypoint must be preferred before the host fallback class.');
+    'VendorIndexService',
+] === $componentCandidates, 'Component entrypoint short service name must be derived.');
 
 $abstract = file_get_contents($root.'/src/Service/Crud/AbstractCrudService.php');
 $behavior = file_get_contents($root.'/src/Service/Crud/CrudDefaultServiceBehavior.php');

@@ -40,14 +40,15 @@ $context = new CrudContext(
 );
 
 $classResolver = new CrudServiceClassNameResolver();
-$candidates = $classResolver->candidateClassNames($context);
-if ([] === $candidates) {
+$shortClassNames = $classResolver->candidateShortClassNames($context);
+$serviceLayerPrefixes = $classResolver->candidateServiceNamespaceRootPrefixes($context);
+if ([] === $shortClassNames || [] === $serviceLayerPrefixes) {
     fwrite(STDERR, sprintf("Cannot derive entrypoint class for path %s.\n", $path));
     exit(1);
 }
 
-$className = (string) $candidates[0];
-[$namespace, $shortName] = splitClassName($className);
+$shortName = (string) $shortClassNames[0];
+$namespace = serviceNamespace((string) $serviceLayerPrefixes[0], $intent['resourcePath']);
 
 fwrite(STDOUT, sprintf("// Path: %s\n", normalizePath($path)));
 fwrite(STDOUT, sprintf("// Resource: %s\n", $intent['resourcePath']));
@@ -85,7 +86,7 @@ function usage(): string
 Usage:
   php tools/cruding/entrypoint-skeleton-preview.php --path=/alpha/attachment/media/edit/123 [--style=empty|abstract|get|post]
 
-This is a read-only preview. It prints a self-documenting URI-derived service skeleton and never writes files.
+This is a read-only preview. It prints a self-documenting service-layer skeleton and never writes files.
 
 TXT;
 }
@@ -197,17 +198,29 @@ function normalizePath(string $path): string
     return '/'.trim($path, '/');
 }
 
-/**
- * @return array{0: string, 1: string}
- */
-function splitClassName(string $className): array
+function serviceNamespace(string $serviceLayerPrefix, string $resourcePath): string
 {
-    $position = strrpos($className, '\\');
-    if (false === $position) {
-        return ['', $className];
+    $namespace = trim($serviceLayerPrefix, '\\');
+    $segments = [];
+    foreach (explode('/', trim($resourcePath, '/')) as $segment) {
+        $segment = trim($segment);
+        if ('' === $segment) {
+            continue;
+        }
+
+        $segments[] = pascal($segment);
     }
 
-    return [substr($className, 0, $position), substr($className, $position + 1)];
+    if ([] !== $segments) {
+        $namespace .= '\\'.implode('\\', $segments);
+    }
+
+    return $namespace;
+}
+
+function pascal(string $token): string
+{
+    return str_replace(' ', '', ucwords(strtolower((string) preg_replace('/[^a-zA-Z0-9]+/', ' ', $token))));
 }
 
 function renderSkeleton(string $namespace, string $shortName, string $style): string

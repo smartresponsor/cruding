@@ -26,6 +26,8 @@ final readonly class CrudServiceResolver
     {
         $candidateServiceIds = $this->explicitServiceResolver->candidateServiceIds($request, $context);
         $candidateClassNames = $this->classNameResolver->candidateClassNames($context);
+        $candidateShortClassNames = $this->classNameResolver->candidateShortClassNames($context);
+        $namespaceRootPrefixes = $this->classNameResolver->candidateServiceNamespaceRootPrefixes($context);
         $classExists = [];
         $containerHas = [];
 
@@ -46,18 +48,21 @@ final readonly class CrudServiceResolver
             );
         }
 
-        foreach ($candidateClassNames as $className) {
-            $classExists[$className] = class_exists($className);
-            $containerHas[$className] = $this->serviceLocator->has($className);
+        foreach ($candidateShortClassNames as $shortClassName) {
+            $serviceId = $this->serviceLocator->uniqueServiceIdByShortClassName($shortClassName, $namespaceRootPrefixes);
+            if (null === $serviceId) {
+                continue;
+            }
 
-            if (!$containerHas[$className]) {
+            $containerHas[$serviceId] = $this->serviceLocator->has($serviceId);
+            if (!$containerHas[$serviceId]) {
                 continue;
             }
 
             return new CrudServiceResolution(
-                service: $this->normalize($this->serviceLocator->get($className)),
+                service: $this->normalize($this->serviceLocator->get($serviceId)),
                 status: CrudServiceResolution::STATUS_URI_DERIVED_SERVICE,
-                serviceId: $className,
+                serviceId: $serviceId,
                 candidateServiceIds: $candidateServiceIds,
                 candidateClassNames: $candidateClassNames,
                 classExists: $classExists,
@@ -66,12 +71,6 @@ final readonly class CrudServiceResolver
         }
 
         $fallbackReason = CrudServiceResolution::STATUS_MISSING;
-        foreach ($candidateClassNames as $className) {
-            if (($classExists[$className] ?? false) && !($containerHas[$className] ?? false)) {
-                $fallbackReason = CrudServiceResolution::STATUS_CLASS_EXISTS_BUT_NOT_REGISTERED;
-                break;
-            }
-        }
 
         $defaultService = $this->defaultRegistry->for($context);
 
@@ -85,6 +84,26 @@ final readonly class CrudServiceResolver
             classExists: $classExists,
             containerHas: $containerHas,
         );
+    }
+
+    /**
+     * @param list<string> $candidateClassNames
+     *
+     * @return list<string>
+     */
+    private function namespaceRootPrefixes(array $candidateClassNames): array
+    {
+        $prefixes = [];
+        foreach ($candidateClassNames as $candidateClassName) {
+            $position = strpos($candidateClassName, '\\Service\\');
+            if (false === $position) {
+                continue;
+            }
+
+            $prefixes[] = substr($candidateClassName, 0, $position).'\\Service\\';
+        }
+
+        return array_values(array_unique($prefixes));
     }
 
     private function normalize(object $service): object

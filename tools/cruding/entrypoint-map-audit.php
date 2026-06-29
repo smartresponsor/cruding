@@ -45,14 +45,10 @@ foreach ($paths as $path) {
     );
 
     $candidates = [];
-    foreach ($classResolver->candidateClassNames($context) as $candidateClassName) {
-        $relativePath = classNameToPath((string) $candidateClassName, $appSrc);
-        $absolutePath = $root.'/'.$relativePath;
+    foreach ($classResolver->candidateShortClassNames($context) as $candidateShortClassName) {
         $candidates[] = [
-            'className' => (string) $candidateClassName,
-            'relativePath' => $relativePath,
-            'classExists' => class_exists((string) $candidateClassName),
-            'fileExists' => is_file($absolutePath),
+            'shortClassName' => (string) $candidateShortClassName,
+            'namespaceRootPrefixes' => $classResolver->candidateServiceNamespaceRootPrefixes($context),
         ];
     }
 
@@ -77,7 +73,7 @@ if ('json' === $format) {
     exit(0);
 }
 
-fwrite(STDOUT, "Cruding URI-derived entrypoint map audit\n");
+fwrite(STDOUT, "Cruding service-layer entrypoint map audit\n");
 fwrite(STDOUT, "writeAction: false\n\n");
 
 foreach ($rows as $row) {
@@ -92,10 +88,10 @@ foreach ($rows as $row) {
     }
 
     foreach ($row['candidates'] as $index => $candidate) {
-        fwrite(STDOUT, sprintf("  candidate #%d: %s\n", $index + 1, $candidate['className']));
-        fwrite(STDOUT, sprintf("    path: %s\n", $candidate['relativePath']));
-        fwrite(STDOUT, sprintf("    classExists: %s\n", $candidate['classExists'] ? 'yes' : 'no'));
-        fwrite(STDOUT, sprintf("    fileExists: %s\n", $candidate['fileExists'] ? 'yes' : 'no'));
+        fwrite(STDOUT, sprintf("  candidate #%d: %s\n", $index + 1, $candidate['shortClassName']));
+        foreach ($candidate['namespaceRootPrefixes'] as $prefixIndex => $prefix) {
+            fwrite(STDOUT, sprintf("    serviceLayerPrefix #%d: %s\n", $prefixIndex + 1, $prefix));
+        }
     }
 
     fwrite(STDOUT, "\n");
@@ -127,7 +123,7 @@ function usage(): string
 Usage:
   php tools/cruding/entrypoint-map-audit.php --path=/alpha/index [--path=/alpha/attachment/media/edit/123] [--format=text|json]
 
-This is a read-only audit. It prints URI-derived entrypoint candidates and never creates files.
+This is a read-only audit. It prints service-layer short-name entrypoint candidates and never creates files.
 
 TXT;
 }

@@ -7,7 +7,7 @@ namespace App\Cruding\Service\Crud\Resource;
 use App\Cruding\Dto\Resource\CrudRouteContext;
 
 /**
- * Converts canonical Cruding provider keys into Symfony-style HTTP service FQCNs.
+ * Reads explicitly declared route-map services without deriving legacy service FQCNs.
  */
 final class CrudResourceServiceClassResolver
 {
@@ -34,46 +34,7 @@ final class CrudResourceServiceClassResolver
 
     public function providerKeyToServiceClass(string $providerKey, string $operation): ?string
     {
-        $tokens = array_values(array_filter(explode('.', trim($providerKey)), static fn (string $token): bool => '' !== $token));
-        if ([] === $tokens) {
-            return null;
-        }
-
-        $normalizedOperation = $this->normalizeOperation($operation);
-        $lastToken = $tokens[array_key_last($tokens)];
-        if (!$this->isActionToken($lastToken)) {
-            $tokens[] = $normalizedOperation;
-        }
-
-        if (count($tokens) < 2) {
-            return null;
-        }
-
-        $namespaceTokens = array_slice($tokens, 0, -1);
-        $classTokens = $tokens;
-
-        $namespace = implode('\\', array_map($this->pascal(...), $namespaceTokens));
-        $class = implode('', array_map($this->pascal(...), $classTokens)).'Service';
-
-        return 'App\\Service\\Http\\'.$namespace.'\\'.$class;
-    }
-
-    public function expectedTypeClass(string $serviceClass): ?string
-    {
-        if (!str_starts_with($serviceClass, 'App\\Service\\Http\\')) {
-            return null;
-        }
-
-        $suffix = substr($serviceClass, strlen('App\\Service\\Http\\'));
-        if (false === $suffix || '' === $suffix) {
-            return null;
-        }
-
-        if (!str_ends_with($suffix, 'Service')) {
-            return null;
-        }
-
-        return 'App\\Form\\'.substr($suffix, 0, -7).'Type';
+        return null;
     }
 
     private function routeMapService(CrudRouteContext $context): ?string

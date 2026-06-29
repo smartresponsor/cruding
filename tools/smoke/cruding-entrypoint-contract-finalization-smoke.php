@@ -24,7 +24,7 @@ assert(str_contains($abstract, 'afterDefault'), 'Base service must expose a post
 assert(str_contains($abstract, '$this->defaultBehavior->execute($context)'), 'A thin subclass must inherit executable behavior.');
 assert(str_contains($behavior, 'CrudServiceBehaviorInterface'), 'Default behavior must implement the executable contract.');
 assert(str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide action-specific defaults.');
-assert(strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Explicit service ids must remain first.');
+assert(strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateShortClassNames'), 'Explicit service ids must remain first.');
 assert(str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');
 assert(str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when no consumer service is selected.');
 assert(str_contains($invoker, 'CrudServiceResult::STATUS_NO_ENTRYPOINT_OVERRIDE'), 'Invoker must keep safe normalization for consumer overrides.');

@@ -20,7 +20,7 @@ final class CrudResourceServiceResolver
     public function resolve(CrudRouteContext $context): ?object
     {
         $diagnostics = [
-            'strategy' => 'providerKey_to_FQCN',
+            'strategy' => 'explicit_service_or_service_layer_short_name',
             'providerKeys' => $context->providerKeys,
             'expectedServices' => [],
             'expectedTypes' => [],
@@ -31,11 +31,6 @@ final class CrudResourceServiceResolver
 
         foreach ($this->classResolver->candidates($context) as $serviceClass) {
             $diagnostics['expectedServices'][] = $serviceClass;
-            $typeClass = $this->classResolver->expectedTypeClass($serviceClass);
-            if (null !== $typeClass) {
-                $diagnostics['expectedTypes'][] = $typeClass;
-            }
-
             $diagnostics['classExists'][$serviceClass] = class_exists($serviceClass);
             $diagnostics['containerHas'][$serviceClass] = $this->serviceLocator->has($serviceClass);
 
@@ -49,6 +44,26 @@ final class CrudResourceServiceResolver
             return $this->serviceLocator->get($serviceClass);
         }
 
+        foreach ($this->classResolver->candidates($context) as $serviceClass) {
+            $serviceId = $this->serviceLocator->uniqueServiceIdByShortClassName(
+                $this->shortClassName($serviceClass),
+                $this->namespaceRootPrefixes([$serviceClass]),
+            );
+            if (null === $serviceId) {
+                continue;
+            }
+
+            $diagnostics['containerHas'][$serviceId] = $this->serviceLocator->has($serviceId);
+            if (!$this->serviceLocator->has($serviceId)) {
+                continue;
+            }
+
+            $diagnostics['matchedService'] = $serviceId;
+            $this->lastDiagnostics = $this->normalizeDiagnostics($diagnostics);
+
+            return $this->serviceLocator->get($serviceId);
+        }
+
         $this->lastDiagnostics = $this->normalizeDiagnostics($diagnostics);
 
         return null;
@@ -60,6 +75,34 @@ final class CrudResourceServiceResolver
     public function lastDiagnostics(): array
     {
         return $this->lastDiagnostics ?? [];
+    }
+
+    /**
+     * @param list<string> $candidateClassNames
+     *
+     * @return list<string>
+     */
+    private function namespaceRootPrefixes(array $candidateClassNames): array
+    {
+        $prefixes = [];
+        foreach ($candidateClassNames as $candidateClassName) {
+            $position = strpos($candidateClassName, '\\Service\\');
+            if (false === $position) {
+                continue;
+            }
+
+            $prefixes[] = substr($candidateClassName, 0, $position).'\\Service\\';
+        }
+
+        return array_values(array_unique($prefixes));
+    }
+
+    private function shortClassName(string $serviceClass): string
+    {
+        $serviceClass = trim($serviceClass, '\\');
+        $position = strrpos($serviceClass, '\\');
+
+        return false === $position ? $serviceClass : substr($serviceClass, $position + 1);
     }
 
     /**

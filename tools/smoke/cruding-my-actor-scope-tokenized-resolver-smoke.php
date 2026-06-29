@@ -91,8 +91,8 @@ $context = new CrudContext(
     identifierValue: null,
     formTypeClass: null,
 );
-$candidates = $classResolver->candidateClassNames($context);
-assert(in_array('App\\Service\\Http\\Vendor\\Attachment\\VendorAttachmentIndexService', $candidates, true), 'My scope must reuse normal URI-derived entrypoint by default.');
+$candidates = $classResolver->candidateShortClassNames($context);
+assert(in_array('VendorAttachmentIndexService', $candidates, true), 'My scope must reuse normal service-layer entrypoint by default.');
 foreach ($candidates as $candidate) {
     assert(!str_contains($candidate, 'VendorMyAttachmentIndexService'), 'My scope must not require a *My* FQCN candidate by default.');
 }

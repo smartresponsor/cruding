@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 final class CrudResourceServiceLocatorPass implements CompilerPassInterface
 {
-    private const HTTP_SERVICE_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\Http\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
+    private const SERVICE_LAYER_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
 
     public function process(ContainerBuilder $container): void
     {
@@ -34,7 +34,7 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
         foreach ($container->getAliases() as $id => $alias) {
             $id = (string) $id;
             $target = (string) $alias;
-            if (!$this->isCanonicalHttpService($id) && !$this->isCanonicalHttpService($target)) {
+            if (!$this->isCanonicalServiceLayerService($id) && !$this->isCanonicalServiceLayerService($target)) {
                 continue;
             }
 
@@ -55,17 +55,14 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
     {
         $class = $definition->getClass();
         if (is_string($class) && '' !== $class) {
-            return $this->isCanonicalHttpService($class);
+            return $this->isCanonicalServiceLayerService($class);
         }
 
-        return $this->isCanonicalHttpService($id);
+        return $this->isCanonicalServiceLayerService($id);
     }
 
-    private function isCanonicalHttpService(string $serviceId): bool
+    private function isCanonicalServiceLayerService(string $serviceId): bool
     {
-        return 1 === preg_match(self::HTTP_SERVICE_PATTERN, $serviceId)
-            || (str_starts_with($serviceId, 'App\\')
-                && str_contains($serviceId, '\\Service\\Runtime\\')
-                && str_ends_with($serviceId, 'Service'));
+        return 1 === preg_match(self::SERVICE_LAYER_PATTERN, $serviceId);
     }
 }

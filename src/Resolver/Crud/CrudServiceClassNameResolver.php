@@ -13,6 +13,14 @@ final class CrudServiceClassNameResolver
      */
     public function candidateClassNames(CrudContext $context): array
     {
+        return [];
+    }
+
+    /**
+     * @return list<non-empty-string>
+     */
+    public function candidateShortClassNames(CrudContext $context): array
+    {
         $segments = $this->resourceSegments($context->resourcePath);
         if ([] === $segments) {
             return [];
@@ -21,28 +29,11 @@ final class CrudServiceClassNameResolver
         $operation = $this->pascal('' !== $context->operation ? $context->operation : 'index');
         $root = $this->pascal($segments[0]);
         $tail = array_map($this->pascal(...), array_slice($segments, 1));
-        $all = [$root, ...$tail];
+
         $class = $root.implode('', $tail).$operation.'Service';
         $localClass = [] !== $tail ? implode('', $tail).$operation.'Service' : null;
 
-        $namespaceRoots = [];
-        $componentNamespace = $this->componentNamespace($context->entityClass);
-        if (null !== $componentNamespace) {
-            $namespaceRoots[] = 'App\\'.$componentNamespace;
-        }
-        $namespaceRoots[] = 'App';
-
-        $candidates = [];
-        foreach (array_values(array_unique($namespaceRoots)) as $namespaceRoot) {
-            $namespace = $namespaceRoot.'\\Service\\Http\\'.implode('\\', $all);
-            $candidates[] = $namespace.'\\'.$class;
-
-            if (null !== $localClass) {
-                $candidates[] = $namespace.'\\'.$localClass;
-            }
-        }
-
-        return array_values(array_unique($candidates));
+        return array_values(array_unique(array_filter([$class, $localClass])));
     }
 
     /**
@@ -50,7 +41,27 @@ final class CrudServiceClassNameResolver
      */
     public function candidateServiceIds(CrudContext $context): array
     {
-        return $this->candidateClassNames($context);
+        return [];
+    }
+
+    /**
+     * @return list<non-empty-string>
+     */
+    public function candidateServiceNamespaceRootPrefixes(CrudContext $context): array
+    {
+        $namespaceRoots = [];
+        $componentNamespace = $this->componentNamespace($context->entityClass);
+        if (null !== $componentNamespace) {
+            $namespaceRoots[] = 'App\\'.$componentNamespace;
+        }
+        $namespaceRoots[] = 'App';
+
+        $prefixes = [];
+        foreach (array_values(array_unique($namespaceRoots)) as $namespaceRoot) {
+            $prefixes[] = $namespaceRoot.'\\Service\\';
+        }
+
+        return array_values(array_unique($prefixes));
     }
 
     /** @return list<string> */
