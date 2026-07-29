@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
+use App\Cruding\Dto\Crud\CrudMutationLifecycleContext;
+use App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudApiInputHandlerInterface;
 use App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface;
@@ -25,6 +27,7 @@ final readonly class CrudApiUpdateOperation implements CrudApiUpdateOperationInt
         private CrudApiInputHandlerInterface $apiInputHandler,
         private CrudFormHandlerInterface $formHandler,
         private CrudApiResponderInterface $apiResponder,
+        private CrudMutationLifecycleDispatcher $mutationLifecycleDispatcher,
     ) {
     }
 
@@ -58,7 +61,13 @@ final readonly class CrudApiUpdateOperation implements CrudApiUpdateOperationInt
             return $this->apiResponder->validationError($context, $form);
         }
 
-        $this->formHandler->flush($object);
+        $lifecycleContext = new CrudMutationLifecycleContext($context, $object, $request, 'update');
+        $this->mutationLifecycleDispatcher->execute(
+            $lifecycleContext,
+            function () use ($object): void {
+                $this->formHandler->flush($object);
+            },
+        );
 
         return $this->apiResponder->item($context, $object);
     }

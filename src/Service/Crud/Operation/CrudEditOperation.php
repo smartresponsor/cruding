@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
+use App\Cruding\Dto\Crud\CrudMutationLifecycleContext;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
+use App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher;
 use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -35,6 +37,7 @@ final readonly class CrudEditOperation implements CrudEditOperationInterface
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private UrlGeneratorInterface $urlGenerator,
         private CrudServiceRunner $entrypointRunner,
+        private CrudMutationLifecycleDispatcher $mutationLifecycleDispatcher,
     ) {
     }
 
@@ -64,7 +67,13 @@ final readonly class CrudEditOperation implements CrudEditOperationInterface
 
         $form = $this->formHandler->createAndHandle($context->formTypeClass, $object, $request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->formHandler->flush($object);
+            $lifecycleContext = new CrudMutationLifecycleContext($context, $object, $request, 'update');
+            $this->mutationLifecycleDispatcher->execute(
+                $lifecycleContext,
+                function () use ($object): void {
+                    $this->formHandler->flush($object);
+                },
+            );
 
             return new RedirectResponse($this->urlGenerator->generate(
                 $this->routeNameResolver->resolveShow($context),

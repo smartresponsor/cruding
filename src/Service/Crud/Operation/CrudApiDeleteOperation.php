@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
+use App\Cruding\Dto\Crud\CrudMutationLifecycleContext;
+use App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudApiResponderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
@@ -23,6 +25,7 @@ final readonly class CrudApiDeleteOperation implements CrudApiDeleteOperationInt
         private CrudMutationGuardInterface $mutationGuard,
         private CrudFormHandlerInterface $formHandler,
         private CrudApiResponderInterface $apiResponder,
+        private CrudMutationLifecycleDispatcher $mutationLifecycleDispatcher,
     ) {
     }
 
@@ -46,7 +49,13 @@ final readonly class CrudApiDeleteOperation implements CrudApiDeleteOperationInt
         $access = $this->accessContextBuilder->build($context, $object);
         $this->mutationGuard->assertCanDelete($access);
 
-        $this->formHandler->delete($object);
+        $lifecycleContext = new CrudMutationLifecycleContext($context, $object, $request, 'delete');
+        $this->mutationLifecycleDispatcher->execute(
+            $lifecycleContext,
+            function () use ($object): void {
+                $this->formHandler->delete($object);
+            },
+        );
 
         return $this->apiResponder->deleted($context);
     }

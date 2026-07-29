@@ -30,6 +30,14 @@ services:
         autowire: true
         autoconfigure: true
 
+    _instanceof:
+        App\Cruding\ServiceInterface\Crud\CrudMutationLifecycleSubscriberInterface:
+            tags: ['cruding.mutation_lifecycle_subscriber']
+        App\Cruding\ServiceInterface\Crud\CrudCreateOwnerBinderInterface:
+            tags: ['cruding.create_owner_binder']
+        App\Cruding\ServiceInterface\Crud\CrudOwnershipProviderInterface:
+            tags: ['cruding.ownership_provider']
+
     App\Cruding\Controller\Crud\:
         resource: '../src/Controller/Crud/'
         tags: ['controller.service_arguments']
@@ -94,6 +102,14 @@ services:
 
     App\Cruding\Runner\Crud\:
         resource: '../src/Runner/Crud/'
+
+    App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher:
+        arguments:
+            $subscriberList: !tagged_iterator cruding.mutation_lifecycle_subscriber
+
+    App\Cruding\Service\Crud\CrudCreateOwnerBinderChain:
+        arguments:
+            $binderList: !tagged_iterator cruding.create_owner_binder
 
     App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy:
         arguments:
@@ -183,6 +199,10 @@ services:
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiCreateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiCreateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiUpdateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiUpdateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudApiDeleteOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudApiDeleteOperation'
+
+    App\Cruding\Resolver\Crud\CrudOwnershipResolver:
+        arguments:
+            $providerList: !tagged_iterator cruding.ownership_provider
 
     App\Cruding\Resolver\Crud\CrudCapabilityResolver:
         arguments:

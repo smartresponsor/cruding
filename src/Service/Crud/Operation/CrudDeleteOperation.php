@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud\Operation;
 
+use App\Cruding\Dto\Crud\CrudMutationLifecycleContext;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\Crud\CrudServiceRunner;
+use App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudFormHandlerInterface;
@@ -34,6 +36,7 @@ final readonly class CrudDeleteOperation implements CrudDeleteOperationInterface
         private UrlGeneratorInterface $urlGenerator,
         private CsrfTokenManagerInterface $csrfTokenManager,
         private CrudServiceRunner $entrypointRunner,
+        private CrudMutationLifecycleDispatcher $mutationLifecycleDispatcher,
     ) {
     }
 
@@ -62,7 +65,13 @@ final readonly class CrudDeleteOperation implements CrudDeleteOperationInterface
             return $entrypointResult;
         }
 
-        $this->formHandler->delete($object);
+        $lifecycleContext = new CrudMutationLifecycleContext($context, $object, $request, 'delete');
+        $this->mutationLifecycleDispatcher->execute(
+            $lifecycleContext,
+            function () use ($object): void {
+                $this->formHandler->delete($object);
+            },
+        );
 
         return new RedirectResponse($this->urlGenerator->generate(
             $this->routeNameResolver->resolveIndex($context),

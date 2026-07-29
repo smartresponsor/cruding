@@ -36,6 +36,10 @@ final readonly class CrudApiExceptionSubscriber implements EventSubscriberInterf
         $exception = $event->getThrowable();
         $extra = ['resourcePath' => $request->attributes->get('resourcePath')];
 
+        if (!$exception instanceof HttpExceptionInterface) {
+            error_log(sprintf('Unhandled API exception: %s: %s', $exception::class, $exception->getMessage()));
+        }
+
         $response = match (true) {
             $exception instanceof NotFoundHttpException => $this->problemResponseFactory->notFound($exception->getMessage() ?: 'Resource not found.', $extra),
             $exception instanceof AccessDeniedHttpException => $this->problemResponseFactory->forbidden($exception->getMessage() ?: 'Access denied.', $extra),
