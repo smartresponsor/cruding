@@ -40,7 +40,7 @@ assert(!str_contains($apiRoutes, 'resourcePath:'), 'API route YAML must not cont
 assert(strpos($routeIndex, 'cruding_api_crud:') < strpos($routeIndex, 'cruding_crud:'), 'API catch-all must be imported before generic CRUD catch-all.');
 assert(strpos($routeIndex, 'cruding_crud:') < strpos($routeIndex, 'cruding_resource:'), 'Tokenized CRUD catch-all must be imported before legacy resource fallback routes.');
 
-foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACTOR_SCOPE_MY', 'operationTokens', 'identifierField', 'viewFor'] as $needle) {
+foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACTOR_SCOPE_MY', 'operationTokens', 'isIdentityToken', 'identifierField', 'viewFor'] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver must expose %s.', $needle));
 }
 
