@@ -91,7 +91,7 @@ final readonly class CrudRouteContext
             'operation' => $this->operation,
             'view' => $this->view,
             'viewPath' => $this->viewPath,
-            'ViewToken' => $this->ViewToken,
+            'viewToken' => $this->viewToken,
             'subjectField' => $this->subjectField,
             'subjectValue' => $this->subjectValue,
             'itemField' => $this->itemField,

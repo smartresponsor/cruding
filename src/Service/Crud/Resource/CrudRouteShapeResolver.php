@@ -77,7 +77,7 @@ final readonly class CrudRouteShapeResolver
             operation: $shape->operation,
             view: $this->viewResolver->viewFromOperation($shape->operation),
             viewPath: $shape->viewPath,
-            ViewToken: $shape->ViewToken,
+            viewToken: $shape->ViewToken,
             subjectField: $shape->subjectField,
             subjectValue: $shape->subjectValue,
             itemField: $shape->itemField,
