@@ -22,8 +22,11 @@ if (str_contains($webRoutes, '%cruding.resource_requirement%')) {
     exit(1);
 }
 
-if (!str_contains($apiRoutes, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'")) {
-    fwrite(STDERR, "API CRUD route must retain its bounded method-oriented path payload.\n");
+if (!str_contains($apiRoutes, 'methods: [GET]')
+    || !str_contains($apiRoutes, 'methods: [POST]')
+    || !str_contains($apiRoutes, 'methods: [PUT, PATCH, DELETE]')
+    || !str_contains($apiRoutes, '[a-z0-9][a-z0-9_-]{17,}')) {
+    fwrite(STDERR, "API CRUD routes must classify collection and member shapes by HTTP method.\n");
     exit(1);
 }
 
