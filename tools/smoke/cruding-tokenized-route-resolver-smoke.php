@@ -15,9 +15,12 @@ $intent = readFileStrict($root.'/src/Dto/Crud/CrudTokenizedRouteIntent.php');
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Missing tokenized CRUD catch-all route.');
 assert(str_contains($routes, 'path: /{crudPath}'), 'CRUD route must capture raw path for PHP token resolver.');
 assert(
-    str_contains($routes, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'"),
-    'CRUD route must use a bounded tokenized path payload requirement.',
+    str_contains($routes, '/(?:index|new|create|import|bulk)')
+        && str_contains($routes, '/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/')
+        && str_contains($routes, '[a-z0-9][a-z0-9_-]{17,}'),
+    'Browser CRUD route must use the explicit action and minimum-slug signature.',
 );
+assert(!str_contains($routes, '%cruding.resource_requirement%'), 'Browser CRUD routing must not depend on the resource allowlist.');
 assert(!str_contains($routes, "crudPath: '.+'"), 'CRUD route must not expose an unbounded global catch-all.');
 assert(!str_contains($routes, 'resourcePath:'), 'CRUD route YAML must not contain semantic resourcePath requirements.');
 assert(!str_contains($routes, 'operationToken:'), 'CRUD route YAML must not contain semantic operationToken requirements.');
@@ -41,12 +44,11 @@ foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACT
 }
 
 foreach ([
-    'private const COLLECTION_OPERATION',
-    'private const MEMBER_OPERATION',
+    'public const HTTP_COLLECTION_OPERATIONS',
+    'public const HTTP_MEMBER_OPERATIONS',
     "if (isset(\$operationTokens[\$last]))",
     "if (null !== \$beforeLast && isset(\$operationTokens[\$beforeLast]))",
     'return null;',
-    "operation: 'index'",
 ] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver missing grammar decision: %s.', $needle));
 }

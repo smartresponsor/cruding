@@ -17,6 +17,29 @@ final readonly class CrudTokenizedRouteIntentResolver
     private const DEFAULT_BACKEND_CONTEXT_PREFIX = 'ea';
     private const MAX_RESOURCE_TOKEN_COUNT = 2;
 
+    /** @var list<string> */
+    public const HTTP_COLLECTION_OPERATIONS = [
+        'index',
+        'new',
+        'create',
+        'import',
+        'bulk',
+    ];
+
+    /** @var list<string> */
+    public const HTTP_MEMBER_OPERATIONS = [
+        'show',
+        'read',
+        'edit',
+        'update',
+        'archive',
+        'restore',
+        'duplicate',
+        'delete',
+        'verify',
+        'pay',
+    ];
+
     /**
      * @var array<string, string>
      */
@@ -29,37 +52,6 @@ final readonly class CrudTokenizedRouteIntentResolver
         'restore' => 'admin',
         'duplicate' => 'admin',
         'bulk' => 'admin',
-    ];
-
-    /**
-     * Operations that can terminate a route without an identity token.
-     *
-     * @var array<string, true>
-     */
-    private const COLLECTION_OPERATION = [
-        'index' => true,
-        'new' => true,
-        'create' => true,
-        'import' => true,
-        'bulk' => true,
-    ];
-
-    /**
-     * Operations that require a following id or slug token.
-     *
-     * @var array<string, true>
-     */
-    private const MEMBER_OPERATION = [
-        'show' => true,
-        'read' => true,
-        'edit' => true,
-        'update' => true,
-        'archive' => true,
-        'restore' => true,
-        'duplicate' => true,
-        'delete' => true,
-        'verify' => true,
-        'pay' => true,
     ];
 
     public function __construct(
@@ -158,24 +150,11 @@ final readonly class CrudTokenizedRouteIntentResolver
         $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
         $count = count($tokens);
 
-        if (1 === $count) {
-            return new CrudTokenizedRouteIntent(
-                routeFamily: $routeFamily,
-                resourcePath: implode('/', $tokens),
-                operation: 'index',
-                view: $defaultView,
-                identifierField: null,
-                identifierValue: null,
-                tokens: $tokens,
-                actorScope: $actorScope,
-            );
-        }
-
         $last = $tokens[$count - 1];
         $beforeLast = $tokens[$count - 2] ?? null;
 
         if (isset($operationTokens[$last])) {
-            if (!isset(self::COLLECTION_OPERATION[$last])) {
+            if (!in_array($last, self::HTTP_COLLECTION_OPERATIONS, true)) {
                 return null;
             }
 
@@ -199,7 +178,7 @@ final readonly class CrudTokenizedRouteIntentResolver
         }
 
         if (null !== $beforeLast && isset($operationTokens[$beforeLast])) {
-            if (!isset(self::MEMBER_OPERATION[$beforeLast])) {
+            if (!in_array($beforeLast, self::HTTP_MEMBER_OPERATIONS, true)) {
                 return null;
             }
 
