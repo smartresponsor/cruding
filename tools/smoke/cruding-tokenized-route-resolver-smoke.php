@@ -28,12 +28,13 @@ assert(!str_contains($routes, 'slug:'), 'CRUD route YAML must not contain semant
 assert(!str_contains($routes, '_crud_operation:'), 'CRUD route YAML must not hardcode operation decisions.');
 assert(str_contains($routes, 'App\\Cruding\\Controller\\Crud\\CrudController'), 'CRUD catch-all must dispatch into tokenized controller.');
 
-assert(str_contains($apiRoutes, 'cruding_api_tokenized_catch_all:'), 'Missing tokenized API catch-all route.');
-assert(str_contains($apiRoutes, 'path: /api/{crudPath}'), 'API route must capture raw API path for PHP token resolver.');
-assert(
-    str_contains($apiRoutes, "crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'"),
-    'API route must use a bounded tokenized path payload requirement.',
-);
+assert(str_contains($apiRoutes, 'cruding_api_read:'), 'Missing GET API CRUD route.');
+assert(str_contains($apiRoutes, 'cruding_api_create:'), 'Missing POST API CRUD route.');
+assert(str_contains($apiRoutes, 'cruding_api_member_mutation:'), 'Missing member mutation API CRUD route.');
+assert(str_contains($apiRoutes, 'methods: [GET]'), 'GET API route must be method-specific.');
+assert(str_contains($apiRoutes, 'methods: [POST]'), 'POST API route must be method-specific.');
+assert(str_contains($apiRoutes, 'methods: [PUT, PATCH, DELETE]'), 'Mutation API route must be member-only.');
+assert(str_contains($apiRoutes, '[a-z0-9][a-z0-9_-]{17,}'), 'API identity grammar must enforce minimum slug length.');
 assert(!str_contains($apiRoutes, "crudPath: '.+'"), 'API route must not expose an unbounded global catch-all.');
 assert(!str_contains($apiRoutes, 'resourcePath:'), 'API route YAML must not contain semantic resourcePath requirements.');
 assert(strpos($routeIndex, 'cruding_api_crud:') < strpos($routeIndex, 'cruding_crud:'), 'API catch-all must be imported before generic CRUD catch-all.');
