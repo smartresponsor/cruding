@@ -1,24 +1,50 @@
-# ---------------------------------------------------------------------------
-# Tokenized API CRUD delivery route
-# ---------------------------------------------------------------------------
-# API method semantics are resolved in PHP. Route regex only captures the path
-# payload after /api/ so Cruding can classify tokens itself.
-# ---------------------------------------------------------------------------
-cruding_my_api_tokenized_catch_all:
+# API CRUD classification is owned by HTTP method plus URI shape.
+# Explicit component API routes must be imported before these generic routes.
+
+cruding_my_api_read:
     path: /my/api/{crudPath}
     controller: App\Cruding\Controller\Api\Crud\CrudApiController
-    methods: [GET, POST, PUT, PATCH, DELETE]
-    defaults:
-        _crud_view: public
-        _crud_actor: my
+    methods: [GET]
+    defaults: { _crud_view: public, _crud_actor: my }
     requirements:
-        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'
 
-cruding_api_tokenized_catch_all:
+cruding_my_api_create:
+    path: /my/api/{crudPath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    methods: [POST]
+    defaults: { _crud_view: public, _crud_actor: my }
+    requirements:
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'
+
+cruding_my_api_member_mutation:
+    path: /my/api/{crudPath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    methods: [PUT, PATCH, DELETE]
+    defaults: { _crud_view: public, _crud_actor: my }
+    requirements:
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'
+
+cruding_api_read:
     path: /api/{crudPath}
     controller: App\Cruding\Controller\Api\Crud\CrudApiController
-    methods: [GET, POST, PUT, PATCH, DELETE]
-    defaults:
-        _crud_view: public
+    methods: [GET]
+    defaults: { _crud_view: public }
     requirements:
-        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'
+
+cruding_api_create:
+    path: /api/{crudPath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    methods: [POST]
+    defaults: { _crud_view: public }
+    requirements:
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'
+
+cruding_api_member_mutation:
+    path: /api/{crudPath}
+    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    methods: [PUT, PATCH, DELETE]
+    defaults: { _crud_view: public }
+    requirements:
+        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'
