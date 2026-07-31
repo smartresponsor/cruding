@@ -55,10 +55,10 @@ $resolver = new CrudTokenizedRouteIntentResolver(
 $cases = [
     '/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
     '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/api/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/my/api/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/api/my/order/attachment/read/123' => ['resourcePath' => 'order/attachment', 'operation' => 'read', 'actorScope' => 'my', 'identifierField' => 'id', 'identifierValue' => '123', 'api' => true],
-    '/ea/my/api/vendor/attachment/show/acme-file' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file', 'api' => true],
+    '/api/my/vendor' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
+    '/my/api/vendor/attachment' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
+    '/api/my/order/attachment/123' => ['resourcePath' => 'order/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'id', 'identifierValue' => '123', 'api' => true],
+    '/ea/my/api/vendor/attachment/acme-file-00000001' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file-00000001', 'api' => true],
 ];
 
 foreach ($cases as $path => $expected) {
