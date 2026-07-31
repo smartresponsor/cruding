@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class CrudObjectFinder implements CrudObjectFinderInterface
 {
+    private const DEFAULT_PAGE_SIZE = 25;
+    private const MAX_PAGE_SIZE = 500;
     private const OWNER_FIELDS = ['vendor', 'owner', 'user', 'createdBy', 'createdByUser', 'author'];
 
     public function __construct(
@@ -45,8 +47,9 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
     public function findAll(CrudContext $context): array
     {
         $repository = $this->managerRegistry->getRepository($context->entityClass);
+        [$limit, $offset] = $this->pagination();
         if (!$this->isMyScoped()) {
-            return $repository->findAll();
+            return $repository->findBy([], null, $limit, $offset);
         }
 
         $user = $this->security->getUser();
@@ -61,17 +64,27 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         $metadata = $manager->getClassMetadata($context->entityClass);
         foreach (self::OWNER_FIELDS as $field) {
             if ($metadata->hasAssociation($field)) {
-                return $repository->findBy([$field => $user]);
+                return $repository->findBy([$field => $user], null, $limit, $offset);
             }
             if ($metadata->hasField($field) && method_exists($user, 'getId')) {
                 $userId = $user->getId();
                 if (is_scalar($userId)) {
-                    return $repository->findBy([$field => $userId]);
+                    return $repository->findBy([$field => $userId], null, $limit, $offset);
                 }
             }
         }
 
         return [];
+    }
+
+    /** @return array{0:int,1:int} */
+    private function pagination(): array
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        $limit = max(1, min(self::MAX_PAGE_SIZE, (int) $request?->query->get('limit', self::DEFAULT_PAGE_SIZE)));
+        $page = max(1, (int) $request?->query->get('page', 1));
+
+        return [$limit, ($page - 1) * $limit];
     }
 
     private function isMyScoped(): bool
