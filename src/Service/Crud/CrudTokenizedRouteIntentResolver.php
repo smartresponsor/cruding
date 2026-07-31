@@ -96,28 +96,24 @@ final readonly class CrudTokenizedRouteIntentResolver
         }
 
         $method = strtoupper($request->getMethod());
-        $operation = match ($method) {
-            'POST' => 'create',
-            'PUT', 'PATCH' => 'update',
-            'DELETE' => 'delete',
-            default => null,
-        };
 
-        if (null !== $operation) {
-            if (1 === count($tokens)) {
+        if ('GET' === $method) {
+            $identity = $tokens[count($tokens) - 1];
+            $resourceTokens = array_slice($tokens, 0, -1);
+
+            if ($this->isIdentityToken($identity) && $this->hasValidResourceTokenCount($resourceTokens)) {
                 return new CrudTokenizedRouteIntent(
                     routeFamily: self::ROUTE_FAMILY_API,
-                    resourcePath: implode('/', $tokens),
-                    operation: $operation,
+                    resourcePath: implode('/', $resourceTokens),
+                    operation: 'show',
                     view: 'public',
-                    identifierField: null,
-                    identifierValue: null,
+                    identifierField: $this->identifierField($identity),
+                    identifierValue: $identity,
                     tokens: $tokens,
                     actorScope: $actorScope,
                 );
             }
 
-            $identity = array_pop($tokens);
             if (!$this->hasValidResourceTokenCount($tokens)) {
                 return null;
             }
@@ -125,19 +121,49 @@ final readonly class CrudTokenizedRouteIntentResolver
             return new CrudTokenizedRouteIntent(
                 routeFamily: self::ROUTE_FAMILY_API,
                 resourcePath: implode('/', $tokens),
-                operation: $operation,
+                operation: 'index',
                 view: 'public',
-                identifierField: $this->identifierField($identity),
-                identifierValue: $identity,
-                tokens: [...$tokens, $identity],
+                identifierField: null,
+                identifierValue: null,
+                tokens: $tokens,
                 actorScope: $actorScope,
             );
         }
 
-        return $this->resolveTokens(
-            tokens: $tokens,
+        if ('POST' === $method) {
+            if (!$this->hasValidResourceTokenCount($tokens)) {
+                return null;
+            }
+
+            return new CrudTokenizedRouteIntent(
+                routeFamily: self::ROUTE_FAMILY_API,
+                resourcePath: implode('/', $tokens),
+                operation: 'create',
+                view: 'public',
+                identifierField: null,
+                identifierValue: null,
+                tokens: $tokens,
+                actorScope: $actorScope,
+            );
+        }
+
+        if (!in_array($method, ['PUT', 'PATCH', 'DELETE'], true)) {
+            return null;
+        }
+
+        $identity = array_pop($tokens);
+        if (!$this->isIdentityToken($identity) || !$this->hasValidResourceTokenCount($tokens)) {
+            return null;
+        }
+
+        return new CrudTokenizedRouteIntent(
             routeFamily: self::ROUTE_FAMILY_API,
-            defaultView: 'public',
+            resourcePath: implode('/', $tokens),
+            operation: 'DELETE' === $method ? 'delete' : 'update',
+            view: 'public',
+            identifierField: $this->identifierField($identity),
+            identifierValue: $identity,
+            tokens: [...$tokens, $identity],
             actorScope: $actorScope,
         );
     }
@@ -305,6 +331,16 @@ final readonly class CrudTokenizedRouteIntentResolver
             ?? self::DEFAULT_BACKEND_CONTEXT_PREFIX;
 
         return $this->tokenNormalizer->token((string) $token);
+    }
+
+    private function isIdentityToken(string $identity): bool
+    {
+        if (preg_match('/^[1-9][0-9]*$/', $identity)) {
+            return true;
+        }
+
+        return strlen($identity) >= 18
+            && preg_match('/^[a-z0-9][a-z0-9_-]*$/', $identity);
     }
 
     private function identifierField(string $identity): string
