@@ -20,7 +20,7 @@ cruding_actor_my_tokenized_catch_all:
         _crud_view: public
         _crud_actor: my
     requirements:
-        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+        crudPath: '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'
 
 cruding_tokenized_catch_all:
     path: /{crudPath}
@@ -29,4 +29,4 @@ cruding_tokenized_catch_all:
     defaults:
         _crud_view: public
     requirements:
-        crudPath: '[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
+        crudPath: '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'
