@@ -8,7 +8,7 @@ cruding_view_token_item_action:
         view: '[a-z0-9][a-z0-9_-]*'
         token: '%cruding.view_token_requirement%'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
-        action: '[a-z][a-z0-9_-]*'
+        action: '(?!request$)[a-z][a-z0-9_-]*'
 
 cruding_view_token_item:
     path: /{resource}/{subject}/{view}/{token}/{item}
@@ -30,7 +30,7 @@ cruding_resource_item_action:
         subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         view: '[a-z0-9][a-z0-9_-]*'
         item: '[A-Za-z0-9][A-Za-z0-9_-]*'
-        action: '[a-z][a-z0-9_-]*'
+        action: '(?!request$)[a-z][a-z0-9_-]*'
 
 cruding_resource_action:
     path: /{resource}/{subject}/{view}/{action}
@@ -40,7 +40,7 @@ cruding_resource_action:
         resource: '[a-z][a-z0-9_-]*'
         subject: '(?!show$|index$|new$|create$|edit$|update$|delete$|bulk$|import$|export$|archive$|restore$|duplicate$|card$|table$|gallery$|compact$|full$|detail$|list$)[A-Za-z0-9][A-Za-z0-9_-]*'
         view: '[a-z0-9][a-z0-9_-]*'
-        action: '[a-z][a-z0-9_-]*'
+        action: '(?!request$)[a-z][a-z0-9_-]*'
 
 cruding_resource_index:
     path: /{resource}/{subject}/{view}
