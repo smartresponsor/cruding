@@ -9,10 +9,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-final readonly class CrudCollectionProjectionReader
+final class CrudCollectionProjectionReader
 {
     private const DEFAULT_PAGE_SIZE = 25;
     private const MAX_PAGE_SIZE = 500;
+
+    /** @var array<class-string, array{id: string, select: list<string>}> */
+    private array $projectionPlanByEntityClass = [];
 
     public function __construct(
         private ManagerRegistry $managerRegistry,
@@ -34,25 +37,17 @@ final readonly class CrudCollectionProjectionReader
             return null;
         }
 
-        $metadata = $manager->getClassMetadata($context->entityClass);
-        $fieldMap = $this->fieldMap($metadata->getFieldNames());
-        if (null === $fieldMap['id']) {
+        $projectionPlan = $this->projectionPlan($manager, $context->entityClass);
+        if (null === $projectionPlan) {
             return null;
         }
 
         [$limit, $offset] = $this->pagination();
         $queryBuilder = $manager->createQueryBuilder()
+            ->select($projectionPlan['select'])
             ->from($context->entityClass, 'entity')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
-
-        $select = [];
-        foreach ($fieldMap as $alias => $field) {
-            if (null !== $field) {
-                $select[] = sprintf('entity.%s AS %s', $field, $alias);
-            }
-        }
-        $queryBuilder->select($select);
 
         $startedAt = hrtime(true);
         $rows = $queryBuilder->getQuery()->getArrayResult();
@@ -72,6 +67,35 @@ final readonly class CrudCollectionProjectionReader
             ],
             $rows,
         );
+    }
+
+    /**
+     * @param class-string $entityClass
+     *
+     * @return array{id: string, select: list<string>}|null
+     */
+    private function projectionPlan(EntityManagerInterface $manager, string $entityClass): ?array
+    {
+        if (isset($this->projectionPlanByEntityClass[$entityClass])) {
+            return $this->projectionPlanByEntityClass[$entityClass];
+        }
+
+        $fieldMap = $this->fieldMap($manager->getClassMetadata($entityClass)->getFieldNames());
+        if (null === $fieldMap['id']) {
+            return null;
+        }
+
+        $select = [];
+        foreach ($fieldMap as $alias => $field) {
+            if (null !== $field) {
+                $select[] = sprintf('entity.%s AS %s', $field, $alias);
+            }
+        }
+
+        return $this->projectionPlanByEntityClass[$entityClass] = [
+            'id' => $fieldMap['id'],
+            'select' => $select,
+        ];
     }
 
     /**
