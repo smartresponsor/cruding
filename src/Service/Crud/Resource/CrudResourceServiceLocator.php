@@ -11,9 +11,13 @@ use Psr\Container\ContainerInterface;
  */
 final readonly class CrudResourceServiceLocator
 {
+    /** @var array<string, list<array{serviceId: string, candidates: list<string>}>> */
+    private array $shortClassNameIndex;
+
     public function __construct(
         private ContainerInterface $locator,
     ) {
+        $this->shortClassNameIndex = $this->buildShortClassNameIndex();
     }
 
     public function has(string $serviceClass): bool
@@ -59,18 +63,13 @@ final readonly class CrudResourceServiceLocator
         }
 
         $matches = [];
-        foreach ($this->providedServices() as $serviceId => $providedService) {
-            foreach (array_unique([$serviceId, $providedService]) as $candidate) {
-                $candidate = ltrim((string) $candidate, '?');
+        foreach ($this->shortClassNameIndex[$shortClassName] ?? [] as $entry) {
+            foreach ($entry['candidates'] as $candidate) {
                 if (!$this->matchesNamespaceRootPrefix($candidate, $namespaceRootPrefixes)) {
                     continue;
                 }
 
-                if ($this->shortClassName($candidate) !== $shortClassName) {
-                    continue;
-                }
-
-                $matches[] = $serviceId;
+                $matches[] = $entry['serviceId'];
                 break;
             }
         }
@@ -78,6 +77,28 @@ final readonly class CrudResourceServiceLocator
         $matches = array_values(array_unique($matches));
 
         return 1 === count($matches) ? $matches[0] : null;
+    }
+
+    /** @return array<string, list<array{serviceId: string, candidates: list<string>}>> */
+    private function buildShortClassNameIndex(): array
+    {
+        $index = [];
+        foreach ($this->providedServices() as $serviceId => $providedService) {
+            $candidates = array_values(array_unique(array_map(
+                static fn (string $candidate): string => ltrim($candidate, '?'),
+                [(string) $serviceId, (string) $providedService],
+            )));
+
+            foreach ($candidates as $candidate) {
+                $shortClassName = $this->shortClassName($candidate);
+                $index[$shortClassName][] = [
+                    'serviceId' => (string) $serviceId,
+                    'candidates' => $candidates,
+                ];
+            }
+        }
+
+        return $index;
     }
 
     /**
