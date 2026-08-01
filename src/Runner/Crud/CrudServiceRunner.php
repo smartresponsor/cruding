@@ -23,13 +23,18 @@ final readonly class CrudServiceRunner
 
     public function run(Request $request, CrudContext $crudContext, ?object $object = null): CrudServiceResult
     {
+        $resolutionStartedAt = hrtime(true);
         $resolution = $this->resolver->resolve($request, $crudContext);
+        $request->attributes->set('_crud_service_resolution_ms', number_format((hrtime(true) - $resolutionStartedAt) / 1_000_000, 2, '.', ''));
+
         $context = new CrudServiceContext($request, $crudContext, $object);
+        $invocationStartedAt = hrtime(true);
         $result = $this->invoker->invoke(
             $resolution->service,
             $context,
             $resolution->diagnostics(),
         );
+        $request->attributes->set('_crud_service_invocation_ms', number_format((hrtime(true) - $invocationStartedAt) / 1_000_000, 2, '.', ''));
 
         return $result->withDiagnostics([
             'entrypointTrace' => [
