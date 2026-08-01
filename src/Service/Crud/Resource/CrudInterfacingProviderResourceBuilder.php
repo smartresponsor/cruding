@@ -36,8 +36,9 @@ final class CrudInterfacingProviderResourceBuilder implements CrudInterfacingPro
         $resourcePath = trim(str_replace('_', '-', $context->resourcePath), '/');
         $component = 'cruding';
         $objects = null !== $object && [] === $page->objects ? [$object] : $page->objects;
+        $projectedRows = is_array($page->meta['projectedRows'] ?? null) ? $page->meta['projectedRows'] : null;
 
-        $rows = $this->rowBuilder->build($objects, $resourcePath, $component);
+        $rows = null !== $projectedRows ? $projectedRows : $this->rowBuilder->build($objects, $resourcePath, $component);
         $columns = $this->columnBuilder->build($objects, $resourcePath, $component);
         $filters = $this->filterBuilder->build($resourcePath);
         $formFields = $this->formFieldBuilder->build($form, $resourcePath);

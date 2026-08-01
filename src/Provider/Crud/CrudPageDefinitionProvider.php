@@ -7,6 +7,7 @@ namespace App\Cruding\Provider\Crud;
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\Dto\Crud\CrudPageActionDefinition;
 use App\Cruding\Dto\Crud\CrudPageDefinition;
+use App\Cruding\Service\Crud\CrudCollectionProjectionReader;
 use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
@@ -16,6 +17,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
 {
     public function __construct(
         private CrudObjectFinderInterface $objectFinder,
+        private CrudCollectionProjectionReader $collectionProjectionReader,
         private CrudAccessContextBuilderInterface $accessContextBuilder,
         private CrudRouteNameResolverInterface $routeNameResolver,
     ) {
@@ -35,17 +37,20 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             );
         }
 
+        $projectedRows = $this->collectionProjectionReader->read($context);
+
         return new CrudPageDefinition(
             $context,
             $access,
             sprintf('%s index', $context->resourcePath),
             'index',
-            $this->objectFinder->findAll($context),
+            null === $projectedRows ? $this->objectFinder->findAll($context) : [],
             $actions,
             [
                 'resourcePath' => $context->resourcePath,
                 'view' => $context->view,
                 'operation' => $context->operation,
+                'projectedRows' => $projectedRows,
             ],
         );
     }
