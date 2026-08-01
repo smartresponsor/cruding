@@ -46,35 +46,40 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
      */
     public function findAll(CrudContext $context): array
     {
-        $repository = $this->managerRegistry->getRepository($context->entityClass);
-        [$limit, $offset] = $this->pagination();
-        if (!$this->isMyScoped()) {
-            return $repository->findBy([], null, $limit, $offset);
-        }
-
-        $user = $this->security->getUser();
-        if (null === $user) {
-            return [];
-        }
-
-        $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
-        if (null === $manager) {
-            return [];
-        }
-        $metadata = $manager->getClassMetadata($context->entityClass);
-        foreach (self::OWNER_FIELDS as $field) {
-            if ($metadata->hasAssociation($field)) {
-                return $repository->findBy([$field => $user], null, $limit, $offset);
+        $startedAt = hrtime(true);
+        try {
+            $repository = $this->managerRegistry->getRepository($context->entityClass);
+            [$limit, $offset] = $this->pagination();
+            if (!$this->isMyScoped()) {
+                return $repository->findBy([], null, $limit, $offset);
             }
-            if ($metadata->hasField($field) && method_exists($user, 'getId')) {
-                $userId = $user->getId();
-                if (is_scalar($userId)) {
-                    return $repository->findBy([$field => $userId], null, $limit, $offset);
+
+            $user = $this->security->getUser();
+            if (null === $user) {
+                return [];
+            }
+
+            $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
+            if (null === $manager) {
+                return [];
+            }
+            $metadata = $manager->getClassMetadata($context->entityClass);
+            foreach (self::OWNER_FIELDS as $field) {
+                if ($metadata->hasAssociation($field)) {
+                    return $repository->findBy([$field => $user], null, $limit, $offset);
+                }
+                if ($metadata->hasField($field) && method_exists($user, 'getId')) {
+                    $userId = $user->getId();
+                    if (is_scalar($userId)) {
+                        return $repository->findBy([$field => $userId], null, $limit, $offset);
+                    }
                 }
             }
-        }
 
-        return [];
+            return [];
+        } finally {
+            $this->requestStack->getCurrentRequest()?->attributes->set('_crud_object_find_all_ms', number_format((hrtime(true) - $startedAt) / 1_000_000, 2, '.', ''));
+        }
     }
 
     /** @return array{0:int,1:int} */

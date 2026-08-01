@@ -43,10 +43,16 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
 
     private function index(CrudServiceContext $context): CrudServiceResult
     {
+        $definitionStartedAt = hrtime(true);
+        $definition = $this->pageDefinitionProvider->provideIndex($context->crudContext);
+        $context->request->attributes->set('_crud_default_index_definition_ms', number_format((hrtime(true) - $definitionStartedAt) / 1_000_000, 2, '.', ''));
+
+        $contractStartedAt = hrtime(true);
+        $contract = $this->viewContractFactory->create($definition);
+        $context->request->attributes->set('_crud_default_index_contract_ms', number_format((hrtime(true) - $contractStartedAt) / 1_000_000, 2, '.', ''));
+
         return CrudServiceResult::viewContract(
-            $this->viewContractFactory->create(
-                $this->pageDefinitionProvider->provideIndex($context->crudContext),
-            ),
+            $contract,
             CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
             $this->diagnostics($context),
         );

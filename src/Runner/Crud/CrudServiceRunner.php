@@ -27,6 +27,8 @@ final readonly class CrudServiceRunner
         $resolution = $this->resolver->resolve($request, $crudContext);
         $request->attributes->set('_crud_service_resolution_ms', number_format((hrtime(true) - $resolutionStartedAt) / 1_000_000, 2, '.', ''));
 
+        $request->attributes->set('_crud_service_class', $resolution->service::class);
+
         $context = new CrudServiceContext($request, $crudContext, $object);
         $invocationStartedAt = hrtime(true);
         $result = $this->invoker->invoke(
