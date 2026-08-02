@@ -73,6 +73,26 @@ final class CrudEntityClassResolverTest extends TestCase
         self::assertSame('App\Tests\Fixture\Entity\Resource\ResourceCategoryEntity', $resolver->resolve('resource_item'));
     }
 
+    public function testExplicitAliasMapBypassesMetadataDiscovery(): void
+    {
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadataFactory->expects(self::never())->method('getAllMetadata');
+
+        $manager = $this->createStub(ObjectManager::class);
+        $manager->method('getMetadataFactory')->willReturn($metadataFactory);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagers')->willReturn([$manager]);
+
+        $resolver = new CrudEntityClassResolver(
+            $registry,
+            new CrudResourcePathParser(),
+            ['category' => 'App\\Tests\\Fixture\\Entity\\Resource\\ResourceCategoryEntity'],
+        );
+
+        self::assertSame('App\\Tests\\Fixture\\Entity\\Resource\\ResourceCategoryEntity', $resolver->resolve('category'));
+    }
+
     public function testExplicitAliasMapCanResolveHostMappedEntityWithoutNeighborNamespace(): void
     {
         $resolver = new CrudEntityClassResolver(

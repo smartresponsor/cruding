@@ -35,14 +35,18 @@ final class CrudEntityClassResolver
 
     public function tryResolve(string $resourcePath): ?string
     {
-        $candidateMap = $this->candidateMap ??= $this->buildCandidateMap();
+        $lookupKeys = $this->buildLookupKeys($resourcePath);
 
-        foreach ($this->buildLookupKeys($resourcePath) as $lookupKey) {
+        foreach ($lookupKeys as $lookupKey) {
             $explicitAliasClass = $this->entityClassAliasMap[$lookupKey] ?? null;
             if (is_string($explicitAliasClass) && '' !== $explicitAliasClass) {
                 return $explicitAliasClass;
             }
+        }
 
+        $candidateMap = $this->candidateMap ??= $this->buildCandidateMap();
+
+        foreach ($lookupKeys as $lookupKey) {
             if (isset($candidateMap[$lookupKey])) {
                 return $candidateMap[$lookupKey];
             }
