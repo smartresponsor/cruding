@@ -33,14 +33,10 @@ final readonly class CrudActorScopeContextResolver
         $request->attributes->set('_crud_actor_admin_identity_field', null);
         $request->attributes->set('_crud_actor_admin_identity_value', null);
 
-        if (!$isMyScoped) {
-            return;
-        }
-
         $user = $this->security->getUser();
         $isAdmin = $this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SUPER_ADMIN');
 
-        $request->attributes->set('_crud_actor_scope_grounded', null !== $user);
+        $request->attributes->set('_crud_actor_scope_grounded', $isMyScoped && null !== $user);
         $request->attributes->set('_crud_actor_is_admin', $isAdmin);
 
         if (null === $user) {
@@ -48,7 +44,7 @@ final readonly class CrudActorScopeContextResolver
         }
 
         $userId = $this->readScalarByMethods($user, ['getId', 'id']);
-        $userSlug = $this->readScalarByMethods($user, ['getSlug', 'slug']);
+        $userSlug = $this->readScalarByMethods($user, ['getObjectSlug', 'getSlug', 'slug']);
         $userIdentifier = method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : null;
         $userIdentifier = is_scalar($userIdentifier) ? (string) $userIdentifier : null;
 

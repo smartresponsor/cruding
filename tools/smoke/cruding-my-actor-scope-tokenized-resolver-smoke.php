@@ -54,6 +54,8 @@ $resolver = new CrudTokenizedRouteIntentResolver(
 
 $cases = [
     '/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
+    '/my/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => null],
+    '/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'actorScope' => null, 'identifierField' => 'slug', 'identifierValue' => null],
     '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
     '/api/my/vendor' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
     '/my/api/vendor/attachment' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
@@ -70,7 +72,7 @@ foreach ($cases as $path => $expected) {
     assert($expected['resourcePath'] === $intent->resourcePath, sprintf('%s resourcePath mismatch: %s', $path, $intent->resourcePath));
     assert($expected['operation'] === $intent->operation, sprintf('%s operation mismatch: %s', $path, $intent->operation));
     assert($expected['actorScope'] === $intent->actorScope, sprintf('%s actorScope mismatch.', $path));
-    assert($intent->isMyScoped(), sprintf('%s must be my-scoped.', $path));
+    assert(('my' === $expected['actorScope']) === $intent->isMyScoped(), sprintf('%s my-scope mismatch.', $path));
     assert($expected['identifierField'] === $intent->identifierField, sprintf('%s identifierField mismatch.', $path));
     assert($expected['identifierValue'] === $intent->identifierValue, sprintf('%s identifierValue mismatch.', $path));
 }

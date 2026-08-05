@@ -17,6 +17,7 @@ use App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudDeleteOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudEditOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface;
+use App\Cruding\ServiceInterface\Crud\Operation\CrudPageOperationInterface;
 use App\Cruding\ServiceInterface\Crud\Operation\CrudShowOperationInterface;
 use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +29,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 final class CrudController extends AbstractController
 {
     private const DEFAULT_OPERATION_HANDLER = [
-        'index' => 'index', 'show' => 'show', 'read' => 'show', 'new' => 'create', 'create' => 'create',
+        'index' => 'index', 'show' => 'show', 'read' => 'show', 'page' => 'page', 'new' => 'create', 'create' => 'create',
         'import' => 'create', 'bulk' => 'create', 'edit' => 'edit', 'update' => 'edit',
         'archive' => 'edit', 'restore' => 'edit', 'duplicate' => 'edit', 'delete' => 'delete',
     ];
@@ -40,6 +41,7 @@ final class CrudController extends AbstractController
         private readonly CrudServiceRunner $entrypointRunner,
         private readonly CrudIndexOperationInterface $indexOperation,
         private readonly CrudShowOperationInterface $showOperation,
+        private readonly CrudPageOperationInterface $pageOperation,
         private readonly CrudCreateOperationInterface $createOperation,
         private readonly CrudEditOperationInterface $editOperation,
         private readonly CrudDeleteOperationInterface $deleteOperation,
@@ -68,6 +70,7 @@ final class CrudController extends AbstractController
             return match ($handler) {
                 'index' => $this->indexOperation->handle($request),
                 'show' => $this->showOperation->handle($request),
+                'page' => $this->pageOperation->handle($request),
                 'create' => $this->createOperation->handle($request),
                 'edit' => $this->editOperation->handle($request),
                 'delete' => $this->deleteOperation->handle($request),
@@ -104,8 +107,10 @@ final class CrudController extends AbstractController
         $this->actorScopeContextResolver->apply($request, $intent);
         $request->attributes->remove('id');
         $request->attributes->remove('slug');
-        if (null !== $intent->identifierField && null !== $intent->identifierValue) {
-            $request->attributes->set($intent->identifierField, $intent->identifierValue);
+
+        $identifierValue = $intent->identifierValue;
+        if (null !== $intent->identifierField && is_scalar($identifierValue) && '' !== (string) $identifierValue) {
+            $request->attributes->set($intent->identifierField, $identifierValue);
         }
     }
 

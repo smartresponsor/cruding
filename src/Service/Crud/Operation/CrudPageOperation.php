@@ -12,14 +12,13 @@ use App\Cruding\ServiceInterface\Crud\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
-use App\Cruding\ServiceInterface\Crud\Operation\CrudShowOperationInterface;
+use App\Cruding\ServiceInterface\Crud\Operation\CrudPageOperationInterface;
 use App\Cruding\Value\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final readonly class CrudShowOperation implements CrudShowOperationInterface
+final readonly class CrudPageOperation implements CrudPageOperationInterface
 {
     public function __construct(
         private CrudContextResolverInterface $contextResolver,
@@ -39,9 +38,9 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
         if (null !== $reservedTokenReason) {
             return $this->notFoundResponseFactory->create($request, $reservedTokenReason, [
                 'token' => (string) $request->attributes->get('slug', ''),
-                'reservedviewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
+                'reservedViewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
                 'reservedOperationTokens' => $this->reservedRouteTokenPolicy->operationTokens(),
-                'interpretation' => 'Classic CRUD show grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
+                'interpretation' => 'Classic CRUD page grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
             ]);
         }
 
@@ -52,24 +51,12 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            $implicitReason = (string) $request->attributes->get('_crud_implicit_object_reason', 'crud_resource_not_found');
-            if ('authentication_required' === $implicitReason) {
-                throw new AccessDeniedException('Authentication is required to resolve the current resource.');
-            }
-
-            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found', [
-                'implicitResolution' => [
-                    'reason' => $implicitReason,
-                    'actorClass' => $request->attributes->get('_crud_implicit_actor_class'),
-                    'actorId' => $request->attributes->get('_crud_implicit_actor_id'),
-                    'repositoryClass' => $request->attributes->get('_crud_implicit_repository_class'),
-                ],
-            ]);
+            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
         }
 
         $access = $this->accessContextBuilder->build($context, $object);
         if (!$access->canView) {
-            throw new AccessDeniedHttpException('You are not allowed to view this object.');
+            throw new AccessDeniedHttpException('You are not allowed to view this object page.');
         }
 
         $entrypointResult = $this->entrypointRunner->tryRun($request, $context, $object);
@@ -77,12 +64,12 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
             return $entrypointResult;
         }
 
-        return $this->viewContractFactory->create($this->pageDefinitionProvider->provideShow($context, $object), $object);
+        return $this->viewContractFactory->create($this->pageDefinitionProvider->providePage($context, $object), $object);
     }
 
     private function reservedTokenReason(Request $request): ?string
     {
-        if ('show' !== (string) $request->attributes->get('_crud_operation', '')) {
+        if ('page' !== (string) $request->attributes->get('_crud_operation', '')) {
             return null;
         }
 

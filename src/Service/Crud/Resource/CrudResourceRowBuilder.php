@@ -50,14 +50,24 @@ final class CrudResourceRowBuilder
         $status = $this->scalarReader->read($object, ['getStatus', 'status', 'isEnabled', 'enabled', 'isActive', 'active']) ?? 'loaded';
         $code = $this->scalarReader->read($object, ['getCode', 'code', 'getSku', 'sku', 'getSlug', 'slug']) ?? strtoupper(str_replace('/', '-', $resourcePath)).'-'.($index + 1);
         $locale = $this->scalarReader->read($object, ['getLocale', 'locale', 'getContentLocale', 'contentLocale']) ?? 'en';
+        $displayName = $this->scalarReader->read($object, ['getDisplayName', 'displayName']);
+        $about = $this->scalarReader->read($object, ['getAbout', 'about']);
+        $website = $this->scalarReader->read($object, ['getWebsite', 'website']);
+        $avatarPath = $this->scalarReader->read($object, ['getAvatarPath', 'avatarPath']);
+        $coverPath = $this->scalarReader->read($object, ['getCoverPath', 'coverPath']);
 
-        return [
+        return array_filter([
             'id' => $id,
             'title' => $title,
+            'displayName' => $displayName,
+            'about' => $about,
+            'website' => $website,
+            'avatarPath' => $avatarPath,
+            'coverPath' => $coverPath,
             'code' => $code,
             'owner' => $component,
             'status' => is_bool($status) ? ($status ? 'active' : 'inactive') : $status,
             'locale' => $locale,
-        ];
+        ], static fn (mixed $value): bool => null !== $value && '' !== $value);
     }
 }

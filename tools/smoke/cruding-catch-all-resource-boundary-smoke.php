@@ -10,10 +10,10 @@ if (false === $webRoutes || false === $apiRoutes) {
     exit(1);
 }
 
-if (!str_contains($webRoutes, '/(?:index|new|create|import|bulk)')
-    || !str_contains($webRoutes, '/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/')
+if (!str_contains($webRoutes, '/(?:index|new|create|import|bulk|show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)')
+    || !str_contains($webRoutes, '/(?:show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)/')
     || !str_contains($webRoutes, '[a-z0-9][a-z0-9_-]{17,}')) {
-    fwrite(STDERR, "Browser CRUD route must use the explicit action and minimum-slug signature.\n");
+    fwrite(STDERR, "Browser CRUD route must support implicit authenticated identity and explicit id/slug member signatures.\n");
     exit(1);
 }
 
