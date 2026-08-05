@@ -29,6 +29,7 @@ parameters:
         - index
         - show
         - read
+        - page
         - new
         - create
         - edit

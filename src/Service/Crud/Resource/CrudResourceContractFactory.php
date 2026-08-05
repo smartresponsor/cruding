@@ -48,6 +48,7 @@ final readonly class CrudResourceContractFactory
     {
         return match ($operation) {
             'show' => 'detail',
+            'page' => 'page',
             'new', 'edit' => 'form',
             default => 'index',
         };

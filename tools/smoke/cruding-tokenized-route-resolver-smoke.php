@@ -15,10 +15,10 @@ $intent = readFileStrict($root.'/src/Dto/Crud/CrudTokenizedRouteIntent.php');
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Missing tokenized CRUD catch-all route.');
 assert(str_contains($routes, 'path: /{crudPath}'), 'CRUD route must capture raw path for PHP token resolver.');
 assert(
-    str_contains($routes, '/(?:index|new|create|import|bulk)')
-        && str_contains($routes, '/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/')
+    str_contains($routes, '/(?:index|new|create|import|bulk|show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)')
+        && str_contains($routes, '/(?:show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)/')
         && str_contains($routes, '[a-z0-9][a-z0-9_-]{17,}'),
-    'Browser CRUD route must use the explicit action and minimum-slug signature.',
+    'Browser CRUD route must support implicit authenticated identity and explicit id/slug member signatures.',
 );
 assert(!str_contains($routes, '%cruding.resource_requirement%'), 'Browser CRUD routing must not depend on the resource allowlist.');
 assert(!str_contains($routes, "crudPath: '.+'"), 'CRUD route must not expose an unbounded global catch-all.');

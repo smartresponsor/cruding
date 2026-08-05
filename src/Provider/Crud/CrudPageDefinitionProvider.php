@@ -93,6 +93,44 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
         );
     }
 
+    public function providePage(CrudContext $context, object $object): CrudPageDefinition
+    {
+        $access = $this->accessContextBuilder->build($context, $object);
+        $actions = [
+            new CrudPageActionDefinition(
+                'index',
+                'Back to list',
+                $this->routeNameResolver->resolveIndex($context),
+                $this->routeNameResolver->parameters($context, null, null, 'index'),
+            ),
+        ];
+
+        if (null !== $context->formTypeClass && $access->canEdit) {
+            $actions[] = new CrudPageActionDefinition(
+                'edit',
+                'Edit',
+                $this->routeNameResolver->resolveEdit($context),
+                $this->routeNameResolver->parameters($context, null, null, 'edit'),
+            );
+        }
+
+        return new CrudPageDefinition(
+            $context,
+            $access,
+            sprintf('%s page', $context->resourcePath),
+            'page',
+            [$object],
+            $actions,
+            [
+                'resourcePath' => $context->resourcePath,
+                'view' => $context->view,
+                'operation' => $context->operation,
+                'identifierField' => $context->identifierField,
+                'identifierValue' => $context->identifierValue,
+            ],
+        );
+    }
+
     public function provideNew(CrudContext $context, object $object, mixed $formView): CrudPageDefinition
     {
         $access = $this->accessContextBuilder->build($context, $object);

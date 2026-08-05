@@ -34,6 +34,7 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
         return match ($context->operation()) {
             'index' => $this->index($context),
             'show' => $this->show($context),
+            'page' => $this->page($context),
             'new', 'create' => $this->create($context),
             'edit', 'update' => $this->edit($context),
             'delete' => $this->delete($context),
@@ -67,6 +68,22 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
         return CrudServiceResult::viewContract(
             $this->viewContractFactory->create(
                 $this->pageDefinitionProvider->provideShow($context->crudContext, $context->object),
+                $context->object,
+            ),
+            CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,
+            $this->diagnostics($context),
+        );
+    }
+
+    private function page(CrudServiceContext $context): CrudServiceResult
+    {
+        if (null === $context->object) {
+            return $this->notFound($context, 'crud_resource_not_found');
+        }
+
+        return CrudServiceResult::viewContract(
+            $this->viewContractFactory->create(
+                $this->pageDefinitionProvider->providePage($context->crudContext, $context->object),
                 $context->object,
             ),
             CrudServiceResult::STATUS_DEFAULT_BEHAVIOR,

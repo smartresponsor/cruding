@@ -12,16 +12,6 @@
 #   /vendor/attachment/media/edit/123     -> resourcePath=vendor/attachment/media, operation=edit, id=123
 #   /vendor/document/verify/sample-entry  -> resourcePath=vendor/document, operation=verify, slug=sample-entry
 # ---------------------------------------------------------------------------
-cruding_actor_my_tokenized_catch_all:
-    path: /my/{crudPath}
-    controller: App\Cruding\Controller\Crud\CrudController
-    methods: [GET, POST, PUT, PATCH, DELETE]
-    defaults:
-        _crud_view: public
-        _crud_actor: my
-    requirements:
-        crudPath: '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'
-
 cruding_tokenized_catch_all:
     path: /{crudPath}
     controller: App\Cruding\Controller\Crud\CrudController
@@ -29,4 +19,4 @@ cruding_tokenized_catch_all:
     defaults:
         _crud_view: public
     requirements:
-        crudPath: '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'
+        crudPath: '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk|show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'

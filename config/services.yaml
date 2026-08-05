@@ -7,7 +7,7 @@ parameters:
     cruding.resource_requirement: '[a-z][a-z0-9_-]*'
     cruding.resource_path_requirement: '[a-z][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*)*'
     cruding.view_token_requirement: 'card|table|gallery|compact|full|detail|list'
-    cruding.operation_token_requirement: 'show|read|index|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate|assign|unassign|adjust|calculate|verify|reject|approve|pay|recalculate|start|overview|mutation'
+    cruding.operation_token_requirement: 'show|read|page|index|new|create|edit|update|delete|bulk|import|export|archive|restore|duplicate|assign|unassign|adjust|calculate|verify|reject|approve|pay|recalculate|start|overview|mutation'
     cruding.identity_slug_requirement: '[A-Za-z0-9][A-Za-z0-9_-]*'
 
     cruding.capability_map:
@@ -190,6 +190,7 @@ services:
 
     App\Cruding\ServiceInterface\Crud\Operation\CrudIndexOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudIndexOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudShowOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudShowOperation'
+    App\Cruding\ServiceInterface\Crud\Operation\CrudPageOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudPageOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudCreateOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudCreateOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudEditOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudEditOperation'
     App\Cruding\ServiceInterface\Crud\Operation\CrudDeleteOperationInterface: '@App\Cruding\Service\Crud\Operation\CrudDeleteOperation'

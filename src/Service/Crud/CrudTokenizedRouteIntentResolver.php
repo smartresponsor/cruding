@@ -30,6 +30,7 @@ final readonly class CrudTokenizedRouteIntentResolver
     public const HTTP_MEMBER_OPERATIONS = [
         'show',
         'read',
+        'page',
         'edit',
         'update',
         'archive',
@@ -77,7 +78,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             tokens: $scoped['tokens'],
             routeFamily: self::ROUTE_FAMILY_WEB,
             defaultView: 'public',
-            actorScope: $scoped['actorScope'],
+            actorScope: $scoped['actorScope'] ?? $this->routeActorScope($request),
         );
     }
 
@@ -173,14 +174,20 @@ final readonly class CrudTokenizedRouteIntentResolver
      */
     private function resolveTokens(array $tokens, string $routeFamily, string $defaultView, ?string $actorScope = null): ?CrudTokenizedRouteIntent
     {
-        $operationTokens = array_flip($this->reservedRouteTokenPolicy->operationTokens());
+        $operationTokens = array_flip(array_values(array_unique(array_merge(
+            $this->reservedRouteTokenPolicy->operationTokens(),
+            self::HTTP_COLLECTION_OPERATIONS,
+            self::HTTP_MEMBER_OPERATIONS,
+        ))));
         $count = count($tokens);
 
         $last = $tokens[$count - 1];
         $beforeLast = $tokens[$count - 2] ?? null;
 
         if (isset($operationTokens[$last])) {
-            if (!in_array($last, self::HTTP_COLLECTION_OPERATIONS, true)) {
+            $isImplicitMember = in_array($last, self::HTTP_MEMBER_OPERATIONS, true);
+
+            if (!in_array($last, self::HTTP_COLLECTION_OPERATIONS, true) && !$isImplicitMember) {
                 return null;
             }
 
@@ -196,7 +203,7 @@ final readonly class CrudTokenizedRouteIntentResolver
                 resourcePath: implode('/', $resourceTokens),
                 operation: $operation,
                 view: $this->viewFor($operation, null, $defaultView),
-                identifierField: null,
+                identifierField: $isImplicitMember ? 'slug' : null,
                 identifierValue: null,
                 tokens: $tokens,
                 actorScope: $actorScope,
@@ -249,10 +256,15 @@ final readonly class CrudTokenizedRouteIntentResolver
      * Context prefixes such as my, api, and a backend prefix like ea do not count
      * as resourcePath tokens for the two-token CRUD grammar cap.
      *
-     * @param list<string> $tokens
-     *
      * @return array{tokens: list<string>, actorScope: ?string}
      */
+    private function routeActorScope(Request $request): ?string
+    {
+        return self::ACTOR_SCOPE_MY === $request->attributes->get('_crud_actor')
+            ? self::ACTOR_SCOPE_MY
+            : null;
+    }
+
     private function consumeActorScope(array $tokens): array
     {
         $actorScope = null;

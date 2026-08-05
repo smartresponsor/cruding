@@ -10,7 +10,7 @@ use App\Cruding\ServiceInterface\Crud\CrudOwnershipProviderInterface;
 
 final readonly class DefaultCrudOwnershipProvider implements CrudOwnershipProviderInterface
 {
-    private const GETTER_LIST = ['getVendor', 'getCreatedBy', 'getOwner', 'getUser', 'getCreatedByUser', 'getAuthor'];
+    private const GETTER_LIST = ['getVendor', 'getOwner', 'getUser', 'getCreatedByUser', 'getAuthor', 'getCreatedBy'];
 
     public function supports(CrudOwnershipResolutionContext $context): bool
     {
@@ -44,7 +44,9 @@ final readonly class DefaultCrudOwnershipProvider implements CrudOwnershipProvid
             return $owner === $actor || $this->id($owner) === $this->id($actor);
         }
 
-        return is_scalar($owner) && $owner === $this->id($actor);
+        $actorId = $this->id($actor);
+
+        return is_scalar($owner) && null !== $actorId && (string) $owner === (string) $actorId;
     }
 
     private function id(object $object): string|int|null
