@@ -93,8 +93,29 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
         );
     }
 
-    public function providePage(CrudContext $context, object $object): CrudPageDefinition
+    public function providePage(CrudContext $context, ?object $object = null): CrudPageDefinition
     {
+        if (null === $object) {
+            $access = $this->accessContextBuilder->build($context);
+            $projectedRows = $this->collectionProjectionReader->read($context);
+
+            return new CrudPageDefinition(
+                $context,
+                $access,
+                sprintf('%s page', $context->resourcePath),
+                'page',
+                null === $projectedRows ? $this->objectFinder->findAll($context) : [],
+                [],
+                [
+                    'resourcePath' => $context->resourcePath,
+                    'view' => $context->view,
+                    'operation' => $context->operation,
+                    'projectedRows' => $projectedRows,
+                    'collectionPage' => true,
+                ],
+            );
+        }
+
         $access = $this->accessContextBuilder->build($context, $object);
         $actions = [
             new CrudPageActionDefinition(
@@ -127,6 +148,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
                 'operation' => $context->operation,
                 'identifierField' => $context->identifierField,
                 'identifierValue' => $context->identifierValue,
+                'collectionPage' => false,
             ],
         );
     }

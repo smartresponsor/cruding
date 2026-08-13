@@ -53,34 +53,21 @@ $resolver = new CrudTokenizedRouteIntentResolver(
 );
 
 $cases = [
-    '/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/my/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => null],
-    '/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'actorScope' => null, 'identifierField' => 'slug', 'identifierValue' => null],
-    '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/api/my/vendor' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/my/api/vendor/attachment' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/api/my/order/attachment/123' => ['resourcePath' => 'order/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'id', 'identifierValue' => '123', 'api' => true],
-    '/ea/my/api/vendor/attachment/acme-file-00000001' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file-00000001', 'api' => true],
+    '/vendor/page' => ['resourcePath' => 'vendor', 'operation' => 'page', 'identifierField' => 'slug', 'identifierValue' => null],
+    '/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'identifierField' => 'slug', 'identifierValue' => null],
+    '/vendor/attachment/page' => ['resourcePath' => 'vendor/attachment', 'operation' => 'page', 'identifierField' => 'slug', 'identifierValue' => null],
 ];
 
 foreach ($cases as $path => $expected) {
     $request = Request::create($path, 'GET');
     $request->attributes->set('crudPath', trim($path, '/'));
-    $intent = ($expected['api'] ?? false) ? $resolver->resolveApi($request) : $resolver->resolveWeb($request);
+    $intent = $resolver->resolveWeb($request);
 
     assert(null !== $intent, sprintf('%s must resolve to a tokenized intent.', $path));
     assert($expected['resourcePath'] === $intent->resourcePath, sprintf('%s resourcePath mismatch: %s', $path, $intent->resourcePath));
     assert($expected['operation'] === $intent->operation, sprintf('%s operation mismatch: %s', $path, $intent->operation));
-    assert($expected['actorScope'] === $intent->actorScope, sprintf('%s actorScope mismatch.', $path));
-    assert(('my' === $expected['actorScope']) === $intent->isMyScoped(), sprintf('%s my-scope mismatch.', $path));
     assert($expected['identifierField'] === $intent->identifierField, sprintf('%s identifierField mismatch.', $path));
     assert($expected['identifierValue'] === $intent->identifierValue, sprintf('%s identifierValue mismatch.', $path));
-}
-
-foreach (['/my/vendor/attachment/document/index', '/api/my/vendor/attachment/document/show/acme-file', '/ea/api/my/vendor/attachment/document/index'] as $path) {
-    $request = Request::create($path, 'GET');
-    $request->attributes->set('crudPath', trim($path, '/'));
-    assert(null === $resolver->resolveWeb($request), sprintf('%s must exceed semantic CRUD resource depth after context-prefix trimming.', $path));
 }
 
 $classResolver = new CrudServiceClassNameResolver();
@@ -100,11 +87,14 @@ foreach ($candidates as $candidate) {
 }
 
 $entrypointContext = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudServiceContext.php');
-foreach (['isActorScoped', 'actorScope', 'isMyScoped', 'isActorGrounded', 'actorUserId', 'actorUserSlug', 'actorIdentityField', 'actorAdminIdentityField'] as $method) {
+foreach (['isActorGrounded', 'actorUserId', 'actorUserSlug', 'actorIdentityField', 'actorAdminIdentityField'] as $method) {
     assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContext missing %s().', $method));
 }
+foreach (['isActorScoped', 'actorScope', 'isMyScoped'] as $method) {
+    assert(!str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContext must not keep obsolete %s().', $method));
+}
 
-fwrite(STDOUT, "PASS: context prefixes are trimmed before CRUD grammar depth checks and my scope remains actor context.\n");
+fwrite(STDOUT, "PASS: page is the canonical implicit-current-actor CRUD operation and no actor-scope URL prefix is required.\n");
 
 /**
  * @return list<string>

@@ -11,7 +11,6 @@ final readonly class CrudTokenizedRouteIntentResolver
 {
     public const ROUTE_FAMILY_WEB = 'tokenized_crud';
     public const ROUTE_FAMILY_API = 'tokenized_api_crud';
-    public const ACTOR_SCOPE_MY = 'my';
 
     private const CONTEXT_PREFIX_API = 'api';
     private const DEFAULT_BACKEND_CONTEXT_PREFIX = 'ea';
@@ -69,29 +68,16 @@ final readonly class CrudTokenizedRouteIntentResolver
             return null;
         }
 
-        $scoped = $this->consumeActorScope($tokens);
-        if ([] === $scoped['tokens']) {
-            return null;
-        }
-
         return $this->resolveTokens(
-            tokens: $scoped['tokens'],
+            tokens: $tokens,
             routeFamily: self::ROUTE_FAMILY_WEB,
             defaultView: 'public',
-            actorScope: $scoped['actorScope'] ?? $this->routeActorScope($request),
         );
     }
 
     public function resolveApi(Request $request): ?CrudTokenizedRouteIntent
     {
         $tokens = $this->requestTokens($request, 'crudPath');
-        if ([] === $tokens) {
-            return null;
-        }
-
-        $scoped = $this->consumeActorScope($tokens);
-        $tokens = $scoped['tokens'];
-        $actorScope = $scoped['actorScope'];
         if ([] === $tokens) {
             return null;
         }
@@ -111,7 +97,6 @@ final readonly class CrudTokenizedRouteIntentResolver
                     identifierField: $this->identifierField($identity),
                     identifierValue: $identity,
                     tokens: $tokens,
-                    actorScope: $actorScope,
                 );
             }
 
@@ -127,7 +112,6 @@ final readonly class CrudTokenizedRouteIntentResolver
                 identifierField: null,
                 identifierValue: null,
                 tokens: $tokens,
-                actorScope: $actorScope,
             );
         }
 
@@ -144,7 +128,6 @@ final readonly class CrudTokenizedRouteIntentResolver
                 identifierField: null,
                 identifierValue: null,
                 tokens: $tokens,
-                actorScope: $actorScope,
             );
         }
 
@@ -165,14 +148,13 @@ final readonly class CrudTokenizedRouteIntentResolver
             identifierField: $this->identifierField($identity),
             identifierValue: $identity,
             tokens: [...$tokens, $identity],
-            actorScope: $actorScope,
         );
     }
 
     /**
      * @param list<string> $tokens
      */
-    private function resolveTokens(array $tokens, string $routeFamily, string $defaultView, ?string $actorScope = null): ?CrudTokenizedRouteIntent
+    private function resolveTokens(array $tokens, string $routeFamily, string $defaultView): ?CrudTokenizedRouteIntent
     {
         $operationTokens = array_flip(array_values(array_unique(array_merge(
             $this->reservedRouteTokenPolicy->operationTokens(),
@@ -206,7 +188,6 @@ final readonly class CrudTokenizedRouteIntentResolver
                 identifierField: $isImplicitMember ? 'slug' : null,
                 identifierValue: null,
                 tokens: $tokens,
-                actorScope: $actorScope,
             );
         }
 
@@ -230,7 +211,6 @@ final readonly class CrudTokenizedRouteIntentResolver
                 identifierField: $this->identifierField($last),
                 identifierValue: $last,
                 tokens: $tokens,
-                actorScope: $actorScope,
             );
         }
 
@@ -251,69 +231,6 @@ final readonly class CrudTokenizedRouteIntentResolver
     }
 
     /**
-     * Consumes contextual route prefixes before CRUD grammar checks.
-     *
-     * Context prefixes such as my, api, and a backend prefix like ea do not count
-     * as resourcePath tokens for the two-token CRUD grammar cap.
-     *
-     * @return array{tokens: list<string>, actorScope: ?string}
-     */
-    private function routeActorScope(Request $request): ?string
-    {
-        return self::ACTOR_SCOPE_MY === $request->attributes->get('_crud_actor')
-            ? self::ACTOR_SCOPE_MY
-            : null;
-    }
-
-    private function consumeActorScope(array $tokens): array
-    {
-        $actorScope = null;
-        $apiSeen = false;
-        $backendSeen = false;
-        $remaining = array_values($tokens);
-
-        while ([] !== $remaining) {
-            $first = strtolower($remaining[0]);
-            if (self::ACTOR_SCOPE_MY === $first) {
-                if (null !== $actorScope) {
-                    return ['tokens' => [], 'actorScope' => null];
-                }
-
-                $actorScope ??= self::ACTOR_SCOPE_MY;
-                array_shift($remaining);
-                continue;
-            }
-
-            if (self::CONTEXT_PREFIX_API === $first) {
-                if ($apiSeen) {
-                    return ['tokens' => [], 'actorScope' => null];
-                }
-
-                $apiSeen = true;
-                array_shift($remaining);
-                continue;
-            }
-
-            if ('' !== $this->backendContextToken() && $this->backendContextToken() === $first) {
-                if ($backendSeen) {
-                    return ['tokens' => [], 'actorScope' => null];
-                }
-
-                $backendSeen = true;
-                array_shift($remaining);
-                continue;
-            }
-
-            break;
-        }
-
-        return [
-            'tokens' => array_values($remaining),
-            'actorScope' => $actorScope,
-        ];
-    }
-
-    /**
      * @param list<string> $resourceTokens
      */
     private function hasValidResourceTokenCount(array $resourceTokens): bool
@@ -325,7 +242,7 @@ final readonly class CrudTokenizedRouteIntentResolver
         }
 
         foreach ($resourceTokens as $resourceToken) {
-            if (in_array($resourceToken, [self::ACTOR_SCOPE_MY, self::CONTEXT_PREFIX_API, $this->backendContextToken()], true)) {
+            if (in_array($resourceToken, [self::CONTEXT_PREFIX_API, $this->backendContextToken()], true)) {
                 return false;
             }
         }

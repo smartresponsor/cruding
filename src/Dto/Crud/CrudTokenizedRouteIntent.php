@@ -17,18 +17,7 @@ final readonly class CrudTokenizedRouteIntent
         public ?string $identifierField,
         public string|int|null $identifierValue,
         public array $tokens,
-        public ?string $actorScope = null,
     ) {
-    }
-
-    public function isActorScoped(): bool
-    {
-        return null !== $this->actorScope && '' !== $this->actorScope;
-    }
-
-    public function isMyScoped(): bool
-    {
-        return 'my' === $this->actorScope;
     }
 
     public function hasIdentity(): bool
@@ -49,8 +38,6 @@ final readonly class CrudTokenizedRouteIntent
             'identifierField' => $this->identifierField,
             'identifierValue' => is_scalar($this->identifierValue) ? $this->identifierValue : null,
             'tokens' => $this->tokens,
-            'actorScope' => $this->actorScope,
-            'isActorScoped' => $this->isActorScoped(),
         ];
     }
 }

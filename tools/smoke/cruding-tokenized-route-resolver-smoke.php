@@ -37,10 +37,12 @@ assert(str_contains($apiRoutes, 'methods: [PUT, PATCH, DELETE]'), 'Mutation API 
 assert(str_contains($apiRoutes, '[a-z0-9][a-z0-9_-]{17,}'), 'API identity grammar must enforce minimum slug length.');
 assert(!str_contains($apiRoutes, "crudPath: '.+'"), 'API route must not expose an unbounded global catch-all.');
 assert(!str_contains($apiRoutes, 'resourcePath:'), 'API route YAML must not contain semantic resourcePath requirements.');
-assert(strpos($routeIndex, 'cruding_api_crud:') < strpos($routeIndex, 'cruding_crud:'), 'API catch-all must be imported before generic CRUD catch-all.');
-assert(strpos($routeIndex, 'cruding_crud:') < strpos($routeIndex, 'cruding_resource:'), 'Tokenized CRUD catch-all must be imported before legacy resource fallback routes.');
+assert(str_contains($routeIndex, 'type: cruding'), 'Route index must delegate CRUD routes to the Cruding custom route loader.');
+assert(!str_contains($routeIndex, 'cruding_api_crud:'), 'Route index must not import generated API CRUD route YAML directly.');
+assert(!str_contains($routeIndex, 'cruding_crud:'), 'Route index must not import generated browser CRUD route YAML directly.');
+assert(!str_contains($routeIndex, 'cruding_resource:'), 'Route index must not import legacy resource fallback YAML directly.');
 
-foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'consumeActorScope', 'ACTOR_SCOPE_MY', 'operationTokens', 'isIdentityToken', 'identifierField', 'viewFor'] as $needle) {
+foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'operationTokens', 'isIdentityToken', 'identifierField', 'viewFor'] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver must expose %s.', $needle));
 }
 
@@ -65,8 +67,9 @@ foreach (['CrudApiIndexOperationInterface', 'CrudApiShowOperationInterface', 'Cr
 }
 
 assert(str_contains($tokenNormalizer, 'explode'), 'Route token normalizer must split URI into tokens.');
-assert(str_contains($intent, 'actorScope'), 'Tokenized intent must expose actor scope diagnostics.');
-assert(str_contains($intent, 'isMyScoped'), 'Tokenized intent must expose my-scope helper.');
+assert(!str_contains($resolver, 'ACTOR_SCOPE_MY'), 'Tokenized resolver must not preserve the obsolete my actor-scope grammar.');
+assert(!str_contains($resolver, 'consumeActorScope'), 'Tokenized resolver must not consume obsolete actor-scope prefixes.');
+assert(!str_contains($intent, 'actorScope'), 'Tokenized intent must not expose obsolete actor-scope state.');
 assert(str_contains($intent, 'diagnostics'), 'Tokenized intent must expose diagnostics.');
 
 fwrite(STDOUT, "PASS: Symfony routes are resource-bounded structural catch-alls and Cruding tokenized resolver owns explicit semantic grammar.\n");

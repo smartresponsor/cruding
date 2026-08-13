@@ -51,7 +51,16 @@ final readonly class CrudPageOperation implements CrudPageOperationInterface
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
+            if ($request->attributes->has('id') || $request->attributes->has('slug')) {
+                return $this->notFoundResponseFactory->create($request, 'crud_resource_not_found');
+            }
+
+            $access = $this->accessContextBuilder->build($context);
+            if (!$access->canView) {
+                throw new AccessDeniedHttpException('You are not allowed to view this resource page.');
+            }
+
+            return $this->viewContractFactory->create($this->pageDefinitionProvider->providePage($context));
         }
 
         $access = $this->accessContextBuilder->build($context, $object);

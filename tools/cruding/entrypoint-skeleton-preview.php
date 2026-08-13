@@ -53,9 +53,6 @@ $namespace = serviceNamespace((string) $serviceLayerPrefixes[0], $intent['resour
 fwrite(STDOUT, sprintf("// Path: %s\n", normalizePath($path)));
 fwrite(STDOUT, sprintf("// Resource: %s\n", $intent['resourcePath']));
 fwrite(STDOUT, sprintf("// Operation: %s\n", $intent['operation']));
-if (isset($intent['actorScope']) && null !== $intent['actorScope']) {
-    fwrite(STDOUT, sprintf("// Actor scope: %s\n", $intent['actorScope']));
-}
 fwrite(STDOUT, "// writeAction: false\n");
 fwrite(STDOUT, "// Preview only. Copy manually if this entrypoint should exist.\n\n");
 fwrite(STDOUT, renderSkeleton($namespace, $shortName, $style));
@@ -127,19 +124,12 @@ function resolveIntent(string $path, array $operationTokens): array
     if ([] !== $segments && 'api' === strtolower($segments[0])) {
         $segments = array_values(array_slice($segments, 1));
     }
-    $actorScope = null;
-    if ([] !== $segments && 'my' === strtolower($segments[0])) {
-        $actorScope = 'my';
-        $segments = array_values(array_slice($segments, 1));
-    }
-
     if ([] === $segments) {
         return [
             'resourcePath' => '',
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -152,7 +142,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $last,
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -164,7 +153,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $beforeLast,
             'identifierField' => ctype_digit($identifier) ? 'id' : 'slug',
             'identifierValue' => ctype_digit($identifier) ? (int) $identifier : $identifier,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -174,7 +162,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 

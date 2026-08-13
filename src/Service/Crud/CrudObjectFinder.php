@@ -6,7 +6,6 @@ namespace App\Cruding\Service\Crud;
 
 use App\Cruding\Dto\Crud\CrudContext;
 use App\Cruding\ServiceInterface\Crud\CrudObjectFinderInterface;
-use App\Cruding\ServiceInterface\Crud\CrudOwnershipResolverInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -22,7 +21,6 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         private ManagerRegistry $managerRegistry,
         private RequestStack $requestStack,
         private Security $security,
-        private CrudOwnershipResolverInterface $ownershipResolver,
     ) {
     }
 
@@ -35,7 +33,9 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
 
         $metadata = $manager->getClassMetadata($context->entityClass);
         if (null === $context->identifierValue) {
-            return $this->findActorOwned($context->entityClass, $metadata);
+            return 'page' === $context->operation
+                ? $this->findActorOwned($context->entityClass, $metadata)
+                : null;
         }
 
         $identifierField = $this->resolveIdentifierField($metadata, $context->identifierField);
@@ -46,11 +46,8 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         $object = $this->managerRegistry->getRepository($context->entityClass)->findOneBy([
             $identifierField => $context->identifierValue,
         ]);
-        if (null === $object || !$this->isMyScoped()) {
-            return $object;
-        }
 
-        return $this->ownershipResolver->resolve($object)->isOwner ? $object : null;
+        return $object;
     }
 
     /**
@@ -62,38 +59,8 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         try {
             $repository = $this->managerRegistry->getRepository($context->entityClass);
             [$limit, $offset] = $this->pagination();
-            if (!$this->isMyScoped()) {
-                return $repository->findBy([], null, $limit, $offset);
-            }
 
-            $user = $this->security->getUser();
-            if (null === $user) {
-                return [];
-            }
-
-            $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
-            if (null === $manager) {
-                return [];
-            }
-            $metadata = $manager->getClassMetadata($context->entityClass);
-            foreach (self::OWNER_ASSOCIATION_FIELDS as $field) {
-                if ($metadata->hasAssociation($field)) {
-                    return $repository->findBy([$field => $user], null, $limit, $offset);
-                }
-            }
-
-            if (method_exists($user, 'getId')) {
-                $userId = $user->getId();
-                if (is_scalar($userId)) {
-                    foreach (self::OWNER_SCALAR_FIELDS as $field) {
-                        if ($metadata->hasField($field)) {
-                            return $repository->findBy([$field => $userId], null, $limit, $offset);
-                        }
-                    }
-                }
-            }
-
-            return [];
+            return $repository->findBy([], null, $limit, $offset);
         } finally {
             $this->requestStack->getCurrentRequest()?->attributes->set('_crud_object_find_all_ms', number_format((hrtime(true) - $startedAt) / 1_000_000, 2, '.', ''));
         }
@@ -179,10 +146,5 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         }
 
         return null;
-    }
-
-    private function isMyScoped(): bool
-    {
-        return 'my' === $this->requestStack->getCurrentRequest()?->attributes->get('_crud_actor_scope');
     }
 }

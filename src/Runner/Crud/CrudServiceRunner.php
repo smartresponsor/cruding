@@ -48,8 +48,6 @@ final readonly class CrudServiceRunner
                 'path' => $context->path(),
                 'resourcePath' => $context->resourcePath(),
                 'operation' => $context->operation(),
-                'actorScope' => $context->actorScope(),
-                'actorScoped' => $context->isActorScoped(),
                 'actorGrounded' => $context->isActorGrounded(),
                 'actorIdentityField' => $context->actorIdentityField(),
                 'actorIdentityValue' => $context->actorIdentityValue(),
