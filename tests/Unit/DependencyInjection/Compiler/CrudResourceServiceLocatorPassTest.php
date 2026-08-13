@@ -31,6 +31,21 @@ final class CrudResourceServiceLocatorPassTest extends TestCase
         self::assertArrayNotHasKey('App\\Something\\ElseService', $values);
     }
 
+    public function testCollectsExplicitlyTaggedComponentService(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(CrudResourceServiceLocator::class, new Definition(CrudResourceServiceLocator::class));
+        $definition = new Definition();
+        $definition->addTag('cruding.resource_service');
+        $container->setDefinition('App\\Shipping\\Service\\Http\\Shipment\\ShipmentNewService', $definition);
+
+        (new CrudResourceServiceLocatorPass())->process($container);
+
+        $argument = $container->getDefinition(CrudResourceServiceLocator::class)->getArgument(0);
+        self::assertInstanceOf(ServiceLocatorArgument::class, $argument);
+        self::assertArrayHasKey('App\\Shipping\\Service\\Http\\Shipment\\ShipmentNewService', $argument->getValues());
+    }
+
     public function testSkipsAbstractCanonicalService(): void
     {
         $container = new ContainerBuilder();

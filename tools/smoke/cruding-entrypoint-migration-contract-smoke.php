@@ -30,13 +30,6 @@ assert(str_contains($mapOutput, 'AlphaAttachmentMediaEditService'), 'Map audit m
 assert(str_contains($mapOutput, 'serviceLayerPrefix #1:'), 'Map audit must expose the service-layer lookup prefix.');
 assert(!str_contains($mapOutput, 'AlphaCrudService'), 'Map audit must not collapse resource operations into AlphaCrudService.');
 
-$myMapCommand = escapeshellcmd($php).' '.escapeshellarg($mapAudit).' --path=/my/alpha/attachment/index';
-$myMapOutput = shell_exec($myMapCommand);
-assert(is_string($myMapOutput), 'My-scope map audit did not return output.');
-assert(str_contains($myMapOutput, 'actorScope: my'), 'Map audit must expose my as actor scope context.');
-assert(str_contains($myMapOutput, 'AlphaAttachmentIndexService'), 'My-scope map audit must reuse the normal service-layer entrypoint by default.');
-assert(!str_contains($myMapOutput, 'AlphaMyAttachmentIndexService'), 'My scope must not require a *My* FQCN entrypoint by default.');
-
 $skeletonCommand = escapeshellcmd($php).' '.escapeshellarg($skeletonPreview).' --path=/alpha/attachment/media/archive/sample-entry --style=abstract';
 $skeletonOutput = shell_exec($skeletonCommand);
 assert(is_string($skeletonOutput), 'Skeleton preview did not return output.');

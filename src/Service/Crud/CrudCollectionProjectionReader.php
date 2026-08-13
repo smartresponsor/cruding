@@ -28,10 +28,6 @@ final class CrudCollectionProjectionReader
      */
     public function read(CrudContext $context): ?array
     {
-        if ('my' === $this->requestStack->getCurrentRequest()?->attributes->get('_crud_actor_scope')) {
-            return null;
-        }
-
         $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
         if (!$manager instanceof EntityManagerInterface) {
             return null;

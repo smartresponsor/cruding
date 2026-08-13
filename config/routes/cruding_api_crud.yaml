@@ -1,30 +1,6 @@
 # API CRUD classification is owned by HTTP method plus URI shape.
 # Explicit component API routes must be imported before these generic routes.
 
-cruding_my_api_read:
-    path: /my/api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
-    methods: [GET]
-    defaults: { _crud_view: public, _crud_actor: my }
-    requirements:
-        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'
-
-cruding_my_api_create:
-    path: /my/api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
-    methods: [POST]
-    defaults: { _crud_view: public, _crud_actor: my }
-    requirements:
-        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'
-
-cruding_my_api_member_mutation:
-    path: /my/api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
-    methods: [PUT, PATCH, DELETE]
-    defaults: { _crud_view: public, _crud_actor: my }
-    requirements:
-        crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'
-
 cruding_api_read:
     path: /api/{crudPath}
     controller: App\Cruding\Controller\Api\Crud\CrudApiController

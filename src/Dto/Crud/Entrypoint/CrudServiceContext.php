@@ -85,26 +85,9 @@ final readonly class CrudServiceContext
         return $this->crudContext->resourcePath;
     }
 
-    public function isActorScoped(): bool
-    {
-        return true === $this->request->attributes->get('_crud_actor_scoped', false);
-    }
-
-    public function actorScope(): ?string
-    {
-        $scope = $this->request->attributes->get('_crud_actor_scope');
-
-        return is_string($scope) && '' !== $scope ? $scope : null;
-    }
-
-    public function isMyScoped(): bool
-    {
-        return 'my' === $this->actorScope();
-    }
-
     public function isActorGrounded(): bool
     {
-        return true === $this->request->attributes->get('_crud_actor_scope_grounded', false);
+        return true === $this->request->attributes->get('_crud_actor_grounded', false);
     }
 
     public function actorUserId(): string|int|null

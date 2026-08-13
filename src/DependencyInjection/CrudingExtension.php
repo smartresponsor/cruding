@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\HttpKernel\Kernel;
 
 final class CrudingExtension extends Extension implements PrependExtensionInterface
 {
@@ -63,7 +62,9 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             defaultOperationTokens: $defaultOperationTokens,
             defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
         );
-        $appEnv = $this->readAppEnv();
+        $appEnv = $container->hasParameter('kernel.environment')
+            ? (string) $container->getParameter('kernel.environment')
+            : 'dev';
         $runtimeLock = (new CrudRuntimeLockReader(
             normalizer: $normalizer,
             projectDir: (string) $container->getParameter('kernel.project_dir'),
@@ -339,18 +340,6 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         }
 
         return implode(',', $fallbackTokens);
-    }
-
-    private function readAppEnv(): string
-    {
-        if (class_exists(Kernel::class)) {
-            $environment = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV');
-            if (is_string($environment) && '' !== trim($environment)) {
-                return $environment;
-            }
-        }
-
-        return 'dev';
     }
 
     private function readEnvironmentValue(string $nameEntity): string

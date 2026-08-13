@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 final class CrudResourceServiceLocatorPass implements CompilerPassInterface
 {
+    private const RESOURCE_SERVICE_TAG = 'cruding.resource_service';
     private const SERVICE_LAYER_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
 
     public function process(ContainerBuilder $container): void
@@ -25,6 +26,15 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
             }
 
             if (!$this->isHttpEntrypointService($id, $definition)) {
+                continue;
+            }
+
+            $references[$id] = new Reference($id);
+        }
+
+        foreach ($container->findTaggedServiceIds(self::RESOURCE_SERVICE_TAG) as $id => $_tags) {
+            $definition = $container->findDefinition($id);
+            if ($definition->isAbstract() || $definition->isSynthetic()) {
                 continue;
             }
 

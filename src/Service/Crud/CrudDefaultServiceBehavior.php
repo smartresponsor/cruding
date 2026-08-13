@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Crud;
 
+use App\Cruding\Dto\Crud\CrudMutationLifecycleContext;
 use App\Cruding\Dto\Crud\Entrypoint\CrudServiceContext;
 use App\Cruding\Dto\Crud\Entrypoint\CrudServiceResult;
 use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
@@ -25,6 +26,7 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
         private CrudRouteNameResolverInterface $routeNameResolver,
         private CrudNotFoundResponseFactory $notFoundResponseFactory,
         private CrudIdentifierReader $identifierReader,
+        private CrudMutationLifecycleDispatcher $mutationLifecycleDispatcher,
         private UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -104,7 +106,16 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
         );
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->formHandler->persist($context->object);
+            $lifecycleContext = new CrudMutationLifecycleContext(
+                $context->crudContext,
+                $context->object,
+                $context->request,
+                'create',
+            );
+            $this->mutationLifecycleDispatcher->execute(
+                $lifecycleContext,
+                fn (): mixed => $this->formHandler->persist($context->object),
+            );
 
             $identifierField = $this->identifierReader->detectField($context->object);
             $identifierValue = $this->identifierReader->read($context->object, $identifierField);

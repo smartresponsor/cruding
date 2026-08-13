@@ -1,104 +1,47 @@
 # Tokenized CRUD route resolver
 
-Cruding no longer uses semantic Symfony route regex for CRUD grammar. Routes are structural delivery routes only.
+Cruding uses structural Symfony routes and resolves CRUD semantics in PHP.
 
-```yaml
-cruding_tokenized_catch_all:
-    path: /{crudPath}
-    controller: App\Cruding\Controller\Crud\CrudTokenizedController
-    requirements:
-        crudPath: '.+'
-```
+## Canonical current-actor page
 
-The resolver receives `crudPath`, tokenizes it, strips context prefixes, and applies the grammar in PHP.
-
-## Context prefix rule
-
-The following leading tokens are route context, not resource path:
+`page` is the canonical member operation when the current authenticated object must be resolved without an explicit id or slug.
 
 ```text
-my
-api
-ea
+/vendor/page
+/attachment/page
+/catalog/page
 ```
 
-`ea` is the default backend context prefix and may be overridden by environment/config values such as `CRUDING_BACKEND_CONTEXT_TOKEN`, `CRUDING_BACKEND_ROUTE_TOKEN`, `CRUDING_BACKEND_ROUTE_PREFIX`, or `EASYADMIN_ROUTE_PREFIX`.
-
-Context prefixes are stripped before CRUD resource depth is checked:
-
-```text
-/my/vendor/attachment/index
-/api/my/vendor/attachment/index
-/ea/api/my/vendor/attachment/show/acme-file
-```
-
-All three examples have the same semantic CRUD resource path depth after context-prefix trimming.
+A `page` request may resolve the object through the authenticated actor. `show` remains an explicit member operation and does not act as an implicit current-actor alias.
 
 ## Explicit operation token rule
 
-Cruding must not infer a CRUD operation from an arbitrary trailing token. A multi-token URI without an explicit operation token is not a complete CRUD intent.
-
-The operation token is valid only in one of these positions:
+A CRUD intent requires an explicit operation token. Valid examples:
 
 ```text
 /resource/index
-  -> resourcePath=resource
-  -> operation=index
-
+/resource/page
 /resource/show/acme-inc
-  -> resourcePath=resource
-  -> operation=show
-  -> slug=acme-inc
-
 /resource/attachment/index
-  -> resourcePath=resource/attachment
-  -> operation=index
-
+/resource/attachment/page
 /resource/attachment/edit/123
-  -> resourcePath=resource/attachment
-  -> operation=edit
-  -> id=123
 ```
 
 ## CRUD resource depth rule
 
-Before the operation token, Cruding accepts only one or two semantic resource tokens after context-prefix trimming:
+Cruding accepts one or two semantic resource tokens before the operation token.
 
 ```text
 /vendor/index
+/vendor/page
 /vendor/show/acme-inc
 /vendor/attachment/index
+/vendor/attachment/page
 /vendor/attachment/show/123
-/my/vendor/attachment/index
-/api/my/vendor/attachment/index
-/ea/api/my/vendor/attachment/show/acme-file
 ```
 
-Three or more semantic resource tokens before the operation token are business/non-CRUD route candidates and must not be consumed by the CRUD controller.
+Three or more semantic resource tokens before the operation token are business/non-CRUD route candidates and are not consumed as canonical CRUD resources.
 
-Invalid examples:
+The API transport prefix and backend routing remain transport concerns; they do not introduce a user-scope CRUD grammar token.
 
-```text
-/access/password
-  -> not a CRUD intent
-  -> no implicit operation=show
-
-/vendor/attachment/media/index
-  -> three semantic resource tokens before index
-  -> not a CRUD intent
-
-/my/api/ea/vendor/attachment/document/index
-  -> context prefixes are stripped first
-  -> vendor/attachment/document still has three semantic resource tokens
-  -> not a CRUD intent
-
-/vendor/attachment/media/show/123
-  -> three semantic resource tokens before show
-  -> not a CRUD intent
-
-/resource/edit/profile/123
-  -> edit is in the middle of the resource path
-  -> not an operation token
-```
-
-Symfony Router does not decide whether a token is context, resource, operation, id, slug, or view. Cruding owns that semantic layer.
+Symfony Router provides structural delivery. Cruding owns resource, operation, id, slug, view, and current-actor page semantics.
