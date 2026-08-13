@@ -103,6 +103,21 @@ services:
     App\Cruding\Runner\Crud\:
         resource: '../src/Runner/Crud/'
 
+    App\Cruding\Routing\:
+        resource: '../src/Routing/'
+
+    App\Cruding\Routing\CrudingRouteManifest:
+        tags:
+            - routing.loader
+
+    App\Cruding\Command\Crud\CrudRouteManifestDumpCommand:
+        tags:
+            - { name: console.command, command: 'crud:route:dump' }
+
+    App\Cruding\Command\Crud\CrudRouteManifestValidateCommand:
+        tags:
+            - { name: console.command, command: 'crud:route:validate' }
+
     App\Cruding\Service\Crud\CrudMutationLifecycleDispatcher:
         arguments:
             $subscriberList: !tagged_iterator cruding.mutation_lifecycle_subscriber
