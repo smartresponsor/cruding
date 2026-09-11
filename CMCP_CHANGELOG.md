@@ -39,9 +39,19 @@
 - No additional architectural expansion was introduced.
 - No destructive final-state operation remains.
 - Integration branch: `engine-20260911150014-cruding-34e436`.
+- Pull request opened: `#5` — `Consolidate Cruding route-map matcher ownership`.
+- GitHub recalculated the PR as mergeable with no conflicts.
+
+### Iteration 5 — final acceptance and handoff
+
+- Final PR mergeability before this journal update: `true`.
+- Head commit had no GitHub combined-status entries and no pull-request workflow runs.
+- Because full local Composer/PHPUnit/Gating/Symfony checks cannot run in the available environment and no CI runner supplied equivalent evidence, the merge quality gate is not asserted green.
+- PR #5 is intentionally left open rather than merged without verification evidence.
+- Bounded implementation work is complete; the remaining tail is verification/integration evidence, not additional Cruding implementation.
 
 ### Что имеем?
-One canonical route-map matching implementation under `Service/Crud/Resource`, production runtime callers wired to it, a non-owning compatibility facade retained solely because destructive operations are forbidden, and corrected route documentation linkage.
+One canonical route-map matching implementation under `Service/Crud/Resource`, production runtime callers wired to it, a non-owning compatibility facade retained solely because destructive operations are forbidden, corrected route documentation linkage, and a conflict-free integration PR.
 
 ### Что осталось?
-Final branch/PR acceptance: inspect final diff, checks/status, mergeability, and leave exact verification limitations if no CI runner is available.
+Run the repository quality gates in the authoritative workspace or CI (`composer validate`, `composer run check:cruding`, PHPUnit, Symfony/container/YAML checks, applicable Gating). If green, PR #5 is ready for merge; no further implementation work is currently identified.
