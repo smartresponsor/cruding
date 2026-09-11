@@ -62,7 +62,7 @@ services:
         public: true
         tags: ['controller.service_arguments']
         arguments:
-            $routeMapMatcher: '@App\Cruding\Service\Crud\CrudRouteMapMatcher'
+            $routeMapMatcher: '@App\Cruding\Service\Crud\Resource\CrudRouteMapMatcher'
 
     App\Cruding\Controller\Api\Crud\CrudApiController:
         public: true
