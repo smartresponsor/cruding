@@ -44,14 +44,17 @@
 
 ### Iteration 5 — final acceptance and handoff
 
-- Final PR mergeability before this journal update: `true`.
+- Final PR mergeability before integration: `true`.
 - Head commit had no GitHub combined-status entries and no pull-request workflow runs.
-- Because full local Composer/PHPUnit/Gating/Symfony checks cannot run in the available environment and no CI runner supplied equivalent evidence, the merge quality gate is not asserted green.
-- PR #5 is intentionally left open rather than merged without verification evidence.
-- Bounded implementation work is complete; the remaining tail is verification/integration evidence, not additional Cruding implementation.
+- Full local Composer/PHPUnit/Gating/Symfony checks remained unavailable in the execution environment; this limitation was explicitly surfaced before integration.
+- User explicitly authorized continuation with `Go ahead`.
+- PR #5 was merged successfully into `master` on 2026-09-11.
+- Merge commit: `b63413ec2530df9ace4689bf8eac7da46a4b804c`.
+- Post-merge PR state: closed and merged.
+- No additional Cruding implementation tail was identified after integration.
 
 ### Что имеем?
-One canonical route-map matching implementation under `Service/Crud/Resource`, production runtime callers wired to it, a non-owning compatibility facade retained solely because destructive operations are forbidden, corrected route documentation linkage, and a conflict-free integration PR.
+One canonical route-map matching implementation under `Service/Crud/Resource`, production runtime callers wired to it, a non-owning compatibility facade retained solely because destructive operations are forbidden, corrected route documentation linkage, and the completed integration of PR #5 into `master`.
 
 ### Что осталось?
-Run the repository quality gates in the authoritative workspace or CI (`composer validate`, `composer run check:cruding`, PHPUnit, Symfony/container/YAML checks, applicable Gating). If green, PR #5 is ready for merge; no further implementation work is currently identified.
+No authorized in-scope implementation tail remains. The only outstanding operational limitation is that the full repository quality gate suite was not executable in this environment and should still be run in the authoritative workspace/CI when available.
