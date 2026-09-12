@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\ServiceInterface\Resource;
 
 use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 
 /**
  * Producer-side provider for resource-bound view routes.

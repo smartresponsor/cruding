@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Resource;
 
+use App\Cruding\Normalizer\Resource\CrudRouteValueNormalizer;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,7 +33,7 @@ final readonly class CrudRouteSegmentReader
     /**
      * @param list<string> $segments
      *
-     * @return list<array{value: string|int|null, dynamic: bool, name: ?string}>
+     * @return list<array{value: string|int|null, dynamic: bool, nameEntity: ?string}>
      */
     public function segmentValues(array $segments, Request $request): array
     {

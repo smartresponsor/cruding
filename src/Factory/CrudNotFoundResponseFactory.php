@@ -13,32 +13,39 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final readonly class CrudNotFoundResponseFactory
 {
-    /**      * Executes the create operation.      */
+    /** @param array<string, mixed> $metadata */
     public function create(Request $request, string $reason, array $metadata = []): Response
     {
         return new JsonResponse([
             'ok' => false,
             'component' => 'cruding',
             'reason' => $reason,
-            'resourcePath' => (string) $request->attributes->get('resourcePath', ''),
-            'operation' => (string) $request->attributes->get('_crud_operation', 'unknown'),
-            'view' => (string) $request->attributes->get('_crud_view', 'public'),
+            'resourcePath' => $this->attributeString($request, 'resourcePath', ''),
+            'operation' => $this->attributeString($request, '_crud_operation', 'unknown'),
+            'view' => $this->attributeString($request, '_crud_view', 'public'),
             'diagnostics' => $this->diagnostics($request, $metadata),
         ], Response::HTTP_NOT_FOUND);
     }
 
-    /**      * Executes the bad request operation.      */
+    /** @param array<string, mixed> $metadata */
     public function badRequest(Request $request, string $reason, array $metadata = []): Response
     {
         return new JsonResponse([
             'ok' => false,
             'component' => 'cruding',
             'reason' => $reason,
-            'resourcePath' => (string) $request->attributes->get('resourcePath', ''),
-            'operation' => (string) $request->attributes->get('_crud_operation', 'unknown'),
-            'view' => (string) $request->attributes->get('_crud_view', 'public'),
+            'resourcePath' => $this->attributeString($request, 'resourcePath', ''),
+            'operation' => $this->attributeString($request, '_crud_operation', 'unknown'),
+            'view' => $this->attributeString($request, '_crud_view', 'public'),
             'diagnostics' => $this->diagnostics($request, $metadata),
         ], Response::HTTP_BAD_REQUEST);
+    }
+
+    private function attributeString(Request $request, string $name, string $default): string
+    {
+        $value = $request->attributes->get($name, $default);
+
+        return is_scalar($value) ? (string) $value : $default;
     }
 
     /**

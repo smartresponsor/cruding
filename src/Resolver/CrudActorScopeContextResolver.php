@@ -42,18 +42,15 @@ final readonly class CrudActorScopeContextResolver
 
         $userId = $this->readScalarByMethods($user, ['getId', 'id']);
         $userSlug = $this->readScalarByMethods($user, ['getObjectSlug', 'getSlug', 'slug']);
-        $userIdentifier = method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : null;
-        $userIdentifier = is_scalar($userIdentifier) ? (string) $userIdentifier : null;
+        $userIdentifier = $user->getUserIdentifier();
 
         $request->attributes->set('_crud_actor_user_id', $userId);
         $request->attributes->set('_crud_actor_user_slug', $userSlug);
         $request->attributes->set('_crud_actor_user_identifier', $userIdentifier);
 
         $frontendIdentity = $userSlug ?? $userIdentifier;
-        if (null !== $frontendIdentity) {
-            $request->attributes->set('_crud_actor_identity_field', null !== $userSlug ? 'user_slug' : 'user_identifier');
-            $request->attributes->set('_crud_actor_identity_value', $frontendIdentity);
-        }
+        $request->attributes->set('_crud_actor_identity_field', null !== $userSlug ? 'user_slug' : 'user_identifier');
+        $request->attributes->set('_crud_actor_identity_value', $frontendIdentity);
 
         if ($isAdmin && null !== $userId) {
             $request->attributes->set('_crud_actor_admin_identity_field', 'user_id');

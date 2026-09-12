@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 use App\Cruding\DTO\Runtime\CrudRuntimeLockDTO;
+use App\Cruding\Normalizer\Runtime\CrudRuntimeTokenNormalizer;
 
 /**
  * Reads runtime lock reader data required by Cruding.
@@ -83,8 +84,13 @@ final readonly class CrudRuntimeLockReader
     private function loadArray(string $path): array
     {
         $payload = require $path;
+        if (!is_array($payload)) {
+            return [];
+        }
+        /** @var array<string, mixed> $typedPayload */
+        $typedPayload = $payload;
 
-        return is_array($payload) ? $payload : [];
+        return $typedPayload;
     }
 
     /**

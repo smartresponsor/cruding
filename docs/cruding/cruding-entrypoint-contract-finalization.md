@@ -25,9 +25,9 @@ The stable public entrypoint API consists of:
 - `CrudPutServiceInterface`
 - `CrudPatchServiceInterface`
 - `CrudDeleteServiceInterface`
-- `AbstractCrudService`
-- `PassiveCrudService`
-- `NullCrudService`
+- `CrudAbstractService`
+- `CrudPassiveService`
+- `CrudNullService`
 
 ## HTTP method hooks
 

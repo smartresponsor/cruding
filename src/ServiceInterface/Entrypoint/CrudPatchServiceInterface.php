@@ -6,7 +6,7 @@ namespace App\Cruding\ServiceInterface\Entrypoint;
 
 use App\Cruding\DTO\Entrypoint\CrudServiceContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceResultDTO;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

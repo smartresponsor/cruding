@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\Api;
 
 use App\Cruding\EventSubscriber\CrudApiExceptionSubscriber;
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Factory\Api\CrudApiProblemResponseFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -30,6 +30,7 @@ final class CrudApiExceptionSubscriberTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
         self::assertSame('application/problem+json', $response->headers->get('Content-Type'));
         $payload = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
         self::assertSame('Not Found', $payload['title']);
         self::assertSame('product', $payload['resourcePath']);
     }

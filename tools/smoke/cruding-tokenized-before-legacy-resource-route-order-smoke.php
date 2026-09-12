@@ -22,13 +22,13 @@ foreach (['cruding_api_crud:', 'cruding_crud:', 'cruding_resource:'] as $obsolet
     }
 }
 
-$crudRoutes = file_get_contents($root.'/config/routes/cruding_crud.yaml');
+$crudRoutes = file_get_contents($root.'/config/routes/crud_crud.yaml');
 if (!is_string($crudRoutes) || !str_contains($crudRoutes, 'cruding_tokenized_catch_all')) {
     fwrite(STDERR, "cruding tokenized catch-all grammar reference is missing.\n");
     exit(1);
 }
 
-$viewRoutes = file_get_contents($root.'/config/routes/cruding_resource.yaml');
+$viewRoutes = file_get_contents($root.'/config/routes/crud_resource.yaml');
 if (!is_string($viewRoutes) || !str_contains($viewRoutes, 'cruding_resource_action')) {
     fwrite(STDERR, "legacy resource route grammar should remain available as fallback reference.\n");
     exit(1);

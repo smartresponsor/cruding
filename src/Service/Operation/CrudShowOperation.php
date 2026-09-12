@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Operation;
 
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
+use App\Cruding\Policy\CrudReservedRouteTokenPolicy;
 use App\Cruding\Runner\CrudServiceRunner;
-use App\Cruding\Service\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Operation\CrudShowOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -41,8 +41,10 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
     {
         $reservedTokenReason = $this->reservedTokenReason($request);
         if (null !== $reservedTokenReason) {
+            $slug = $request->attributes->get('slug', '');
+
             return $this->notFoundResponseFactory->create($request, $reservedTokenReason, [
-                'token' => (string) $request->attributes->get('slug', ''),
+                'token' => is_scalar($slug) ? (string) $slug : '',
                 'reservedviewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
                 'reservedOperationTokens' => $this->reservedRouteTokenPolicy->operationTokens(),
                 'interpretation' => 'Classic CRUD show grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
@@ -56,7 +58,8 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            $implicitReason = (string) $request->attributes->get('_crud_implicit_object_reason', 'crud_resource_not_found');
+            $implicitReasonValue = $request->attributes->get('_crud_implicit_object_reason', 'crud_resource_not_found');
+            $implicitReason = is_scalar($implicitReasonValue) ? (string) $implicitReasonValue : 'crud_resource_not_found';
             if ('authentication_required' === $implicitReason) {
                 throw new AccessDeniedException('Authentication is required to resolve the current resource.');
             }
@@ -86,7 +89,8 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
 
     private function reservedTokenReason(Request $request): ?string
     {
-        if ('show' !== (string) $request->attributes->get('_crud_operation', '')) {
+        $operation = $request->attributes->get('_crud_operation', '');
+        if (!is_scalar($operation) || 'show' !== (string) $operation) {
             return null;
         }
 

@@ -32,7 +32,12 @@ final readonly class CrudCreateWorkItemInitializer
             return $this->notFoundResponseFactory->create($request, 'crud_context_not_found');
         }
 
-        $object = $this->objectFactory->create($context->entityClass);
+        $entityClass = $context->entityClass;
+        if ('' === $entityClass) {
+            return $this->notFoundResponseFactory->create($request, 'crud_entity_class_not_found');
+        }
+        /** @var class-string $entityClass */
+        $object = $this->objectFactory->create($entityClass);
         $this->accessContextBuilder->build($context, $object);
 
         return new CrudCreateWorkItem($context, $object);

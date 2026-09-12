@@ -37,7 +37,9 @@ final readonly class CrudApiDeleteOperation implements CrudApiDeleteOperationInt
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+            $resourcePath = $request->attributes->get('resourcePath', '');
+
+            return $this->apiResponder->notFound(is_scalar($resourcePath) ? (string) $resourcePath : '');
         }
 
         $object = $this->objectFinder->findOne($context);

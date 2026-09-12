@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Operation\Create;
 
 use App\Cruding\Runner\CrudServiceRunner;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

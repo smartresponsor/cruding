@@ -6,13 +6,13 @@ namespace App\Cruding\Controller;
 
 use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Resolver\Resource\CrudResourceServiceResolver;
+use App\Cruding\Resolver\Resource\CrudRouteShapeResolver;
 use App\Cruding\Service\Resource\CrudResourceGenericFallback;
 use App\Cruding\Service\Resource\CrudResourceProviderLocator;
 use App\Cruding\Service\Resource\CrudResourceServiceInvoker;
-use App\Cruding\Service\Resource\CrudResourceServiceResolver;
-use App\Cruding\Service\Resource\CrudRouteShapeResolver;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -85,10 +85,12 @@ final class CrudResourceController extends AbstractController
             return $view;
         }
 
+        $matchedRoute = $request->attributes->get('_route');
+        $routeName = is_string($matchedRoute) ? $matchedRoute : '';
         $metadata = [
             'path' => $request->getPathInfo(),
-            'matchedRoute' => $request->attributes->get('_route'),
-            'routeFamily' => str_starts_with((string) $request->attributes->get('_route', ''), 'cruding_resource_') ? 'resource' : 'unknown',
+            'matchedRoute' => $matchedRoute,
+            'routeFamily' => str_starts_with($routeName, 'cruding_resource_') ? 'resource' : 'unknown',
             'routeParameters' => $this->routeParameters($request),
             'meaning' => 'Resource grammar was recognized, but no route-map service, FQCN service, provider, or generic fallback could serve it.',
             'routeContext' => $routeContext->toArray(),

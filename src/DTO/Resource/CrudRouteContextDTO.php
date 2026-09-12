@@ -18,6 +18,7 @@ final readonly class CrudRouteContextDTO
      * @param array<string, string|int|null> $routeParameters
      * @param list<string>                   $providerKeys
      * @param list<string>                   $templateCandidates diagnostic folder/index hints only, not a runtime render contract
+     * @param array<string, mixed>|null      $routeMapEntry
      */
     public function __construct(
         public string $resource,

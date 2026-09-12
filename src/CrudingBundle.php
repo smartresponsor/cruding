@@ -24,7 +24,7 @@ final class CrudingBundle extends Bundle
     }
 
     /**      * Returns container extension.      */
-    public function getContainerExtension(): ?ExtensionInterface
+    public function getContainerExtension(): ExtensionInterface
     {
         return parent::getContainerExtension() ?? new CrudingExtension();
     }

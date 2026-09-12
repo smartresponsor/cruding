@@ -142,7 +142,15 @@ final class CrudRuntimeRouteMatchSmokeCommand extends Command
     private function match(string $path): ?array
     {
         try {
-            return $this->router->match($path);
+            $rawMatch = $this->router->match($path);
+            $match = [];
+            foreach ($rawMatch as $key => $value) {
+                if (is_string($key)) {
+                    $match[$key] = $value;
+                }
+            }
+
+            return $match;
         } catch (ResourceNotFoundException) {
             return null;
         }

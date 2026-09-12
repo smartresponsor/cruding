@@ -6,8 +6,8 @@ namespace App\Cruding\Command;
 
 use App\Cruding\Controller\CrudResourceController;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Resolver\Resource\CrudRouteShapeResolver;
 use App\Cruding\Service\Resource\CrudResourceProviderLocator;
-use App\Cruding\Service\Resource\CrudRouteShapeResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -113,6 +113,10 @@ final class CrudResourceDebugMapCommand extends Command
         $attributes = ['_route' => $nameEntity];
 
         foreach ($route->compile()->getVariables() as $variable) {
+            if (!is_string($variable)) {
+                continue;
+            }
+
             $value = $this->sampleValue($variable);
             $attributes[$variable] = $value;
             $path = str_replace('{'.$variable.'}', (string) $value, $path);
@@ -138,7 +142,7 @@ final class CrudResourceDebugMapCommand extends Command
             'subject' => 'sample-subject',
             'view' => 'compliance',
             'item' => 'sample-item',
-            'token', 'ViewToken', 'widgetToken' => 'show',
+            'token', 'viewtoken', 'widgettoken' => 'show',
             'action' => 'briefing',
             default => str_ends_with($lower, 'slug') ? $this->sampleSlug($lower) : 'demo-'.$this->tokenize($variable),
         };

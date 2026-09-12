@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
+use App\Cruding\Normalizer\Runtime\CrudRuntimeTokenNormalizer;
+
 /**
  * Reads runtime view token reader data required by Cruding.
  */

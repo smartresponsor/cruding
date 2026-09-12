@@ -135,7 +135,7 @@ final class CrudEntityClassResolverTest extends TestCase
     }
 
     /**
-     * @param list<class-string> $classes
+     * @param list<string> $classes
      */
     private function buildRegistry(array $classes): ManagerRegistry
     {

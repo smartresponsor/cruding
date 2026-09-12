@@ -6,7 +6,7 @@ namespace App\Cruding\Service\Operation;
 
 use App\Cruding\Service\Operation\Create\CrudCreateFlow;
 use App\Cruding\ServiceInterface\Operation\CrudCreateOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

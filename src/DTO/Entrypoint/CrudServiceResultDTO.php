@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\DTO\Entrypoint;
 
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -34,25 +34,33 @@ final readonly class CrudServiceResultDTO
     ) {
     }
 
-    /**      * Executes the continue default operation.      */
+    /**
+     * @param array<string, mixed> $diagnostics
+     */
     public static function continueDefault(string $status = self::STATUS_CONTINUE_DEFAULT, array $diagnostics = []): self
     {
         return new self(null, null, true, $status, $diagnostics);
     }
 
-    /**      * Executes the response operation.      */
+    /**
+     * @param array<string, mixed> $diagnostics
+     */
     public static function response(Response $response, string $status = self::STATUS_RESPONSE, array $diagnostics = []): self
     {
         return new self($response, null, false, $status, $diagnostics);
     }
 
-    /**      * Executes the view contract operation.      */
+    /**
+     * @param array<string, mixed> $diagnostics
+     */
     public static function viewContract(CrudResourceContract $contract, string $status = self::STATUS_VIEW_CONTRACT, array $diagnostics = []): self
     {
         return new self(null, $contract, false, $status, $diagnostics);
     }
 
-    /**      * Executes the not grounded operation.      */
+    /**
+     * @param array<string, mixed> $diagnostics
+     */
     public static function notGrounded(array $diagnostics = []): self
     {
         return new self(null, null, true, self::STATUS_NOT_GROUNDED, $diagnostics);
@@ -65,12 +73,19 @@ final readonly class CrudServiceResultDTO
             return $this;
         }
 
+        $mergedDiagnostics = [];
+        foreach (array_replace_recursive($this->diagnostics, $diagnostics) as $key => $value) {
+            if (is_string($key)) {
+                $mergedDiagnostics[$key] = $value;
+            }
+        }
+
         return new self(
             $this->response,
             $this->viewContract,
             $this->continueDefault,
             $this->status,
-            array_replace_recursive($this->diagnostics, $diagnostics),
+            $mergedDiagnostics,
         );
     }
 

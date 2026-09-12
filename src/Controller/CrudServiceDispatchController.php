@@ -8,7 +8,7 @@ use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
 use App\Cruding\Runner\CrudServiceRunner;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +34,8 @@ final class CrudServiceDispatchController extends AbstractController
         }
 
         $request->attributes->set('_crud_operation', $operation);
-        $request->attributes->set('_crud_view', (string) $request->attributes->get('_crud_view', 'public'));
+        $view = $request->attributes->get('_crud_view', 'public');
+        $request->attributes->set('_crud_view', is_scalar($view) ? (string) $view : 'public');
 
         $context = $this->contextResolver->tryResolve($request) ?? $this->syntheticContext($request, $operation);
         $result = $this->entrypointRunner->run($request, $context);
@@ -64,14 +65,16 @@ final class CrudServiceDispatchController extends AbstractController
     {
         $identifierField = $request->attributes->has('id') ? 'id' : 'slug';
         $identifierValue = $request->attributes->get($identifierField);
+        $view = $request->attributes->get('_crud_view', 'public');
+        $resourcePath = $request->attributes->get('resourcePath', '');
 
         return new CrudContextDTO(
-            view: (string) $request->attributes->get('_crud_view', 'public'),
+            view: is_scalar($view) ? (string) $view : 'public',
             operation: $operation,
-            resourcePath: trim((string) $request->attributes->get('resourcePath', ''), '/'),
+            resourcePath: is_scalar($resourcePath) ? trim((string) $resourcePath, '/') : '',
             entityClass: '',
             identifierField: $identifierField,
-            identifierValue: is_scalar($identifierValue) ? $identifierValue : null,
+            identifierValue: is_int($identifierValue) || is_string($identifierValue) ? $identifierValue : null,
             formTypeClass: null,
         );
     }

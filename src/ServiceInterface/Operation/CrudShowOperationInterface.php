@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\ServiceInterface\Operation;
 
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

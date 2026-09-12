@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Operation;
 
-use App\Cruding\Dispatcher\CrudServiceDispatcher;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Resource\CrudResourceContractFactory;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
+use App\Cruding\Service\Entrypoint\CrudServiceDispatcher;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Entrypoint\CrudServiceDispatcherInterface;
 use App\Cruding\ServiceInterface\Operation\CrudIndexOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -6,7 +6,7 @@ namespace App\Cruding\Service\Resource;
 
 use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
 use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

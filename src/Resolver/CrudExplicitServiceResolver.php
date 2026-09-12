@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class CrudExplicitServiceResolver
 {
     /**
-     * @return list<non-empty-string>
+     * @return list<string>
      */
     public function candidateServiceIds(Request $request, CrudContextDTO $context): array
     {

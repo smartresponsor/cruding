@@ -26,7 +26,7 @@ final readonly class CrudIdentifierReader
         if (method_exists($object, $getter)) {
             $value = $object->{$getter}();
 
-            return is_scalar($value) ? $value : null;
+            return is_int($value) || is_string($value) ? $value : null;
         }
 
         return null;

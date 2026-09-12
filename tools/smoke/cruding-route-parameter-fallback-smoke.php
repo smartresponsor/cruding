@@ -5,9 +5,9 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 $servicesPath = $root.'/config/services.yaml';
 $routes = [
-    $root.'/config/routes/cruding_crud.yaml',
-    $root.'/config/routes/cruding_api_crud.yaml',
-    $root.'/config/routes/cruding_resource.yaml',
+    $root.'/config/routes/crud_crud.yaml',
+    $root.'/config/routes/crud_api_crud.yaml',
+    $root.'/config/routes/crud_resource.yaml',
 ];
 
 $services = file_get_contents($servicesPath);

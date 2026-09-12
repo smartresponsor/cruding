@@ -8,18 +8,18 @@ $requiredFiles = [
     'src/DTO/Entrypoint/CrudServiceContextDTO.php',
     'src/DTO/Entrypoint/CrudServiceResultDTO.php',
     'src/DTO/Entrypoint/CrudServiceResolutionDTO.php',
-    'src/Service/AbstractCrudService.php',
-    'src/Service/AbstractCrudIndexService.php',
-    'src/Service/AbstractCrudShowService.php',
-    'src/Service/AbstractCrudCreateService.php',
-    'src/Service/AbstractCrudEditService.php',
+    'src/Service/CrudAbstractService.php',
+    'src/Service/CrudAbstractIndexService.php',
+    'src/Service/CrudAbstractShowService.php',
+    'src/Service/CrudAbstractCreateService.php',
+    'src/Service/CrudAbstractEditService.php',
     'src/Service/CrudDefaultServiceBehavior.php',
     'src/Service/CrudDefaultServiceRegistry.php',
-    'src/Service/DefaultCrudService.php',
-    'src/Service/DefaultCrudIndexService.php',
-    'src/Service/DefaultCrudShowService.php',
-    'src/Service/DefaultCrudCreateService.php',
-    'src/Service/DefaultCrudEditService.php',
+    'src/Service/CrudDefaultService.php',
+    'src/Service/CrudDefaultIndexService.php',
+    'src/Service/CrudDefaultShowService.php',
+    'src/Service/CrudDefaultCreateService.php',
+    'src/Service/CrudDefaultEditService.php',
     'src/ServiceInterface/Entrypoint/CrudServiceBehaviorInterface.php',
 ];
 
@@ -60,7 +60,7 @@ assert([
     'VendorIndexService',
 ] === $componentCandidates, 'Component entrypoint short service name must be derived.');
 
-$abstract = file_get_contents($root.'/src/Service/AbstractCrudService.php');
+$abstract = file_get_contents($root.'/src/Service/CrudAbstractService.php');
 $behavior = file_get_contents($root.'/src/Service/CrudDefaultServiceBehavior.php');
 $registry = file_get_contents($root.'/src/Service/CrudDefaultServiceRegistry.php');
 $resolver = file_get_contents($root.'/src/Resolver/CrudServiceResolver.php');
@@ -79,7 +79,7 @@ assert(false !== $behavior && str_contains($behavior, "'show' =>"), 'Default beh
 assert(false !== $behavior && str_contains($behavior, "'new', 'create' =>"), 'Default behavior must implement create flow.');
 assert(false !== $behavior && str_contains($behavior, "'edit', 'update' =>"), 'Default behavior must implement edit flow.');
 assert(false !== $behavior && str_contains($behavior, 'crud_operation_not_supported'), 'Unknown operations must end safely.');
-assert(false !== $registry && str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide an index object.');
-assert(false !== $registry && str_contains($registry, 'DefaultCrudService'), 'Registry must provide a generic terminal object.');
+assert(false !== $registry && str_contains($registry, 'CrudDefaultIndexService'), 'Registry must provide an index object.');
+assert(false !== $registry && str_contains($registry, 'CrudDefaultService'), 'Registry must provide a generic terminal object.');
 
 fwrite(STDOUT, "PASS: entrypoints resolve explicit service, component FQCN, host FQCN, or contextual default behavior.\n");
