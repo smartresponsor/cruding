@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
-use App\Cruding\Dto\Runtime\CrudRuntimeDecisionReport;
+use App\Cruding\DTO\Runtime\CrudRuntimeDecisionReportDTO;
 
 /**
- * Validates the runtime decision across env-derived route policy, composer inventory, and runtime lock files.
+ * Enforces runtime decision guard rules at the Cruding runtime boundary.
  */
 final readonly class CrudRuntimeDecisionGuard
 {
-    /**
-     * @param array<string, string> $expectedPackageByScopeToken
-     */
+    /** @param array<string, string> $expectedPackageByScopeToken */
     public function __construct(
         private CrudRuntimeRouteGuard $routeGuard,
         private CrudRuntimeLockReader $lockReader,
@@ -24,12 +22,12 @@ final readonly class CrudRuntimeDecisionGuard
     ) {
     }
 
-    public function report(): CrudRuntimeDecisionReport
+    /**      * Executes the report operation.      */
+    public function report(): CrudRuntimeDecisionReportDTO
     {
         $policy = $this->routeGuard->policy();
         $lock = $this->lockReader->read();
         $composer = $this->composerInventoryReader->read();
-
         $errors = [];
         $warnings = [];
 
@@ -56,7 +54,7 @@ final readonly class CrudRuntimeDecisionGuard
         if ($lock->found) {
             $errors = array_merge($errors, $this->missingFromLock('APP_RUNTIME_SCOPE', $policy->scopeTokens, $lock->scopeTokens));
             $errors = array_merge($errors, $this->missingFromLock('APP_RUNTIME_ENTITY', $policy->entityTokens, $lock->entityTokens));
-            $warnings = array_merge($warnings, $this->missingFromLock('APP_RUNTIME_VIEW_TOKEN', $policy->viewTokens, $lock->viewTokens, true));
+            $warnings = array_merge($warnings, $this->missingFromLock('APP_RUNTIME_VIEW_TOKEN', $policy->viewTokens, $lock->viewTokens));
         }
 
         foreach ($policy->scopeTokens as $scopeToken) {
@@ -76,20 +74,22 @@ final readonly class CrudRuntimeDecisionGuard
             }
         }
 
-        if ($lock->found && [] !== $lock->packageNames) {
+        if ($lock->found) {
             foreach ($lock->packageNames as $packageName) {
-                if (!$composer->hasPackage($packageName)) {
-                    $message = sprintf('Runtime lock package "%s" is not declared/installed in composer inventory.', $packageName);
-                    if ($this->requireComposerPackages) {
-                        $errors[] = $message;
-                    } else {
-                        $warnings[] = $message;
-                    }
+                if ($composer->hasPackage($packageName)) {
+                    continue;
+                }
+
+                $message = sprintf('Runtime lock package "%s" is not declared/installed in composer inventory.', $packageName);
+                if ($this->requireComposerPackages) {
+                    $errors[] = $message;
+                } else {
+                    $warnings[] = $message;
                 }
             }
         }
 
-        return new CrudRuntimeDecisionReport(
+        return new CrudRuntimeDecisionReportDTO(
             routePolicy: $policy,
             runtimeLock: $lock,
             composerInventory: $composer,
@@ -105,7 +105,7 @@ final readonly class CrudRuntimeDecisionGuard
      *
      * @return list<string>
      */
-    private function missingFromLock(string $label, array $requestedTokens, array $lockedTokens, bool $warningOnly = false): array
+    private function missingFromLock(string $label, array $requestedTokens, array $lockedTokens): array
     {
         if ([] === $requestedTokens || [] === $lockedTokens) {
             return [];
@@ -122,11 +122,7 @@ final readonly class CrudRuntimeDecisionGuard
         return $messages;
     }
 
-    /**
-     * @param list<string> $messages
-     *
-     * @return list<string>
-     */
+    /** @param list<string> $messages @return list<string> */
     private function unique(array $messages): array
     {
         $unique = [];

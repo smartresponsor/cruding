@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
-use App\Cruding\Dto\Resource\CrudResourceRequest;
-use App\Cruding\Dto\Resource\CrudRouteContext;
-use App\Cruding\Service\Crud\Resource\CrudResourceProviderLocator;
-use App\Cruding\ServiceInterface\Crud\Resource\CrudResourceProviderInterface;
+use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
+use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Service\Resource\CrudResourceProviderLocator;
+use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
 use App\Cruding\Value\Resource\CrudResourceContract;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ final class CrudResourceProviderLocatorTest extends TestCase
     {
         $provider = new AlphaComplianceBriefingview();
         $locator = new CrudResourceProviderLocator([$provider]);
-        $context = new CrudRouteContext(
+        $context = new CrudRouteContextDTO(
             resource: 'alpha',
             resourcePath: 'alpha',
             operation: 'briefing',
@@ -43,7 +43,7 @@ final class CrudResourceProviderLocatorTest extends TestCase
 
 final class AlphaComplianceBriefingview implements CrudResourceProviderInterface
 {
-    public function provide(CrudResourceRequest $request): CrudResourceContract
+    public function provide(CrudResourceRequestDTO $request): CrudResourceContract
     {
         return CrudResourceContract::forResource(
             $request->routeContext->view,

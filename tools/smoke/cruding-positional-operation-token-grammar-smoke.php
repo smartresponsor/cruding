@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
+$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
 $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
 
 assert(!str_contains($routes, '/{resourcePath}/edit/{id}'), 'Static positional operation routes must be removed.');

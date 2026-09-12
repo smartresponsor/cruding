@@ -6,11 +6,11 @@ This pass keeps the stabilized URI-derived entrypoint model and adds two compati
 
 Cruding still prefers explicit HTTP method hooks:
 
-- `get(CrudServiceContext $context)`
-- `post(CrudServiceContext $context)`
-- `put(CrudServiceContext $context)`
-- `patch(CrudServiceContext $context)`
-- `delete(CrudServiceContext $context)`
+- `get(CrudServiceContextDTO $context)`
+- `post(CrudServiceContextDTO $context)`
+- `put(CrudServiceContextDTO $context)`
+- `patch(CrudServiceContextDTO $context)`
+- `delete(CrudServiceContextDTO $context)`
 
 If no method-specific hook returns a payload and the resolved entrypoint is publicly invokable, Cruding calls the legacy `__invoke()` fallback with the Symfony request object.
 

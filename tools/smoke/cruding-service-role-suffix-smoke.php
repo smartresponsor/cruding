@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$root = dirname(__DIR__, 2).'/src/Service/Crud';
+$root = dirname(__DIR__, 2).'/src/Service';
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
 
 foreach ($iterator as $file) {

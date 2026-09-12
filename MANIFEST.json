@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "name": "Cruding",
+  "package": "cruding/crud",
+  "type": "symfony-bundle",
+  "namespace": "App\\Cruding\\",
+  "runtime": {
+    "php": "^8.4",
+    "symfony": "^8.1"
+  },
+  "responsibility": [
+    "generic CRUD route processing",
+    "tokenized CRUD route grammar",
+    "entity and form resolution",
+    "CRUD operation dispatch",
+    "resource-view payload production",
+    "API problem responses",
+    "runtime route policy and diagnostics"
+  ],
+  "boundaries": {
+    "owns": [
+      "generic CRUD controllers",
+      "generic CRUD routes",
+      "CRUD route parsing and operation selection",
+      "component-level CRUD diagnostics"
+    ],
+    "doesNotOwn": [
+      "platform menus",
+      "external callbacks and webhooks",
+      "host application shell styling",
+      "final cross-component HTML rendering"
+    ]
+  },
+  "quality": {
+    "primaryCheck": "composer check:cruding",
+    "phpdocCoverage": "100% named source types and public behavior methods"
+  },
+  "documentation": {
+    "readme": "README.adoc",
+    "index": "docs/cruding/README.adoc"
+  }
+}

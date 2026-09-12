@@ -15,9 +15,9 @@ The existing explicit service lookup remains first priority.
 
 The stable public entrypoint API consists of:
 
-- `CrudServiceContext`
-- `CrudServiceResult`
-- `CrudServiceResolution`
+- `CrudServiceContextDTO`
+- `CrudServiceResultDTO`
+- `CrudServiceResolutionDTO`
 - `CrudServiceInterface`
 - `CrudGroundedServiceInterface`
 - `CrudGetServiceInterface`
@@ -54,7 +54,7 @@ A concrete entrypoint may implement only the hooks it needs. Missing hooks conti
 
 ## Status constants
 
-Status values are defined by constants on `CrudServiceResult` and `CrudServiceResolution`. New code should not introduce ad-hoc status string literals inside the entrypoint runtime.
+Status values are defined by constants on `CrudServiceResultDTO` and `CrudServiceResolutionDTO`. New code should not introduce ad-hoc status string literals inside the entrypoint runtime.
 
 ## Non-goals
 

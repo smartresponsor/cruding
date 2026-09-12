@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Resolver\Crud\CrudRouteNameResolver;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\Resolver\CrudRouteNameResolver;
 use PHPUnit\Framework\TestCase;
 
 final class CrudRouteNameResolverTest extends TestCase
@@ -13,7 +13,7 @@ final class CrudRouteNameResolverTest extends TestCase
     public function testAllUiLinksUseTokenizedCatchAllRoute(): void
     {
         $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'index', 'product', 'App\Cruding\Entity\Product', 'slug', null, null);
+        $context = new CrudContextDTO('public', 'index', 'product', 'App\Facting\Entity\Product', 'slug', null, null);
 
         self::assertSame('cruding_tokenized_catch_all', $resolver->resolveIndex($context));
         self::assertSame('cruding_tokenized_catch_all', $resolver->resolveNew($context));
@@ -25,7 +25,7 @@ final class CrudRouteNameResolverTest extends TestCase
     public function testParametersCarryTokenizedCrudPath(): void
     {
         $resolver = new CrudRouteNameResolver();
-        $context = new CrudContext('public', 'show', 'product/price', 'App\Cruding\Entity\Price', 'slug', 'gold', null);
+        $context = new CrudContextDTO('public', 'show', 'product/price', 'App\Facting\Entity\Price', 'slug', 'gold', null);
 
         self::assertSame(['crudPath' => 'product/price'], $resolver->parameters($context, null, null, 'index'));
         self::assertSame(['crudPath' => 'product/price/new'], $resolver->parameters($context, null, null, 'new'));

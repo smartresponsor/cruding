@@ -1,6 +1,6 @@
 cruding_view_token_item_action:
     path: /{resource}/{subject}/{view}/{token}/{item}/{action}
-    controller: App\Cruding\Controller\Crud\CrudResourceController
+    controller: App\Cruding\Controller\CrudResourceController
     methods: [GET]
     requirements:
         resource: '[a-z][a-z0-9_-]*'
@@ -12,7 +12,7 @@ cruding_view_token_item_action:
 
 cruding_view_token_item:
     path: /{resource}/{subject}/{view}/{token}/{item}
-    controller: App\Cruding\Controller\Crud\CrudResourceController
+    controller: App\Cruding\Controller\CrudResourceController
     methods: [GET]
     requirements:
         resource: '[a-z][a-z0-9_-]*'
@@ -23,7 +23,7 @@ cruding_view_token_item:
 
 cruding_resource_item_action:
     path: /{resource}/{subject}/{view}/{item}/{action}
-    controller: App\Cruding\Controller\Crud\CrudResourceController
+    controller: App\Cruding\Controller\CrudResourceController
     methods: [GET]
     requirements:
         resource: '[a-z][a-z0-9_-]*'
@@ -34,7 +34,7 @@ cruding_resource_item_action:
 
 cruding_resource_action:
     path: /{resource}/{subject}/{view}/{action}
-    controller: App\Cruding\Controller\Crud\CrudResourceController
+    controller: App\Cruding\Controller\CrudResourceController
     methods: [GET]
     requirements:
         resource: '[a-z][a-z0-9_-]*'
@@ -44,7 +44,7 @@ cruding_resource_action:
 
 cruding_resource_index:
     path: /{resource}/{subject}/{view}
-    controller: App\Cruding\Controller\Crud\CrudResourceController
+    controller: App\Cruding\Controller\CrudResourceController
     methods: [GET]
     requirements:
         resource: '[a-z][a-z0-9_-]*'

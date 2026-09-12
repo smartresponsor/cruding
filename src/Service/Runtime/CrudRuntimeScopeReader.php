@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 /**
- * Reads APP_RUNTIME_SCOPE-style component tokens.
+ * Reads runtime scope reader data required by Cruding.
  */
 final readonly class CrudRuntimeScopeReader
 {

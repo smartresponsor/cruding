@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$passivePath = $root.'/src/Service/Crud/PassiveCrudService.php';
-$abstractPath = $root.'/src/Service/Crud/AbstractCrudService.php';
+$passivePath = $root.'/src/Service/PassiveCrudService.php';
+$abstractPath = $root.'/src/Service/AbstractCrudService.php';
 
 $passive = file_get_contents($passivePath);
 $abstract = file_get_contents($abstractPath);

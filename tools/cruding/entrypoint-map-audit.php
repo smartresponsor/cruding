@@ -10,14 +10,14 @@ if (is_file($autoload)) {
 }
 
 foreach ([
-    'src/Dto/Crud/CrudContext.php',
-    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
+    'src/DTO/CrudContextDTO.php',
+    'src/Resolver/CrudServiceClassNameResolver.php',
 ] as $requiredFile) {
     require_once $root.'/'.$requiredFile;
 }
 
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\Resolver\CrudServiceClassNameResolver;
 
 $options = parseArguments($argv);
 $paths = $options['path'] ?? [];
@@ -34,7 +34,7 @@ $rows = [];
 
 foreach ($paths as $path) {
     $intent = resolveIntent((string) $path, $operationTokens);
-    $context = new CrudContext(
+    $context = new CrudContextDTO(
         view: (string) ($options['view'][0] ?? 'public'),
         operation: $intent['operation'],
         resourcePath: $intent['resourcePath'],

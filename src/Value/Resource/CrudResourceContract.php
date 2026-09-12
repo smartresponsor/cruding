@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Value\Resource;
 
+/**
+ * Provides the resource contract responsibility within the Cruding component.
+ */
 final readonly class CrudResourceContract
 {
     public const WORD = 'crud';

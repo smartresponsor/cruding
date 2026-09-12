@@ -3,7 +3,7 @@
 
 cruding_api_read:
     path: /api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    controller: App\Cruding\Controller\Api\CrudApiController
     methods: [GET]
     defaults: { _crud_view: public }
     requirements:
@@ -11,7 +11,7 @@ cruding_api_read:
 
 cruding_api_create:
     path: /api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    controller: App\Cruding\Controller\Api\CrudApiController
     methods: [POST]
     defaults: { _crud_view: public }
     requirements:
@@ -19,7 +19,7 @@ cruding_api_create:
 
 cruding_api_member_mutation:
     path: /api/{crudPath}
-    controller: App\Cruding\Controller\Api\Crud\CrudApiController
+    controller: App\Cruding\Controller\Api\CrudApiController
     methods: [PUT, PATCH, DELETE]
     defaults: { _crud_view: public }
     requirements:

@@ -1,26 +1,52 @@
 = Cruding
 
-Universal CRUD route processor and capability-resolution bundle for Symfony host applications.
+Universal CRUD route processor, route-grammar owner, capability resolver, and resource-payload producer for Symfony host applications.
 
-== Responsibility
+== Component identity
 
-Cruding owns CRUD route processing, resource-bound view route parsing, entity/form resolution, neutral browser view payloads, API responders, mutation guards, and minimal diagnostic fallback rendering. Resource-bound relation/object-meta/frontend view routes belong to Cruding when they can be expressed through the resource/subject/view/action grammar. Cruding still does not own platform menus, external callbacks, webhooks, health/metrics endpoints, or local application shell CSS.
+Cruding is a reusable Symfony bundle with the canonical PSR-4 root `App\Cruding\` mapped directly to `src/`. The component token remains visible in `Crud*` class names, while redundant intermediate `Crud/` directories are intentionally forbidden.
+
+The tree is role-first. Technical responsibilities such as `Controller`, `Resolver`, `Builder`, `Factory`, `Handler`, `Provider`, `Guard`, `Invoker`, `Dispatcher`, `Runner`, `Parser`, `Service`, and `ServiceInterface` appear before feature semantics. Inside `Service`, current semantic branches are `Api`, `Operation`, `Resource`, and `Runtime`.
+
+== Responsibility and boundaries
+
+Cruding owns:
+
+* generic CRUD route delivery and tokenized route grammar;
+* CRUD controller and API controller behavior;
+* entity, form, capability, ownership, and service resolution;
+* generic CRUD operation dispatch;
+* resource-bound view route parsing and neutral `CrudResourceContract` payload production;
+* API problem responses and mutation guards;
+* runtime route policy, lock/inventory inspection, and diagnostics.
+
+Cruding does not own platform menus, external callbacks or webhooks, host shell CSS, or the final cross-component HTML rendering boundary.
 
 == Bundle loading
 
-`CrudingExtension` loads `config/services.yaml` from the bundle and registers `templates/` as the `@Cruding` Twig namespace. Host applications may configure these options under the `cruding` extension key:
+`CrudingExtension` loads `config/services.yaml`; `CrudingBundle` installs the compiler-pass and bundle integration. Host applications configure Cruding through the `cruding` extension and mount the shipped route resources where generic CRUD processing belongs.
 
-* `resource_path_requirement`
-* `capability_map`
-* `entity_class_alias_map`
-* `form_type_map`
+The repository package is `cruding/crud`. Local host applications may install it through a Composer path repository during development.
 
-The shipped defaults keep the component usable as a CRUD route processor without requiring neighbour-component hardcode.
+== Routing contract
 
+Symfony routes are structural delivery routes. Semantic CRUD grammar is resolved in PHP rather than encoded as an expanding route-regex vocabulary. The tokenized resolver determines resource path, operation, view, and identity semantics after route delivery.
 
-== Resource-view routes
+Typical generic paths include:
 
-Cruding also exposes a read-oriented resource-view controller for routes that are not classic admin CRUD, but are still resource-bound. The route path is the declaration:
+[source,text]
+----
+/product/index
+/product/sample-entry
+/product/edit/123
+/product/document/verify/sample-entry
+----
+
+The host can verify the delivery boundary with `debug:router` and `router:match`; semantic interpretation is then observable through Cruding runtime diagnostics. See `docs/cruding/cruding-tokenized-route-resolver.md` and `docs/cruding/cruding-host-route-integration-verification.md`.
+
+== Resource-view contract
+
+Cruding also handles read-oriented routes whose semantics are still resource-bound:
 
 [source,text]
 ----
@@ -29,54 +55,47 @@ Cruding also exposes a read-oriented resource-view controller for routes that ar
 /{resource}/{subject}/{view}/{item}/{action}
 ----
 
-Examples:
+The resource controller resolves a `CrudRouteContextDTO`, locates a producer/provider, and returns `CrudResourceContract`. Producer providers must not cross the render boundary by returning Twig rendering or Symfony HTML responses.
 
-[source,text]
-----
-/vendor/acme-inc/compliance/briefing
-/vendor/acme-inc/document/w9-form/preview
-----
-
-The controller parses the route template into a `CrudRouteContext`, locates a producer provider by convention, and returns only `CrudResourceContract`. Producer providers implement `CrudResourceProviderInterface` and return a location-based payload. They must not render Twig or return Symfony `Response`/`JsonResponse`.
-
-If no producer provider exists, the view controller falls back only to generic read operations (`index`, `detail/show/view`). Mutation routes remain on the existing CRUD controllers.
+For resource-view routes, Cruding owns route tokens and payload production only. Viewing owns the final runtime render decision and may consume Interfacing templates when the host provides that integration. `templateCandidates` are diagnostic/template-location hints, not permission to reintroduce operation-specific rendering ownership into Cruding.
 
 See `docs/cruding/cruding-resource-view-routes.md`.
 
-== Viewing / Interfacing resource view rendering
+== Contracts and extension points
 
-For resource-view routes, Cruding is the producer-side route-token and payload owner only. It returns `CrudResourceContract`; it does not own the runtime Twig lookup, final fallback chain, or HTML response decision. Viewing owns the render boundary and may use Interfacing as a passive template tree when available. The canonical runtime fallback is:
-
-. `@Interfacing/<view-or-resource>/index.html.twig`
-. `@Interfacing/index.html.twig`
-. `@<Component>/index.html.twig`
-. `@Viewing/view/index.html.twig`
-
-Any `templateCandidates` exposed by `CrudRouteContext` are diagnostic folder/index hints for debug commands only. They are not a render contract and must not reintroduce operation-based Twig files such as `<operation>.html.twig`.
-
-== Routing/template contract
-
-Cruding declares its reusable resource-path route requirement through `cruding.resource_path_requirement`. The default requirement reserves only CRUD/meta operation path segments (`new`, `edit`, `delete`, `audit`, `visibility`, `attach`, `detach`) so the processor does not carry hard-coded neighbour or frontend-section exclusions such as profile/cart/vendor-specific rules. Host applications should mount Cruding where generic resource processing belongs.
-
-Incoming `resourcePath` values are normalized before entity lookup, route generation, and view rendering. Underscore aliases become hyphenated paths, duplicate slashes collapse, and paths are lowercased.
-
+* Service contracts live in `ServiceInterface/`; implementation/contract feature branches mirror each other where a true implementation contract exists.
+* Object capability contracts live in `Contract/Capability/`.
+* DTO classes live in `DTO/` and use the explicit `DTO` suffix.
+* Host applications provide concrete entities, repositories, forms, services, provider implementations, capability signals, and configuration maps rather than copying generic CRUD controllers.
 
 == Dependency policy
 
-Cruding must remain installable as a CRUD route processor without a hard Composer dependency on an Interfacing package. The integration boundary is the Twig namespace contract (`@Interfacing/...`) exposed by the host application when Interfacing is installed.
+Cruding must remain usable without hard coupling to optional neighboring UI components. Cross-component integration is expressed through explicit package/public contracts and host-provided namespaces or services, not by assuming neighboring source directories exist.
 
-For local validation use:
+`composer.lock` and `vendor/` are local development artifacts and are ignored by the repository. Runtime dependencies are declared by `composer.json`.
+
+== Quality contract
+
+The primary repository gate is:
 
 [source,powershell]
 ----
-composer update -W
+composer install
 composer validate --strict
 composer dump-autoload
-composer canon:cruding
-.\vendor\bin\phpunit
+composer check:cruding
 ----
 
+`composer check:cruding` runs canonical guards, smoke checks, DTO/tree/PHPDoc enforcement, and PHPUnit. PHPDoc coverage is required for every named source class/interface/trait/enum and every public behavior method other than constructors; specialized array-shape and generic type annotations remain part of the code contract.
 
-== W8 dependency/test seal
+Additional static-analysis and refactoring configuration is stored in `phpstan.neon`, `psalm.xml`, `rector.neon`, and `.php-cs-fixer.php`.
 
-Cruding intentionally keeps `composer.lock` as a local development artifact only. The repository ignores `/composer.lock` and `/vendor/`, while `composer.json` declares the runtime packages needed by the CRUD route processor, including Symfony Form support for optional host-provided form types.
+== Documentation and release surface
+
+* `docs/cruding/README.adoc` — documentation map and current-vs-history classification.
+* `docs/cruding/cruding-service-layout.md` — canonical tree and naming rules.
+* `CHANGELOG.md` — user-visible release changes.
+* `CONTRIBUTING.md` — contribution and quality workflow.
+* `SECURITY.md` — security reporting and regression expectations.
+* `MANIFEST.json` — machine-readable component identity and boundaries.
+* `LICENSE.md` — proprietary license notice aligned with `composer.json`.

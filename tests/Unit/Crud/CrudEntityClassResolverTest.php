@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Exception\Crud\CrudResourceNotFoundException;
-use App\Cruding\Parser\Crud\CrudResourcePathParser;
-use App\Cruding\Resolver\Crud\CrudEntityClassResolver;
+use App\Cruding\Exception\CrudResourceNotFoundException;
+use App\Cruding\Parser\CrudResourcePathParser;
+use App\Cruding\Resolver\CrudEntityClassResolver;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\ObjectManager;

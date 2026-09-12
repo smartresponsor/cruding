@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
-use App\Cruding\Dto\Runtime\CrudRuntimeComposerInventory;
+use App\Cruding\DTO\Runtime\CrudRuntimeComposerInventoryDTO;
 
 /**
- * Reads composer.json and composer.lock package inventory from the Symfony host project.
+ * Reads runtime composer inventory reader data required by Cruding.
  */
 final readonly class CrudRuntimeComposerInventoryReader
 {
@@ -16,12 +16,13 @@ final readonly class CrudRuntimeComposerInventoryReader
     ) {
     }
 
-    public function read(): CrudRuntimeComposerInventory
+    /**      * Executes the read operation.      */
+    public function read(): CrudRuntimeComposerInventoryDTO
     {
         $composerJsonPath = $this->projectDir.'/composer.json';
         $composerLockPath = $this->projectDir.'/composer.lock';
 
-        return new CrudRuntimeComposerInventory(
+        return new CrudRuntimeComposerInventoryDTO(
             projectDir: $this->projectDir,
             composerJsonPath: is_file($composerJsonPath) ? $composerJsonPath : null,
             composerLockPath: is_file($composerLockPath) ? $composerLockPath : null,
@@ -30,21 +31,19 @@ final readonly class CrudRuntimeComposerInventoryReader
         );
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function readComposerJsonPackageNames(string $path): array
     {
         $payload = $this->readJsonFile($path);
         $packages = [];
         foreach (['require', 'require-dev', 'replace', 'provide'] as $section) {
             $values = $payload[$section] ?? null;
-            if (!\is_array($values)) {
+            if (!is_array($values)) {
                 continue;
             }
 
             foreach (array_keys($values) as $packageName) {
-                if (\is_string($packageName) && str_contains($packageName, '/')) {
+                if (is_string($packageName) && str_contains($packageName, '/')) {
                     $packages[$packageName] = $packageName;
                 }
             }
@@ -53,26 +52,24 @@ final readonly class CrudRuntimeComposerInventoryReader
         return array_values($packages);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function readComposerLockPackageNames(string $path): array
     {
         $payload = $this->readJsonFile($path);
         $packages = [];
         foreach (['packages', 'packages-dev'] as $section) {
             $values = $payload[$section] ?? null;
-            if (!\is_array($values)) {
+            if (!is_array($values)) {
                 continue;
             }
 
             foreach ($values as $package) {
-                if (!\is_array($package)) {
+                if (!is_array($package)) {
                     continue;
                 }
 
                 $nameEntity = $package['nameEntity'] ?? null;
-                if (\is_string($nameEntity) && str_contains($nameEntity, '/')) {
+                if (is_string($nameEntity) && str_contains($nameEntity, '/')) {
                     $packages[$nameEntity] = $nameEntity;
                 }
             }
@@ -81,9 +78,7 @@ final readonly class CrudRuntimeComposerInventoryReader
         return array_values($packages);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private function readJsonFile(string $path): array
     {
         $contents = file_get_contents($path);
@@ -93,6 +88,6 @@ final readonly class CrudRuntimeComposerInventoryReader
 
         $payload = json_decode($contents, true);
 
-        return \is_array($payload) ? $payload : [];
+        return is_array($payload) ? $payload : [];
     }
 }

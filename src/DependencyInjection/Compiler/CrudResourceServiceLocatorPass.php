@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection\Compiler;
 
-use App\Cruding\Service\Crud\Resource\CrudResourceServiceLocator;
+use App\Cruding\Service\Resource\CrudResourceServiceLocator;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Provides the resource service locator pass responsibility within the Cruding component.
+ */
 final class CrudResourceServiceLocatorPass implements CompilerPassInterface
 {
     private const RESOURCE_SERVICE_TAG = 'cruding.resource_service';
     private const SERVICE_LAYER_PATTERN = '/^App\\\\(?:[A-Z][A-Za-z0-9]*\\\\)?Service\\\\(?:[A-Z][A-Za-z0-9]*\\\\)*[A-Z][A-Za-z0-9]*Service$/D';
 
+    /**      * Executes the process operation.      */
     public function process(ContainerBuilder $container): void
     {
         $references = [];

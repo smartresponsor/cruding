@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
-use App\Cruding\Service\Crud\Resource\CrudRouteMapLoader;
-use App\Cruding\Service\Crud\Resource\CrudRouteMapMatcher;
-use App\Cruding\Service\Crud\Resource\CrudRouteShapeResolver;
+use App\Cruding\Service\Resource\CrudRouteMapLoader;
+use App\Cruding\Service\Resource\CrudRouteMapMatcher;
+use App\Cruding\Service\Resource\CrudRouteShapeResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -104,7 +104,7 @@ final class CrudRouteShapeResolverTest extends TestCase
         self::assertNotNull($context);
         self::assertSame('alpha', $context->resource);
         self::assertSame('media', $context->viewPath);
-        self::assertSame('show', $context->ViewToken);
+        self::assertSame('show', $context->viewToken);
         self::assertSame('detail', $context->operation);
         self::assertSame('item', $context->itemField);
         self::assertSame('acme-inc', $context->itemValue);
@@ -173,7 +173,7 @@ final class CrudRouteShapeResolverTest extends TestCase
         $collection = new RouteCollection();
         $collection->add($nameEntity, new Route($path));
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = $this->createStub(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn($collection);
 
         return $router;

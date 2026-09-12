@@ -6,11 +6,11 @@ $root = dirname(__DIR__, 2);
 $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
 $apiRoutes = readFileStrict($root.'/config/routes/cruding_api_crud.yaml');
 $routeIndex = readFileStrict($root.'/config/routes.yaml');
-$resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
-$apiController = readFileStrict($root.'/src/Controller/Api/Crud/CrudApiController.php');
-$tokenNormalizer = readFileStrict($root.'/src/Service/Crud/CrudRouteTokenNormalizer.php');
-$intent = readFileStrict($root.'/src/Dto/Crud/CrudTokenizedRouteIntent.php');
+$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
+$controller = readFileStrict($root.'/src/Controller/CrudController.php');
+$apiController = readFileStrict($root.'/src/Controller/Api/CrudApiController.php');
+$tokenNormalizer = readFileStrict($root.'/src/Service/CrudRouteTokenNormalizer.php');
+$intent = readFileStrict($root.'/src/DTO/CrudTokenizedRouteIntentDTO.php');
 
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Missing tokenized CRUD catch-all route.');
 assert(str_contains($routes, 'path: /{crudPath}'), 'CRUD route must capture raw path for PHP token resolver.');
@@ -26,7 +26,7 @@ assert(!str_contains($routes, 'resourcePath:'), 'CRUD route YAML must not contai
 assert(!str_contains($routes, 'operationToken:'), 'CRUD route YAML must not contain semantic operationToken requirements.');
 assert(!str_contains($routes, 'slug:'), 'CRUD route YAML must not contain semantic slug requirements.');
 assert(!str_contains($routes, '_crud_operation:'), 'CRUD route YAML must not hardcode operation decisions.');
-assert(str_contains($routes, 'App\\Cruding\\Controller\\Crud\\CrudController'), 'CRUD catch-all must dispatch into tokenized controller.');
+assert(str_contains($routes, 'App\\Cruding\\Controller\\CrudController'), 'CRUD catch-all must dispatch into tokenized controller.');
 
 assert(str_contains($apiRoutes, 'cruding_api_read:'), 'Missing GET API CRUD route.');
 assert(str_contains($apiRoutes, 'cruding_api_create:'), 'Missing POST API CRUD route.');

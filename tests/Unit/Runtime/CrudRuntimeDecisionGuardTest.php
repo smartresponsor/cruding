@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Runtime;
+namespace App\Cruding\Tests\Unit\Runtime;
 
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeComposerInventoryReader;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeDecisionGuard;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
+use App\Cruding\Service\Runtime\CrudRuntimeComposerInventoryReader;
+use App\Cruding\Service\Runtime\CrudRuntimeDecisionGuard;
+use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
+use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
 use PHPUnit\Framework\TestCase;
 
 final class CrudRuntimeDecisionGuardTest extends TestCase

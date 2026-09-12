@@ -44,6 +44,7 @@
     "phpunit/phpunit": "^12.0"
   },
   "scripts": {
+    "test": "phpunit",
     "canon:cruding": [
       "php tools/cruding/interfacing-provider-rendering-guard.php"
     ],
@@ -53,6 +54,10 @@
       "@php tools/smoke/cruding-config-declarative-only-smoke.php",
       "@php tools/smoke/cruding-config-driven-operation-token-router-smoke.php",
       "@php tools/smoke/cruding-direct-entity-fqcn-canon-smoke.php",
+      "@php tools/smoke/cruding-dto-suffix-smoke.php",
+      "@php tools/smoke/cruding-phpdoc-coverage-smoke.php",
+      "@php tools/smoke/cruding-service-layout-smoke.php",
+      "@php tools/smoke/cruding-service-role-suffix-smoke.php",
       "@php tools/smoke/cruding-entrypoint-contract-finalization-smoke.php",
       "@php tools/smoke/cruding-entrypoint-migration-contract-smoke.php",
       "@php tools/smoke/cruding-entrypoint-operation-method-parity-smoke.php",
@@ -75,7 +80,8 @@
     ],
     "check:cruding": [
       "@canon:cruding",
-      "@smoke:cruding"
+      "@smoke:cruding",
+      "@test"
     ]
   }
 }
