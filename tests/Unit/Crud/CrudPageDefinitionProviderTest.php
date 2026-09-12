@@ -20,7 +20,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
 {
     public function testProvideIndexBuildsviewReadyPageDefinition(): void
     {
-        $context = new CrudContextDTO('public', 'index', 'product', 'App\\Entity\\Product', 'slug', null, 'App\\Form\\ProductType', 'crud');
+        $context = new CrudContextDTO('public', 'index', 'product', 'App\\Entity\\Product', 'slug', null, 'App\\Form\\ProductType');
         $access = new CrudAccessContextDTO(
             $context,
             true,
@@ -111,7 +111,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
 
     public function testProvideIndexOmitsCreateActionWhenFormTypeIsMissing(): void
     {
-        $context = new CrudContextDTO('public', 'index', 'product', 'App\\Entity\\Product', 'slug', null, null, 'crud');
+        $context = new CrudContextDTO('public', 'index', 'product', 'App\\Entity\\Product', 'slug', null, null);
         $access = new CrudAccessContextDTO(
             $context,
             true,
@@ -185,7 +185,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
 
     public function testProvideShowBuildsShellReadyPageDefinition(): void
     {
-        $context = new CrudContextDTO('public', 'show', 'product', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'id', 13, 'App\\Tests\\Fixture\\Form\\ProductEntityType', 'crud');
+        $context = new CrudContextDTO('public', 'show', 'product', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'id', 13, 'App\\Tests\\Fixture\\Form\\ProductEntityType');
         $access = new CrudAccessContextDTO(
             $context,
             false,
@@ -207,7 +207,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
             {
             }
 
-            public function findOne(CrudContextDTO $context): ?object
+            public function findOne(CrudContextDTO $context): object
             {
                 return $this->object;
             }
@@ -257,9 +257,11 @@ final class CrudPageDefinitionProviderTest extends TestCase
 
             public function parameters(CrudContextDTO $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array
             {
+                $id = $identifierValue ?? $context->identifierValue;
+
                 return [
                     'resourcePath' => $context->resourcePath,
-                    'id' => $identifierValue ?? $context->identifierValue,
+                    'id' => is_int($id) || is_string($id) ? $id : '',
                 ];
             }
         };

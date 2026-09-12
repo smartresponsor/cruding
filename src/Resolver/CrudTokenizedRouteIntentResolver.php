@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Cruding\Resolver;
 
 use App\Cruding\DTO\CrudTokenizedRouteIntentDTO;
+use App\Cruding\Normalizer\CrudRouteTokenNormalizer;
+use App\Cruding\Policy\CrudReservedRouteTokenPolicy;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -264,7 +266,7 @@ final readonly class CrudTokenizedRouteIntentResolver
             ?? ($_ENV['EASYADMIN_ROUTE_PREFIX'] ?? null)
             ?? self::DEFAULT_BACKEND_CONTEXT_PREFIX;
 
-        return $this->tokenNormalizer->token((string) $token);
+        return $this->tokenNormalizer->token(is_scalar($token) ? (string) $token : self::DEFAULT_BACKEND_CONTEXT_PREFIX);
     }
 
     private function isIdentityToken(string $identity): bool

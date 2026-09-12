@@ -8,8 +8,8 @@ use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\CrudTokenizedRouteIntentDTO;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
 use App\Cruding\Resolver\CrudActorScopeContextResolver;
+use App\Cruding\Resolver\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Runner\CrudServiceRunner;
-use App\Cruding\Service\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Service\Resource\CrudRouteMapMatcher;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
@@ -19,7 +19,7 @@ use App\Cruding\ServiceInterface\Operation\CrudEditOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudIndexOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudPageOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudShowOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,7 +78,6 @@ final class CrudController extends AbstractController
                 'create' => $this->createOperation->handle($request),
                 'edit' => $this->editOperation->handle($request),
                 'delete' => $this->deleteOperation->handle($request),
-                default => $this->runEntrypointOnly($request, $intent),
             };
         }
 

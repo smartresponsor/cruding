@@ -50,7 +50,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
          *     form_type_map: array<string, string>
          * } $config
          */
-        $config = $this->processCrudConfiguration($configuration, $configs);
+        $config = $this->processConfiguration($configuration, $configs);
 
         $routeGuard = $config['route_guard'];
         $normalizer = new CrudRuntimeTokenNormalizer();
@@ -65,12 +65,11 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             defaultOperationTokens: $defaultOperationTokens,
             defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
         );
-        $appEnv = $container->hasParameter('kernel.environment')
-            ? (string) $container->getParameter('kernel.environment')
-            : 'dev';
+        $appEnv = $this->parameterString($container, 'kernel.environment', 'dev');
+        $projectDir = $this->parameterString($container, 'kernel.project_dir', \dirname(__DIR__, 2));
         $runtimeLock = (new CrudRuntimeLockReader(
             normalizer: $normalizer,
-            projectDir: (string) $container->getParameter('kernel.project_dir'),
+            projectDir: $projectDir,
             appEnv: $appEnv,
             lockGlob: $routeGuard['runtime_lock_glob'],
         ))->read();
@@ -245,6 +244,17 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return 'cruding';
     }
 
+    private function parameterString(ContainerBuilder $container, string $name, string $default): string
+    {
+        if (!$container->hasParameter($name)) {
+            return $default;
+        }
+
+        $value = $container->getParameter($name);
+
+        return is_string($value) ? $value : $default;
+    }
+
     /** @return list<string> */
     private function parameterTokenList(ContainerBuilder $container, string $nameEntity): array
     {
@@ -283,9 +293,11 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         if (!\is_array($payload)) {
             return [];
         }
+        /** @var array<string, mixed> $typedPayload */
+        $typedPayload = $payload;
 
         foreach ($paths as $path) {
-            $value = $this->readPayloadPath($payload, $path);
+            $value = $this->readPayloadPath($typedPayload, $path);
             if (null === $value) {
                 continue;
             }

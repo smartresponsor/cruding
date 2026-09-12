@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Controller;
 
 use App\Cruding\ServiceInterface\Operation\CrudIndexOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

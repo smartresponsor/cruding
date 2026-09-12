@@ -6,6 +6,7 @@ namespace App\Cruding\Service\Resource;
 
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
 use App\Cruding\Resolver\CrudEntityClassResolver;
 use App\Cruding\Resolver\CrudFormTypeResolver;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;

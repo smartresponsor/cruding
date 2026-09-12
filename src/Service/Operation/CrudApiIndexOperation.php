@@ -28,7 +28,9 @@ final readonly class CrudApiIndexOperation implements CrudApiIndexOperationInter
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+            $resourcePath = $request->attributes->get('resourcePath', '');
+
+            return $this->apiResponder->notFound(is_scalar($resourcePath) ? (string) $resourcePath : '');
         }
 
         return $this->apiResponder->collection($context, $this->objectFinder->findAll($context));

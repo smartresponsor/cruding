@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Builder\Resource;
 
+use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
+
 /**
  * Builds resource column builder values used by Cruding workflows.
  */

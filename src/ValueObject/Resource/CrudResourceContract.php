@@ -162,6 +162,13 @@ final readonly class CrudResourceContract
             return $this->locations;
         }
 
-        return is_array($this->slots['locations'] ?? null) ? $this->slots['locations'] : [];
+        $locations = $this->slots['locations'] ?? null;
+        if (!is_array($locations)) {
+            return [];
+        }
+        /** @var array<string, mixed> $typedLocations */
+        $typedLocations = $locations;
+
+        return $typedLocations;
     }
 }

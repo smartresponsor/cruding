@@ -41,8 +41,10 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
     {
         $reservedTokenReason = $this->reservedTokenReason($request);
         if (null !== $reservedTokenReason) {
+            $slug = $request->attributes->get('slug', '');
+
             return $this->notFoundResponseFactory->create($request, $reservedTokenReason, [
-                'token' => (string) $request->attributes->get('slug', ''),
+                'token' => is_scalar($slug) ? (string) $slug : '',
                 'reservedviewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
                 'reservedOperationTokens' => $this->reservedRouteTokenPolicy->operationTokens(),
                 'interpretation' => 'Classic CRUD show grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
@@ -56,7 +58,8 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
 
         $object = $this->objectFinder->findOne($context);
         if (null === $object) {
-            $implicitReason = (string) $request->attributes->get('_crud_implicit_object_reason', 'crud_resource_not_found');
+            $implicitReasonValue = $request->attributes->get('_crud_implicit_object_reason', 'crud_resource_not_found');
+            $implicitReason = is_scalar($implicitReasonValue) ? (string) $implicitReasonValue : 'crud_resource_not_found';
             if ('authentication_required' === $implicitReason) {
                 throw new AccessDeniedException('Authentication is required to resolve the current resource.');
             }
@@ -86,7 +89,8 @@ final readonly class CrudShowOperation implements CrudShowOperationInterface
 
     private function reservedTokenReason(Request $request): ?string
     {
-        if ('show' !== (string) $request->attributes->get('_crud_operation', '')) {
+        $operation = $request->attributes->get('_crud_operation', '');
+        if (!is_scalar($operation) || 'show' !== (string) $operation) {
             return null;
         }
 

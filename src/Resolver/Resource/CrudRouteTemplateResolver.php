@@ -19,7 +19,7 @@ final readonly class CrudRouteTemplateResolver
     /**      * Executes the route template operation.      */
     public function routeTemplate(?string $routeName): ?string
     {
-        if (null === $routeName || !method_exists($this->router, 'getRouteCollection')) {
+        if (null === $routeName) {
             return null;
         }
 

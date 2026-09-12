@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Resolver\Resource;
 
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Service\Resource\CrudResourceServiceLocator;
 
 /**
  * Resolves resource service resolver for Cruding request processing.
@@ -116,8 +117,10 @@ final class CrudResourceServiceResolver
      */
     private function normalizeDiagnostics(array $diagnostics): array
     {
-        $diagnostics['expectedServices'] = array_values(array_unique($diagnostics['expectedServices']));
-        $diagnostics['expectedTypes'] = array_values(array_unique($diagnostics['expectedTypes']));
+        $expectedServices = is_array($diagnostics['expectedServices'] ?? null) ? $diagnostics['expectedServices'] : [];
+        $expectedTypes = is_array($diagnostics['expectedTypes'] ?? null) ? $diagnostics['expectedTypes'] : [];
+        $diagnostics['expectedServices'] = array_values(array_unique(array_filter($expectedServices, 'is_string')));
+        $diagnostics['expectedTypes'] = array_values(array_unique(array_filter($expectedTypes, 'is_string')));
 
         return $diagnostics;
     }

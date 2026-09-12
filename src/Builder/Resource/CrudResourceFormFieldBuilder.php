@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Builder\Resource;
 
+use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
 use Symfony\Component\Form\FormView;
 
 /**
@@ -34,13 +35,16 @@ final class CrudResourceFormFieldBuilder
             }
 
             $vars = $child->vars;
+            $blockPrefixes = is_array($vars['block_prefixes'] ?? null) ? $vars['block_prefixes'] : [];
+            $fieldType = isset($blockPrefixes[1]) && is_string($blockPrefixes[1]) ? $blockPrefixes[1] : 'text';
+            $attr = is_array($vars['attr'] ?? null) ? $vars['attr'] : [];
             $fields[] = [
                 'nameEntity' => (string) $nameEntity,
                 'label' => is_string($vars['label'] ?? null) && '' !== $vars['label'] ? $vars['label'] : $this->labelFormatter->humanize((string) $nameEntity),
-                'type' => $this->fieldType((string) ($vars['block_prefixes'][1] ?? 'text')),
+                'type' => $this->fieldType($fieldType),
                 'required' => (bool) ($vars['required'] ?? false),
                 'value' => is_scalar($vars['value'] ?? null) ? (string) $vars['value'] : null,
-                'placeholder' => is_scalar($vars['attr']['placeholder'] ?? null) ? (string) $vars['attr']['placeholder'] : null,
+                'placeholder' => is_scalar($attr['placeholder'] ?? null) ? (string) $attr['placeholder'] : null,
                 'helpText' => is_string($vars['help'] ?? null) ? $vars['help'] : null,
                 'validationState' => null,
                 'errorText' => null,

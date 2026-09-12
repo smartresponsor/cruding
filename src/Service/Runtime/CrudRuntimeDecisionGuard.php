@@ -122,7 +122,11 @@ final readonly class CrudRuntimeDecisionGuard
         return $messages;
     }
 
-    /** @param list<string> $messages @return list<string> */
+    /**
+     * @param list<string> $messages
+     *
+     * @return list<string>
+     */
     private function unique(array $messages): array
     {
         $unique = [];

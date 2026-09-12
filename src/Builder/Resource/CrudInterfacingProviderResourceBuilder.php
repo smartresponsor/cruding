@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\DTO\CrudPageDefinitionDTO;
+use App\Cruding\Resolver\Resource\CrudResourceOperationResolver;
+use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
 use App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface;
 use Symfony\Component\Form\FormView;
 
@@ -37,8 +39,11 @@ final class CrudInterfacingProviderResourceBuilder implements CrudInterfacingPro
         $resourcePath = trim(str_replace('_', '-', $context->resourcePath), '/');
         $component = 'cruding';
         $objects = null !== $object && [] === $page->objects ? [$object] : $page->objects;
-        $projectedRows = is_array($page->meta['projectedRows'] ?? null) ? $page->meta['projectedRows'] : null;
-
+        $projectedRowsRaw = $page->meta['projectedRows'] ?? null;
+        $projectedRows = is_array($projectedRowsRaw)
+            ? array_values(array_filter($projectedRowsRaw, 'is_array'))
+            : null;
+        /** @var list<array<string, mixed>>|null $projectedRows */
         $rows = null !== $projectedRows ? $projectedRows : $this->rowBuilder->build($objects, $resourcePath, $component);
         $columns = $this->columnBuilder->build($objects, $resourcePath, $component);
         $filters = $this->filterBuilder->build($resourcePath);

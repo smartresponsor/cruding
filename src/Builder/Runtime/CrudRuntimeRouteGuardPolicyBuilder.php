@@ -125,7 +125,11 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         return sprintf('(?!%s$)[A-Za-z0-9][A-Za-z0-9_-]*', $this->normalizer->alternationRequirement($reservedTokens));
     }
 
-    /** @param list<string> ...$tokenLists @return list<string> */
+    /**
+     * @param list<string> ...$tokenLists
+     *
+     * @return list<string>
+     */
     private function mergeTokenLists(array ...$tokenLists): array
     {
         $merged = [];
@@ -138,7 +142,11 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         return array_values($merged);
     }
 
-    /** @param list<string> $tokens @return list<string> */
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     private function componentLikeTokens(array $tokens): array
     {
         return array_values(array_filter($tokens, static fn (string $token): bool => str_ends_with($token, 'ing')));

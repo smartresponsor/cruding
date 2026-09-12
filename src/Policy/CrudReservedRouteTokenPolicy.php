@@ -54,6 +54,7 @@ final readonly class CrudReservedRouteTokenPolicy
         return $this->normalizeList($this->operationTokens);
     }
 
+    /** @param list<string> $tokens */
     private function contains(array $tokens, string $needle): bool
     {
         return in_array($needle, $this->normalizeList($tokens), true);

@@ -15,6 +15,7 @@ final class CrudApiProblemResponseFactoryTest extends TestCase
         $factory = new CrudApiProblemResponseFactory();
         $response = $factory->unprocessable('Validation failed.', [['field' => 'slug']], ['resourcePath' => 'product']);
         $payload = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
         self::assertSame('application/problem+json', $response->headers->get('Content-Type'));

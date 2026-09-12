@@ -40,8 +40,10 @@ final readonly class CrudPageOperation implements CrudPageOperationInterface
     {
         $reservedTokenReason = $this->reservedTokenReason($request);
         if (null !== $reservedTokenReason) {
+            $slug = $request->attributes->get('slug', '');
+
             return $this->notFoundResponseFactory->create($request, $reservedTokenReason, [
-                'token' => (string) $request->attributes->get('slug', ''),
+                'token' => is_scalar($slug) ? (string) $slug : '',
                 'reservedViewTokens' => $this->reservedRouteTokenPolicy->viewTokens(),
                 'reservedOperationTokens' => $this->reservedRouteTokenPolicy->operationTokens(),
                 'interpretation' => 'Classic CRUD page grammar matched, but the identity token is reserved for a business view or CRUD operation; Cruding refuses to treat it as an entity slug.',
@@ -82,7 +84,8 @@ final readonly class CrudPageOperation implements CrudPageOperationInterface
 
     private function reservedTokenReason(Request $request): ?string
     {
-        if ('page' !== (string) $request->attributes->get('_crud_operation', '')) {
+        $operation = $request->attributes->get('_crud_operation', '');
+        if (!is_scalar($operation) || 'page' !== (string) $operation) {
             return null;
         }
 

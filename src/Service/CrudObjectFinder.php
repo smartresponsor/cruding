@@ -7,6 +7,7 @@ namespace App\Cruding\Service;
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -30,15 +31,20 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
     /**      * Finds one.      */
     public function findOne(CrudContextDTO $context): ?object
     {
-        $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
+        $entityClass = $context->entityClass;
+        if ('' === $entityClass) {
+            return null;
+        }
+        /** @var class-string $entityClass */
+        $manager = $this->managerRegistry->getManagerForClass($entityClass);
         if (null === $manager) {
             return null;
         }
 
-        $metadata = $manager->getClassMetadata($context->entityClass);
+        $metadata = $manager->getClassMetadata($entityClass);
         if (null === $context->identifierValue) {
             return 'page' === $context->operation
-                ? $this->findActorOwned($context->entityClass, $metadata)
+                ? $this->findActorOwned($entityClass, $metadata)
                 : null;
         }
 
@@ -47,7 +53,7 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
             return null;
         }
 
-        $object = $this->managerRegistry->getRepository($context->entityClass)->findOneBy([
+        $object = $this->managerRegistry->getRepository($entityClass)->findOneBy([
             $identifierField => $context->identifierValue,
         ]);
 
@@ -59,9 +65,14 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
      */
     public function findAll(CrudContextDTO $context): array
     {
+        $entityClass = $context->entityClass;
+        if ('' === $entityClass) {
+            return [];
+        }
+        /** @var class-string $entityClass */
         $startedAt = hrtime(true);
         try {
-            $repository = $this->managerRegistry->getRepository($context->entityClass);
+            $repository = $this->managerRegistry->getRepository($entityClass);
             [$limit, $offset] = $this->pagination();
 
             return $repository->findBy([], null, $limit, $offset);
@@ -70,7 +81,11 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         }
     }
 
-    private function findActorOwned(string $entityClass, object $metadata): ?object
+    /**
+     * @param class-string          $entityClass
+     * @param ClassMetadata<object> $metadata
+     */
+    private function findActorOwned(string $entityClass, ClassMetadata $metadata): ?object
     {
         $user = $this->security->getUser();
         $request = $this->requestStack->getCurrentRequest();
@@ -133,13 +148,14 @@ final readonly class CrudObjectFinder implements CrudObjectFinderInterface
         return [$limit, ($page - 1) * $limit];
     }
 
-    private function resolveIdentifierField(object $metadata, string $logicalField): ?string
+    /** @param ClassMetadata<object> $metadata */
+    private function resolveIdentifierField(ClassMetadata $metadata, string $logicalField): ?string
     {
-        if (method_exists($metadata, 'hasField') && $metadata->hasField($logicalField)) {
+        if ($metadata->hasField($logicalField)) {
             return $logicalField;
         }
 
-        if ('slug' !== $logicalField || !method_exists($metadata, 'hasField')) {
+        if ('slug' !== $logicalField) {
             return null;
         }
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Cruding\Controller\Api;
 
 use App\Cruding\DTO\CrudTokenizedRouteIntentDTO;
+use App\Cruding\Factory\Api\CrudApiProblemResponseFactory;
 use App\Cruding\Resolver\CrudActorScopeContextResolver;
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
-use App\Cruding\Service\CrudTokenizedRouteIntentResolver;
+use App\Cruding\Resolver\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\Operation\CrudApiCreateOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudApiDeleteOperationInterface;
@@ -59,7 +59,7 @@ final class CrudApiController extends AbstractController
             'create' => $this->createOperation->handle($request),
             'update' => $this->updateOperation->handle($request),
             'delete' => $this->deleteOperation->handle($request),
-            default => $this->problemResponseFactory->create(404, 'crud_api_operation_not_supported', [
+            default => $this->problemResponseFactory->create(404, 'Not Found', 'crud_api_operation_not_supported', [
                 'intent' => $intent->diagnostics(),
             ]),
         };

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\EventSubscriber;
 
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
-use App\Cruding\Value\Api\CrudApiResponseTitle;
+use App\Cruding\Factory\Api\CrudApiProblemResponseFactory;
+use App\Cruding\ValueObject\Api\CrudApiResponseTitle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;

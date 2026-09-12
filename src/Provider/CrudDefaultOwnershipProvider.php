@@ -62,6 +62,6 @@ final readonly class CrudDefaultOwnershipProvider implements CrudOwnershipProvid
 
         $id = $object->getId();
 
-        return is_scalar($id) ? $id : null;
+        return is_int($id) || is_string($id) ? $id : null;
     }
 }

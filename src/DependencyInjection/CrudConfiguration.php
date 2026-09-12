@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Cruding\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\CrudConfigurationInterface;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * Provides the configuration responsibility within the Cruding component.
  */
-final class CrudConfiguration implements CrudConfigurationInterface
+final class CrudConfiguration implements ConfigurationInterface
 {
     /**      * Returns config tree builder.      */
     public function getConfigTreeBuilder(): TreeBuilder

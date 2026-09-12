@@ -9,7 +9,7 @@ use App\Cruding\DTO\Entrypoint\CrudServiceContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceResultDTO;
 use App\Cruding\Invoker\CrudServiceInvoker;
 use App\Cruding\Resolver\CrudServiceResolver;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -18,7 +18,7 @@ final readonly class CrudRouteGrammarResolver
     }
 
     /**
-     * @param list<array{value: string|int|null, dynamic: bool, name: ?string}> $values
+     * @param list<array{value: string|int|null, dynamic: bool, nameEntity: ?string}> $values
      */
     public function resolve(array $values): ?CrudResolvedRouteShapeDTO
     {
@@ -107,7 +107,7 @@ final readonly class CrudRouteGrammarResolver
     }
 
     /**
-     * @param array{value: string|int|null, dynamic: bool, name: ?string} $segment
+     * @param array{value: string|int|null, dynamic: bool, nameEntity: ?string} $segment
      */
     private function isviewTokensegment(array $segment): bool
     {

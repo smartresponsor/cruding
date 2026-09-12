@@ -24,8 +24,12 @@ final readonly class CrudResourceContractFactory
     {
         $built = $this->providerViewBuilder->build($page, $object, $form);
         $workbench = is_array($built['workbench'] ?? null) ? $built['workbench'] : [];
+        /** @var array<string, mixed> $workbench */
         $locations = is_array($built['locations'] ?? null) ? $built['locations'] : [];
-        $view = $this->viewFromOperation((string) ($workbench['routeContext']['operation'] ?? $page->context->operation));
+        /** @var array<string, mixed> $locations */
+        $routeContext = is_array($workbench['routeContext'] ?? null) ? $workbench['routeContext'] : [];
+        $routeOperation = $routeContext['operation'] ?? $page->context->operation;
+        $view = $this->viewFromOperation(is_string($routeOperation) ? $routeOperation : $page->context->operation);
 
         return new CrudResourceContract(
             CrudResourceContract::WORD,

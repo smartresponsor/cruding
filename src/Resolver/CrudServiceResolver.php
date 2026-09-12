@@ -8,6 +8,7 @@ use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceResolutionDTO;
 use App\Cruding\Service\CrudDefaultServiceRegistry;
+use App\Cruding\Service\CrudPassiveService;
 use App\Cruding\Service\Resource\CrudResourceServiceLocator;
 use App\Cruding\ServiceInterface\Entrypoint\CrudServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,26 +89,6 @@ final readonly class CrudServiceResolver
             classExists: $classExists,
             containerHas: $containerHas,
         );
-    }
-
-    /**
-     * @param list<string> $candidateClassNames
-     *
-     * @return list<string>
-     */
-    private function namespaceRootPrefixes(array $candidateClassNames): array
-    {
-        $prefixes = [];
-        foreach ($candidateClassNames as $candidateClassName) {
-            $position = strpos($candidateClassName, '\\Service\\');
-            if (false === $position) {
-                continue;
-            }
-
-            $prefixes[] = substr($candidateClassName, 0, $position).'\\Service\\';
-        }
-
-        return array_values(array_unique($prefixes));
     }
 
     private function normalize(object $service): object

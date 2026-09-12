@@ -129,4 +129,18 @@ The Cruding implementation and deterministic product gates are green. The stale 
 
 Cruding is canonically role-first, exact `DTO` casing is enforced, the advanced master-side route-map consolidation is preserved, deterministic gates are green, and PR #7 has a clean merge gate. Remaining action is the guarded merge of PR #7 and post-merge state inspection.
 
+### Post-merge quality debt closure — 2026-09-12
+
+- Re-opened the canonical Cruding workspace for the remaining quality tail after the structural merge and synchronized the executable Gating source of truth through merged Gating PR #13.
+- Reduced PHPStan from 342 post-migration findings to 0 without a baseline or suppressions. Repairs covered cross-role imports, Symfony API contracts, mixed request boundaries, Doctrine metadata/class-string boundaries, runtime JSON/lock maps, resource payload shapes, dynamic entrypoint invocation, and stale test typing.
+- Added direct runtime dependencies actually used by Cruding: `doctrine/orm` and `symfony/serializer`; added `symfony/dotenv` for test bootstrap support. Composer reports no security advisories.
+- `composer check:cruding` is green: every Cruding smoke/canon guard passes and PHPUnit is 51/51 tests with 216 assertions.
+- `composer cs:check` is green after canonical formatting of the PHP tree; PHPStan remains green after formatting.
+- Repaired PHPUnit 12.5 coverage execution: replaced removed `--branch-coverage` with supported `--path-coverage`, created `var/coverage` before report generation, and produced fresh Xdebug 3.5.1 evidence. Current coverage is 25.26% lines (1016/4022), 15.25% methods (84/551), 61.26% branches (854/1394), and 1.02% paths (189/18611).
+- Canonical central Gating against `.gating/profile/component/cruding.yaml` reports 32 rules, 0 failed, 4 warnings, 3 skipped. Remaining warnings are non-blocking debt: silent-fallback review, tooling-type review, semantic PHPDoc coverage (53.6% methods vs 70% target), and HIGH_TEST_DEBT (coverage below target).
+- `composer validate --strict --check-lock` passes. No stale bundled `.gating` consumer snapshot was used as authority.
+
+### Acceptance status
+
+The Cruding product and executable architecture gates are release-candidate green with zero hard Gating failures, zero PHPStan errors, clean CS, current PHPUnit/path-coverage evidence, and a documented non-blocking test/PHPDoc debt tail.
 

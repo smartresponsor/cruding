@@ -109,7 +109,7 @@ final readonly class CrudServiceContextDTO
     {
         $value = $this->request->attributes->get('_crud_actor_user_id');
 
-        return is_scalar($value) ? $value : null;
+        return is_int($value) || is_string($value) ? $value : null;
     }
 
     /**      * Executes the actor user slug operation.      */
@@ -141,7 +141,7 @@ final readonly class CrudServiceContextDTO
     {
         $value = $this->request->attributes->get('_crud_actor_identity_value');
 
-        return is_scalar($value) ? $value : null;
+        return is_int($value) || is_string($value) ? $value : null;
     }
 
     /**      * Executes the actor admin identity field operation.      */
@@ -157,7 +157,7 @@ final readonly class CrudServiceContextDTO
     {
         $value = $this->request->attributes->get('_crud_actor_admin_identity_value');
 
-        return is_scalar($value) ? $value : null;
+        return is_int($value) || is_string($value) ? $value : null;
     }
 
     /**      * Executes the actor is admin operation.      */

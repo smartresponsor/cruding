@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\DTO\CrudPageDefinitionDTO;
+use App\Cruding\Resolver\Resource\CrudResourceOperationResolver;
+use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
 
 /**
  * Builds resource workbench builder values used by Cruding workflows.

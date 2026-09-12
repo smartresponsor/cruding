@@ -7,10 +7,11 @@ namespace App\Cruding\Responder;
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\Factory\Api\CrudApiProblemResponseFactory;
 use App\Cruding\ServiceInterface\CrudApiResponderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Provides the api responder responsibility within the Cruding component.
@@ -18,7 +19,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 final readonly class CrudApiResponder implements CrudApiResponderInterface
 {
     public function __construct(
-        private SerializerInterface $serializer,
+        private NormalizerInterface $serializer,
         private CrudApiProblemResponseFactory $problemResponseFactory,
     ) {
     }
@@ -64,6 +65,10 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
     {
         $errors = [];
         foreach ($form->getErrors(true, true) as $error) {
+            if (!$error instanceof FormError) {
+                continue;
+            }
+
             $errors[] = [
                 'field' => $error->getOrigin()?->getName() ?? '_form',
                 'message' => $error->getMessage(),
@@ -77,6 +82,7 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
         );
     }
 
+    /** @param object|array<array-key, mixed> $data */
     private function normalize(object|array $data): mixed
     {
         return $this->serializer->normalize($data, 'json', [
@@ -85,13 +91,13 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
                 if (method_exists($object, 'getSlug')) {
                     $slug = $object->getSlug();
 
-                    return is_scalar($slug) ? $slug : null;
+                    return is_int($slug) || is_string($slug) ? $slug : null;
                 }
 
                 if (method_exists($object, 'getId')) {
                     $id = $object->getId();
 
-                    return is_scalar($id) ? $id : null;
+                    return is_int($id) || is_string($id) ? $id : null;
                 }
 
                 return $object::class;

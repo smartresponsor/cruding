@@ -10,6 +10,7 @@ namespace App\Cruding\Builder\Resource;
 final class CrudResourceLocationBuilder
 {
     /**
+     * @param array<string, mixed>       $workbench
      * @param list<array<string, mixed>> $rows
      * @param list<array<string, mixed>> $columns
      * @param list<array<string, mixed>> $filters

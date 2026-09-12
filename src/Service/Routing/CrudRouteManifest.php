@@ -124,7 +124,9 @@ final class CrudRouteManifest extends Loader
         }
     }
 
-    /**      * Executes the export operation.      */
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function export(RouteCollection $collection): array
     {
         $data = [];
@@ -160,6 +162,11 @@ final class CrudRouteManifest extends Loader
         return 'cruding' === $type;
     }
 
+    /**
+     * @param list<string>          $methods
+     * @param array<string, string> $requirements
+     * @param array<string, mixed>  $defaults
+     */
     private function addRoute(RouteCollection $routes, string $name, string $path, string $controller, array $methods, array $requirements, array $defaults = []): void
     {
         $routes->add($name, new Route($path, ['_controller' => $controller] + $defaults, $requirements, [], '', [], $methods));
@@ -175,6 +182,7 @@ final class CrudRouteManifest extends Loader
         return hash('sha256', json_encode($this->export($collection), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
     }
 
+    /** @return array<string, mixed> */
     private function exportRoute(Route $route): array
     {
         $defaults = $route->getDefaults();

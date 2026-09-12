@@ -12,7 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final readonly class CrudApiProblemResponseFactory
 {
-    /**      * Executes the create operation.      */
+    /**
+     * @param array<string, mixed> $extra
+     */
     public function create(
         int $status,
         string $title,
@@ -30,25 +32,34 @@ final readonly class CrudApiProblemResponseFactory
         ], $status, ['Content-Type' => 'application/problem+json']);
     }
 
-    /**      * Executes the bad request operation.      */
+    /**
+     * @param array<string, mixed> $extra
+     */
     public function badRequest(string $detail, array $extra = []): JsonResponse
     {
         return $this->create(Response::HTTP_BAD_REQUEST, 'Bad Request', $detail, $extra);
     }
 
-    /**      * Executes the forbidden operation.      */
+    /**
+     * @param array<string, mixed> $extra
+     */
     public function forbidden(string $detail = 'Access denied.', array $extra = []): JsonResponse
     {
         return $this->create(Response::HTTP_FORBIDDEN, 'Forbidden', $detail, $extra);
     }
 
-    /**      * Executes the not found operation.      */
+    /**
+     * @param array<string, mixed> $extra
+     */
     public function notFound(string $detail = 'Resource not found.', array $extra = []): JsonResponse
     {
         return $this->create(Response::HTTP_NOT_FOUND, 'Not Found', $detail, $extra);
     }
 
-    /**      * Executes the unprocessable operation.      */
+    /**
+     * @param list<array<string, mixed>> $errors
+     * @param array<string, mixed>       $extra
+     */
     public function unprocessable(string $detail, array $errors = [], array $extra = []): JsonResponse
     {
         $extra['errors'] = $errors;

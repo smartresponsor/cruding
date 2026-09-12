@@ -30,6 +30,7 @@ final class CrudApiExceptionSubscriberTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
         self::assertSame('application/problem+json', $response->headers->get('Content-Type'));
         $payload = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
         self::assertSame('Not Found', $payload['title']);
         self::assertSame('product', $payload['resourcePath']);
     }
