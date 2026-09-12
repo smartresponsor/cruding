@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Cruding\Dto;
+namespace App\Cruding\DTO;
 
 /**
  * Carries page definition data across Cruding processing boundaries.
