@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 /**
- * Normalizes comma-separated runtime tokens into URL-safe lowercase token lists.
+ * Provides the runtime token normalizer responsibility within the Cruding component.
  */
 final class CrudRuntimeTokenNormalizer
 {
@@ -21,11 +21,9 @@ final class CrudRuntimeTokenNormalizer
         $tokens = [];
         foreach (preg_split('/[,\s]+/', $value) ?: [] as $rawToken) {
             $token = $this->normalizeToken($rawToken);
-            if (null === $token) {
-                continue;
+            if (null !== $token) {
+                $tokens[$token] = $token;
             }
-
-            $tokens[$token] = $token;
         }
 
         return array_values($tokens);
@@ -41,16 +39,15 @@ final class CrudRuntimeTokenNormalizer
         $normalized = [];
         foreach ($tokens as $token) {
             $value = $this->normalizeToken($token);
-            if (null === $value) {
-                continue;
+            if (null !== $value) {
+                $normalized[$value] = $value;
             }
-
-            $normalized[$value] = $value;
         }
 
         return array_values($normalized);
     }
 
+    /**      * Normalizes token.      */
     public function normalizeToken(string $token): ?string
     {
         $value = strtolower(trim($token));
@@ -58,11 +55,7 @@ final class CrudRuntimeTokenNormalizer
         $value = preg_replace('/[^a-z0-9_-]+/', '-', $value) ?: '';
         $value = trim(preg_replace('/[-_]{2,}/', '-', $value) ?: $value, '-_');
 
-        if ('' === $value || !preg_match('/^[a-z0-9][a-z0-9_-]*$/', $value)) {
-            return null;
-        }
-
-        return $value;
+        return '' === $value || !preg_match('/^[a-z0-9][a-z0-9_-]*$/', $value) ? null : $value;
     }
 
     /**

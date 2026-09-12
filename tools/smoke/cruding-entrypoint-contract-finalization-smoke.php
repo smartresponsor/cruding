@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 
-$result = readRequired($root.'/src/Dto/Crud/Entrypoint/CrudServiceResult.php');
-$resolution = readRequired($root.'/src/Dto/Crud/Entrypoint/CrudServiceResolution.php');
-$abstract = readRequired($root.'/src/Service/Crud/AbstractCrudService.php');
-$behavior = readRequired($root.'/src/Service/Crud/CrudDefaultServiceBehavior.php');
-$registry = readRequired($root.'/src/Service/Crud/CrudDefaultServiceRegistry.php');
-$resolver = readRequired($root.'/src/Resolver/Crud/CrudServiceResolver.php');
-$invoker = readRequired($root.'/src/Invoker/Crud/CrudServiceInvoker.php');
+$result = readRequired($root.'/src/DTO/Entrypoint/CrudServiceResultDTO.php');
+$resolution = readRequired($root.'/src/DTO/Entrypoint/CrudServiceResolutionDTO.php');
+$abstract = readRequired($root.'/src/Service/AbstractCrudService.php');
+$behavior = readRequired($root.'/src/Service/CrudDefaultServiceBehavior.php');
+$registry = readRequired($root.'/src/Service/CrudDefaultServiceRegistry.php');
+$resolver = readRequired($root.'/src/Resolver/CrudServiceResolver.php');
+$invoker = readRequired($root.'/src/Invoker/CrudServiceInvoker.php');
 
 foreach (['STATUS_DEFAULT_BEHAVIOR', 'STATUS_DEFAULT_BEHAVIOR_UNAVAILABLE'] as $constant) {
     assert(str_contains($result, 'public const '.$constant), sprintf('Result must expose %s.', $constant));
@@ -27,7 +27,7 @@ assert(str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provid
 assert(strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateShortClassNames'), 'Explicit service ids must remain first.');
 assert(str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');
 assert(str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when no consumer service is selected.');
-assert(str_contains($invoker, 'CrudServiceResult::STATUS_NO_ENTRYPOINT_OVERRIDE'), 'Invoker must keep safe normalization for consumer overrides.');
+assert(str_contains($invoker, 'CrudServiceResultDTO::STATUS_NO_ENTRYPOINT_OVERRIDE'), 'Invoker must keep safe normalization for consumer overrides.');
 
 fwrite(STDOUT, "PASS: EntryPoint contract provides contextual defaults and template hooks.\n");
 

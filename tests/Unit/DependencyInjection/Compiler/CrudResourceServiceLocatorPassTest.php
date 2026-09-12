@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\DependencyInjection\Compiler;
 
 use App\Cruding\DependencyInjection\Compiler\CrudResourceServiceLocatorPass;
-use App\Cruding\Service\Crud\Resource\CrudResourceServiceLocator;
+use App\Cruding\Service\Resource\CrudResourceServiceLocator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

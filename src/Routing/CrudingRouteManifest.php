@@ -12,13 +12,16 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Provides the ing route manifest responsibility within the Cruding component.
+ */
 final class CrudingRouteManifest extends Loader
 {
     public const GRAMMAR_VERSION = 'cruding-route-manifest-v1';
 
-    private const API_CONTROLLER = 'App\\Cruding\\Controller\\Api\\Crud\\CrudApiController';
-    private const CRUD_CONTROLLER = 'App\\Cruding\\Controller\\Crud\\CrudController';
-    private const RESOURCE_CONTROLLER = 'App\\Cruding\\Controller\\Crud\\CrudResourceController';
+    private const API_CONTROLLER = 'App\\Controller\\Api\\Crud\\CrudApiController';
+    private const CRUD_CONTROLLER = 'App\\Controller\\Crud\\CrudController';
+    private const RESOURCE_CONTROLLER = 'App\\Controller\\Crud\\CrudResourceController';
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
@@ -31,26 +34,31 @@ final class CrudingRouteManifest extends Loader
         parent::__construct();
     }
 
+    /**      * Executes the path operation.      */
     public function path(): string
     {
         return $this->projectDir.'/var/cruding/route_manifest.yaml';
     }
 
+    /**      * Executes the meta path operation.      */
     public function metaPath(): string
     {
         return $this->projectDir.'/var/cruding/route_manifest.meta.json';
     }
 
+    /**      * Executes the exists operation.      */
     public function exists(): bool
     {
         return is_file($this->path()) && '' !== trim((string) file_get_contents($this->path()));
     }
 
+    /**      * Loads manifest.      */
     public function loadManifest(): RouteCollection
     {
         return $this->loader(dirname($this->path()))->load(basename($this->path()));
     }
 
+    /**      * Loads live.      */
     public function loadLive(): RouteCollection
     {
         $routes = new RouteCollection();
@@ -76,6 +84,7 @@ final class CrudingRouteManifest extends Loader
         return $routes;
     }
 
+    /**      * Executes the dump operation.      */
     public function dump(): void
     {
         $routes = $this->loadLive();
@@ -95,11 +104,13 @@ final class CrudingRouteManifest extends Loader
         ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES).PHP_EOL);
     }
 
+    /**      * Executes the live hash operation.      */
     public function liveHash(): string
     {
         return $this->hash($this->loadLive());
     }
 
+    /**      * Executes the manifest hash operation.      */
     public function manifestHash(): ?string
     {
         if (!$this->exists()) {
@@ -113,6 +124,7 @@ final class CrudingRouteManifest extends Loader
         }
     }
 
+    /**      * Executes the export operation.      */
     public function export(RouteCollection $collection): array
     {
         $data = [];
@@ -124,6 +136,7 @@ final class CrudingRouteManifest extends Loader
         return $data;
     }
 
+    /**      * Executes the load operation.      */
     public function load(mixed $resource, ?string $type = null): RouteCollection
     {
         if ($this->exists()) {
@@ -140,6 +153,7 @@ final class CrudingRouteManifest extends Loader
         return $this->loadLive();
     }
 
+    /**      * Indicates whether this implementation supports the supplied context.      */
     public function supports(mixed $resource, ?string $type = null): bool
     {
         return 'cruding' === $type;

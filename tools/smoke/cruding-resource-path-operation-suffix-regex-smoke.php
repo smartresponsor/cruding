@@ -5,7 +5,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
 $services = readFileStrict($root.'/config/services.yaml');
-$resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
+$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
 
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Tokenized catch-all route must be present.');
 assert(!str_contains($routes, 'resourcePath:'), 'Route YAML must not contain resourcePath regex.');

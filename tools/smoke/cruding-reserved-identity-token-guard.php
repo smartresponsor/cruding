@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__.'/../../src/Service/Crud/CrudReservedRouteTokenPolicy.php';
+require_once __DIR__.'/../../src/Service/CrudReservedRouteTokenPolicy.php';
 
-use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
+use App\Cruding\Service\CrudReservedRouteTokenPolicy;
 
 $configPath = __DIR__.'/../../config/cruding_reserved_token.yaml';
 $viewTokens = readParameterTokenList($configPath, 'cruding.reserved_route_token.view');

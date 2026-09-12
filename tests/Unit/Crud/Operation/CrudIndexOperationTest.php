@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud\Operation;
 
-use App\Cruding\Dto\Crud\CrudAccessContext;
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Dto\Crud\CrudOwnership;
-use App\Cruding\Dto\Crud\CrudPageDefinition;
-use App\Cruding\Factory\Crud\CrudNotFoundResponseFactory;
-use App\Cruding\Service\Crud\Operation\CrudIndexOperation;
-use App\Cruding\Service\Crud\Resource\CrudResourceContractFactory;
-use App\Cruding\ServiceInterface\Crud\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Crud\CrudPageDefinitionProviderInterface;
-use App\Cruding\ServiceInterface\Crud\Entrypoint\CrudServiceDispatcherInterface;
-use App\Cruding\ServiceInterface\Crud\Resource\CrudInterfacingProviderResourceBuilderInterface;
+use App\Cruding\DTO\CrudAccessContextDTO;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\DTO\CrudOwnershipDTO;
+use App\Cruding\DTO\CrudPageDefinitionDTO;
+use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Service\Operation\CrudIndexOperation;
+use App\Cruding\Service\Resource\CrudResourceContractFactory;
+use App\Cruding\ServiceInterface\CrudContextResolverInterface;
+use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
+use App\Cruding\ServiceInterface\Entrypoint\CrudServiceDispatcherInterface;
+use App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface;
 use App\Cruding\Value\Resource\CrudResourceContract;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +24,7 @@ final class CrudIndexOperationTest extends TestCase
     public function testBuildsIndexviewFromResolvedContext(): void
     {
         $request = Request::create('/document/index');
-        $context = new CrudContext(
+        $context = new CrudContextDTO(
             view: 'public',
             operation: 'index',
             resourcePath: 'document',
@@ -33,16 +33,16 @@ final class CrudIndexOperationTest extends TestCase
             identifierValue: null,
             formTypeClass: null,
         );
-        $access = new CrudAccessContext(
+        $access = new CrudAccessContextDTO(
             crud: $context,
             supportsSlug: false,
             supportsId: true,
-            ownership: new CrudOwnership(false, false, false, false, null),
+            ownership: new CrudOwnershipDTO(false, false, false, false, null),
             canView: true,
             canEdit: false,
             canDelete: false,
         );
-        $page = new CrudPageDefinition($context, $access, 'Documents', '@Cruding/crud/index.html.twig');
+        $page = new CrudPageDefinitionDTO($context, $access, 'Documents', '@Cruding/crud/index.html.twig');
 
         $contextResolver = $this->createMock(CrudContextResolverInterface::class);
         $contextResolver->expects(self::once())

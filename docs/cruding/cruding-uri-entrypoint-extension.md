@@ -47,7 +47,7 @@ Method-specific service:
 ```php
 final class AlphaIndexService implements CrudGetServiceInterface
 {
-    public function get(CrudServiceContext $context): CrudServiceResult|Response|CrudResourceContract|null
+    public function get(CrudServiceContextDTO $context): CrudServiceResultDTO|Response|CrudResourceContract|null
     {
         return null;
     }
@@ -58,7 +58,7 @@ final class AlphaIndexService implements CrudGetServiceInterface
 
 The invoker supports optional `get`, `post`, `put`, `patch`, and `delete` hooks. Missing hooks continue into the default Cruding operation implementation.
 
-`isGrounded(CrudServiceContext $context)` is optional. If it returns `false`, Cruding records a not-grounded result and continues with the default operation path rather than throwing.
+`isGrounded(CrudServiceContextDTO $context)` is optional. If it returns `false`, Cruding records a not-grounded result and continues with the default operation path rather than throwing.
 
 ## Operation/method parity
 

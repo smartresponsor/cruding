@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
-use App\Cruding\Dto\Runtime\CrudRuntimeRouteGuardPolicy;
+use App\Cruding\DTO\Runtime\CrudRuntimeRouteGuardPolicyDTO;
 
 /**
- * Builds route-level requirements from runtime scope/entity/view token inputs.
+ * Builds runtime route guard policy builder values used by Cruding workflows.
  */
 final class CrudRuntimeRouteGuardPolicyBuilder
 {
@@ -41,7 +41,7 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         array $configuredviewTokens = [],
         array $configuredOperationTokens = [],
         array $configuredResourcePathReservedTokens = [],
-    ): CrudRuntimeRouteGuardPolicy {
+    ): CrudRuntimeRouteGuardPolicyDTO {
         $scopeTokens = $this->normalizer->csvToTokenList($scopeRaw);
         $entityTokens = $this->normalizer->csvToTokenList($entityRaw);
         $runtimeviewTokens = $this->normalizer->csvToTokenList($viewTokenRaw);
@@ -64,10 +64,9 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         foreach ($entityTokens as $entityToken) {
             if (isset($reservedLookup[$entityToken])) {
                 $conflicts[$entityToken] = $entityToken;
-                continue;
+            } else {
+                $allowed[$entityToken] = $entityToken;
             }
-
-            $allowed[$entityToken] = $entityToken;
         }
 
         $allowedResourceTokens = array_values($allowed);
@@ -76,7 +75,7 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         $identitySlugRequirement = $this->identitySlugRequirement($viewTokens, $operationTokens);
         $resourcePathRequirement = $this->resourcePathRequirement($resourceRequirement, $viewTokens, $operationTokens, $resourcePathReservedTokens);
 
-        return new CrudRuntimeRouteGuardPolicy(
+        return new CrudRuntimeRouteGuardPolicyDTO(
             scopeTokens: $scopeTokens,
             entityTokens: $entityTokens,
             viewTokens: $viewTokens,
@@ -97,24 +96,17 @@ final class CrudRuntimeRouteGuardPolicyBuilder
      * @param list<string> $operationTokens
      * @param list<string> $resourcePathReservedTokens
      */
-    private function resourcePathRequirement(
-        string $resourceRequirement,
-        array $viewTokens,
-        array $operationTokens,
-        array $resourcePathReservedTokens,
-    ): string {
+    private function resourcePathRequirement(string $resourceRequirement, array $viewTokens, array $operationTokens, array $resourcePathReservedTokens): string
+    {
         $reservedTokens = $this->mergeTokenLists($viewTokens, $operationTokens, $resourcePathReservedTokens);
-
         if ([] === $reservedTokens) {
             return sprintf('%s(?:/[a-z0-9][a-z0-9_-]*)*', $resourceRequirement);
         }
 
-        $reservedRequirement = $this->normalizer->alternationRequirement($reservedTokens);
-
         return sprintf(
             '%s(?:/(?!(?:%s)$)[a-z0-9][a-z0-9_-]*)*',
             $resourceRequirement,
-            $reservedRequirement,
+            $this->normalizer->alternationRequirement($reservedTokens),
         );
     }
 
@@ -129,16 +121,10 @@ final class CrudRuntimeRouteGuardPolicyBuilder
             return '[A-Za-z0-9][A-Za-z0-9_-]*';
         }
 
-        $reservedRequirement = $this->normalizer->alternationRequirement($reservedTokens);
-
-        return sprintf('(?!%s$)[A-Za-z0-9][A-Za-z0-9_-]*', $reservedRequirement);
+        return sprintf('(?!%s$)[A-Za-z0-9][A-Za-z0-9_-]*', $this->normalizer->alternationRequirement($reservedTokens));
     }
 
-    /**
-     * @param list<string> ...$tokenLists
-     *
-     * @return list<string>
-     */
+    /** @param list<string> ...$tokenLists @return list<string> */
     private function mergeTokenLists(array ...$tokenLists): array
     {
         $merged = [];
@@ -151,20 +137,9 @@ final class CrudRuntimeRouteGuardPolicyBuilder
         return array_values($merged);
     }
 
-    /**
-     * @param list<string> $tokens
-     *
-     * @return list<string>
-     */
+    /** @param list<string> $tokens @return list<string> */
     private function componentLikeTokens(array $tokens): array
     {
-        $componentTokens = [];
-        foreach ($tokens as $token) {
-            if (str_ends_with($token, 'ing')) {
-                $componentTokens[$token] = $token;
-            }
-        }
-
-        return array_values($componentTokens);
+        return array_values(array_filter($tokens, static fn (string $token): bool => str_ends_with($token, 'ing')));
     }
 }

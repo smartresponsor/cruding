@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'crud:runtime:route-guard',
     description: 'Validate Cruding runtime scope/entity route guard policy.',
 )]
+/**
+ * Exposes the runtime route guard command workflow through the Symfony console.
+ */
 final class CrudRuntimeRouteGuardCommand extends Command
 {
     public function __construct(

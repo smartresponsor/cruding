@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\EventSubscriber;
 
-use App\Cruding\Service\Crud\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
 use App\Cruding\Value\Api\CrudApiResponseTitle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,17 +15,22 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * Provides the api exception subscriber responsibility within the Cruding component.
+ */
 final readonly class CrudApiExceptionSubscriber implements EventSubscriberInterface
 {
     public function __construct(private CrudApiProblemResponseFactory $problemResponseFactory)
     {
     }
 
+    /**      * Returns subscribed events.      */
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::EXCEPTION => 'onKernelException'];
     }
 
+    /**      * Executes the on kernel exception operation.      */
     public function onKernelException(ExceptionEvent $event): void
     {
         $request = $event->getRequest();

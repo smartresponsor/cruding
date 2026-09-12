@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 /**
- * Reads APP_RUNTIME_VIEW_TOKEN-style View grammar tokens.
+ * Reads runtime view token reader data required by Cruding.
  */
 final readonly class CrudRuntimeViewTokenReader
 {

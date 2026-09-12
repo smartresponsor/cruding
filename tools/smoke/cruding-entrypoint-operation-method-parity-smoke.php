@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 $tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
-$classResolver = readFileStrict($root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php');
-$context = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudServiceContext.php');
-$invoker = readFileStrict($root.'/src/Invoker/Crud/CrudServiceInvoker.php');
-$abstract = readFileStrict($root.'/src/Service/Crud/AbstractCrudService.php');
+$controller = readFileStrict($root.'/src/Controller/CrudController.php');
+$classResolver = readFileStrict($root.'/src/Resolver/CrudServiceClassNameResolver.php');
+$context = readFileStrict($root.'/src/DTO/Entrypoint/CrudServiceContextDTO.php');
+$invoker = readFileStrict($root.'/src/Invoker/CrudServiceInvoker.php');
+$abstract = readFileStrict($root.'/src/Service/AbstractCrudService.php');
 
 $configOperations = extractConfiguredOperations($tokens);
 assert([] !== $configOperations, 'Configured CRUD operation token list must not be empty.');
@@ -26,7 +26,7 @@ foreach (['httpMethod', 'isHttpMethod', 'isGet', 'isPost', 'isPut', 'isPatch', '
     assert(str_contains($haystack, $needle), sprintf('Entrypoint method contract must expose %s.', $needle));
 }
 
-assert(str_contains($classResolver, '$context->operation'), 'URI-derived class resolver must include operation token from CrudContext.');
+assert(str_contains($classResolver, '$context->operation'), 'URI-derived class resolver must include operation token from CrudContextDTO.');
 assert(str_contains($classResolver, '$root.implode'), 'URI-derived class name must include root resource + tail + operation.');
 
 fwrite(STDOUT, sprintf(

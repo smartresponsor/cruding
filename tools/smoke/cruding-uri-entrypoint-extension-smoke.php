@@ -5,33 +5,33 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 
 $requiredFiles = [
-    'src/Dto/Crud/Entrypoint/CrudServiceContext.php',
-    'src/Dto/Crud/Entrypoint/CrudServiceResult.php',
-    'src/Dto/Crud/Entrypoint/CrudServiceResolution.php',
-    'src/Service/Crud/AbstractCrudService.php',
-    'src/Service/Crud/AbstractCrudIndexService.php',
-    'src/Service/Crud/AbstractCrudShowService.php',
-    'src/Service/Crud/AbstractCrudCreateService.php',
-    'src/Service/Crud/AbstractCrudEditService.php',
-    'src/Service/Crud/CrudDefaultServiceBehavior.php',
-    'src/Service/Crud/CrudDefaultServiceRegistry.php',
-    'src/Service/Crud/DefaultCrudService.php',
-    'src/Service/Crud/DefaultCrudIndexService.php',
-    'src/Service/Crud/DefaultCrudShowService.php',
-    'src/Service/Crud/DefaultCrudCreateService.php',
-    'src/Service/Crud/DefaultCrudEditService.php',
-    'src/ServiceInterface/Crud/Entrypoint/CrudServiceBehaviorInterface.php',
+    'src/DTO/Entrypoint/CrudServiceContextDTO.php',
+    'src/DTO/Entrypoint/CrudServiceResultDTO.php',
+    'src/DTO/Entrypoint/CrudServiceResolutionDTO.php',
+    'src/Service/AbstractCrudService.php',
+    'src/Service/AbstractCrudIndexService.php',
+    'src/Service/AbstractCrudShowService.php',
+    'src/Service/AbstractCrudCreateService.php',
+    'src/Service/AbstractCrudEditService.php',
+    'src/Service/CrudDefaultServiceBehavior.php',
+    'src/Service/CrudDefaultServiceRegistry.php',
+    'src/Service/DefaultCrudService.php',
+    'src/Service/DefaultCrudIndexService.php',
+    'src/Service/DefaultCrudShowService.php',
+    'src/Service/DefaultCrudCreateService.php',
+    'src/Service/DefaultCrudEditService.php',
+    'src/ServiceInterface/Entrypoint/CrudServiceBehaviorInterface.php',
 ];
 
 foreach ($requiredFiles as $relativePath) {
     assert(is_file($root.'/'.$relativePath), sprintf('Missing entrypoint file: %s', $relativePath));
 }
 
-require_once $root.'/src/Dto/Crud/CrudContext.php';
-require_once $root.'/src/Resolver/Crud/CrudServiceClassNameResolver.php';
+require_once $root.'/src/DTO/CrudContextDTO.php';
+require_once $root.'/src/Resolver/CrudServiceClassNameResolver.php';
 
-$classNameResolver = new App\Cruding\Resolver\Crud\CrudServiceClassNameResolver();
-$candidates = $classNameResolver->candidateShortClassNames(new App\Cruding\Dto\Crud\CrudContext(
+$classNameResolver = new App\Cruding\Resolver\CrudServiceClassNameResolver();
+$candidates = $classNameResolver->candidateShortClassNames(new App\Cruding\DTO\CrudContextDTO(
     view: 'public',
     operation: 'edit',
     resourcePath: 'vendor/attachment/document',
@@ -46,7 +46,7 @@ assert([
     'AttachmentDocumentEditService',
 ] === $candidates, 'Host entrypoint short service names must remain canonical.');
 
-$componentCandidates = $classNameResolver->candidateShortClassNames(new App\Cruding\Dto\Crud\CrudContext(
+$componentCandidates = $classNameResolver->candidateShortClassNames(new App\Cruding\DTO\CrudContextDTO(
     view: 'public',
     operation: 'index',
     resourcePath: 'vendor',
@@ -60,11 +60,11 @@ assert([
     'VendorIndexService',
 ] === $componentCandidates, 'Component entrypoint short service name must be derived.');
 
-$abstract = file_get_contents($root.'/src/Service/Crud/AbstractCrudService.php');
-$behavior = file_get_contents($root.'/src/Service/Crud/CrudDefaultServiceBehavior.php');
-$registry = file_get_contents($root.'/src/Service/Crud/CrudDefaultServiceRegistry.php');
-$resolver = file_get_contents($root.'/src/Resolver/Crud/CrudServiceResolver.php');
-$resolution = file_get_contents($root.'/src/Dto/Crud/Entrypoint/CrudServiceResolution.php');
+$abstract = file_get_contents($root.'/src/Service/AbstractCrudService.php');
+$behavior = file_get_contents($root.'/src/Service/CrudDefaultServiceBehavior.php');
+$registry = file_get_contents($root.'/src/Service/CrudDefaultServiceRegistry.php');
+$resolver = file_get_contents($root.'/src/Resolver/CrudServiceResolver.php');
+$resolution = file_get_contents($root.'/src/DTO/Entrypoint/CrudServiceResolutionDTO.php');
 
 assert(false !== $resolver && strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateClassNames'), 'Explicit service ids must be checked before URI-derived classes.');
 assert(false !== $resolver && str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeDecisionGuard;
+use App\Cruding\Service\Runtime\CrudRuntimeDecisionGuard;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'crud:runtime:decision',
     description: 'Validate Cruding runtime decision against env, composer inventory, and runtime scope lock files.',
 )]
+/**
+ * Exposes the runtime decision command workflow through the Symfony console.
+ */
 final class CrudRuntimeDecisionCommand extends Command
 {
     public function __construct(

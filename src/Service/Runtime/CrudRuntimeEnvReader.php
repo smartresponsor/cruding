@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 /**
- * Reads runtime token environment variables from server/env/getenv sources.
+ * Reads runtime env reader data required by Cruding.
  */
 final class CrudRuntimeEnvReader
 {
+    /**      * Executes the read operation.      */
     public function read(string $nameEntity): string
     {
         $serverValue = $_SERVER[$nameEntity] ?? null;

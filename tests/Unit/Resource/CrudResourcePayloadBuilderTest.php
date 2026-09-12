@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
-use App\Cruding\Dto\Resource\CrudResourceRequest;
-use App\Cruding\Dto\Resource\CrudRouteContext;
-use App\Cruding\Service\Crud\Resource\CrudResourcePayloadBuilder;
+use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
+use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Service\Resource\CrudResourcePayloadBuilder;
 use PHPUnit\Framework\TestCase;
 
 final class CrudResourcePayloadBuilderTest extends TestCase
 {
     public function testBuildsLocationBasedViewContractWithoutControllerPayloadKnowledge(): void
     {
-        $context = new CrudRouteContext(
+        $context = new CrudRouteContextDTO(
             resource: 'alpha',
             resourcePath: 'alpha',
             operation: 'briefing',
@@ -30,7 +30,7 @@ final class CrudResourcePayloadBuilderTest extends TestCase
             providerKeys: ['alpha.compliance.briefing'],
             templateCandidates: ['alpha/compliance/index.html.twig'],
         );
-        $request = new CrudResourceRequest($context, 'en', 'GET', [], []);
+        $request = new CrudResourceRequestDTO($context, 'en', 'GET', [], []);
 
         $contract = CrudResourcePayloadBuilder::fromRequest($request)
             ->title('Alpha compliance briefing')

@@ -1,46 +1,35 @@
 # Cruding
 
-Cruding is a universal, metadata-driven CRUD route processor bundle for Symfony host applications. It automates common Create, Read, Update, and Delete endpoint routing, request decoding, form validation, and entity persistence.
+Cruding is the reusable Symfony bundle that owns generic CRUD route grammar, controller delivery, entity/form resolution, operation dispatch, resource-view payload production, API problem responses, and runtime CRUD diagnostics for host applications.
 
-This bundle is **not** an admin panel generator (like EasyAdmin) or a query builder. It serves as a middle-tier controller/routing engine that dynamically dispatches actions based on configuration maps.
+The canonical component namespace is `App\Cruding\`. The source tree is role-first: technical roles such as `Controller`, `Resolver`, `Builder`, `Factory`, `Provider`, `Service`, and `ServiceInterface` appear before feature branches such as `Api`, `Operation`, `Resource`, and `Runtime`. Class names retain the `Crud*` prefix; redundant intermediate `Crud/` folders are not canonical.
 
-## Current Posture
+## Boundaries
 
-### What the component already does
-- Automates route resolution for resource endpoints based on configured CRUD maps.
-- Resolves actor scopes and security tokens using tokenized route resolvers.
-- Invokes pre-save and post-save hooks safely.
-- Maps JSON payloads directly to Doctrine entities using Symfony Forms.
-- Registers route definitions dynamically via compiler passes.
+Cruding owns generic CRUD mechanics. It does **not** own platform navigation, external callbacks/webhooks, host shell styling, or the final cross-component HTML rendering boundary.
 
-### What this repository does not claim yet
-- Custom user interface rendering for back-office tasks.
-- Advanced database-level triggers or audit logs (handled in other layers).
+## Runtime surface
 
-## Runtime Surface & Entrypoints
+- `App\Cruding\CrudingBundle` — bundle registration and compiler-pass integration.
+- `src/Controller/` — generic CRUD and API controllers.
+- `src/Resolver/` — context, entity, form, ownership, capability, and service resolution.
+- `src/Service/Operation/` — executable CRUD operations.
+- `src/Service/Resource/` — resource/view route and payload processing.
+- `src/Service/Runtime/` — runtime token, lock, inventory, route-policy, and diagnostic behavior.
+- `src/ServiceInterface/` — service contracts and mirrored operation/resource contracts where applicable.
 
-The bundle intercepts incoming requests and configures mappings:
-- `App\Cruding\CrudingBundle` - Registers the compiler pass and routing.
-- `src/Controller/` - Contains the generic, catch-all CRUD controller.
-- `src/Resolver/` - Tokenized and URI-based route resolvers.
-- `src/Hook/` - Extension hooks for preflight and post-execution logic.
+## Local setup and quality gate
 
-## Local Setup
-
-Install dependencies:
 ```bash
 composer install
+composer validate --strict
+composer dump-autoload
+composer check:cruding
 ```
 
-Run test suite and verify provider surfaces:
-```bash
-vendor/bin/phpunit
-composer run canon:cruding
-```
+`composer check:cruding` is the primary repository gate and includes canon checks, smoke guards, PHPDoc coverage, and PHPUnit.
 
-## Local Composer Path Installation
-
-To mount this bundle into your Symfony application:
+## Local Composer path installation
 
 ```json
 {
@@ -48,9 +37,7 @@ To mount this bundle into your Symfony application:
     {
       "type": "path",
       "url": "../Cruding",
-      "options": {
-        "symlink": true
-      }
+      "options": { "symlink": true }
     }
   ],
   "require": {
@@ -59,9 +46,15 @@ To mount this bundle into your Symfony application:
 }
 ```
 
-## Documentation Map
+## Documentation
 
-- [Cruding Resource Surface Routes](docs/cruding/cruding-resource-surface-routes.md)
-- [Entrypoint Migration Contract](docs/cruding/cruding-entrypoint-migration-contract.md)
-- [Tokenized Route Resolver Details](docs/cruding/cruding-tokenized-route-resolver.md)
-- [Host Route Integration Verification Guide](docs/cruding/cruding-host-route-integration-verification.md)
+- [Component documentation map](docs/cruding/README.adoc)
+- [Canonical service layout](docs/cruding/cruding-service-layout.md)
+- [Resource-view routes](docs/cruding/cruding-resource-view-routes.md)
+- [Tokenized route resolver](docs/cruding/cruding-tokenized-route-resolver.md)
+- [Host route integration verification](docs/cruding/cruding-host-route-integration-verification.md)
+- [Change log](CHANGELOG.md)
+- [Contribution guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+
+For the fuller architectural and integration overview, see `README.adoc`.

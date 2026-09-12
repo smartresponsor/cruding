@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
-use App\Cruding\Dto\Runtime\CrudRuntimeRouteGuardPolicy;
+use App\Cruding\DTO\Runtime\CrudRuntimeRouteGuardPolicyDTO;
 
 /**
- * Runtime-facing access point for the already canonical route guard policy.
+ * Enforces runtime route guard rules at the Cruding runtime boundary.
  */
 final readonly class CrudRuntimeRouteGuard
 {
@@ -37,9 +37,37 @@ final readonly class CrudRuntimeRouteGuard
     ) {
     }
 
-    public function policy(): CrudRuntimeRouteGuardPolicy
+    /**      * Executes the allows resource path operation.      */
+    public function allowsResourcePath(string $resourcePath): bool
     {
-        return new CrudRuntimeRouteGuardPolicy(
+        $root = $this->rootResourceToken($resourcePath);
+
+        if (null === $root) {
+            return false;
+        }
+
+        return in_array($root, $this->allowedResourceTokens, true);
+    }
+
+    private function rootResourceToken(string $resourcePath): ?string
+    {
+        $segments = preg_split('#/+#', trim($resourcePath, '/')) ?: [];
+
+        foreach ($segments as $segment) {
+            $segment = strtolower(trim((string) $segment));
+
+            if ('' !== $segment) {
+                return $segment;
+            }
+        }
+
+        return null;
+    }
+
+    /**      * Executes the policy operation.      */
+    public function policy(): CrudRuntimeRouteGuardPolicyDTO
+    {
+        return new CrudRuntimeRouteGuardPolicyDTO(
             scopeTokens: $this->scopeTokens,
             entityTokens: $this->entityTokens,
             viewTokens: $this->viewTokens,
