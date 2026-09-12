@@ -108,6 +108,8 @@ No authorized in-scope implementation tail remains. The only outstanding operati
 - Hardened `cruding-dto-suffix-smoke.php` to inspect and report exact `src/DTO` casing instead of relying on Windows case-insensitive path resolution.
 - Retained bounded local RC helper scripts only inside Cruding; destructive deletion was not permitted by the execution envelope, so no pre-existing or newly created file was removed through an unapproved destructive operation.
 - Integration target: commit the verified role-first/DTO/package-hardening work coherently on `feature/http-api-crud-classification`, then publish that branch and perform post-push acceptance.
+- The first signed integration commit is `57c1499095ac5f459472a3700e84c2d12001482c`; its commit hook applied and staged PHP-CS-Fixer corrections, and the resulting committed tree re-passed the full Cruding product gate.
+- Push was initially guard-blocked only by the pre-existing untracked copied `.gating/` distribution. Added `/.gating/` to repository ignore policy instead of deleting or committing that stale external-tool snapshot.
 
 ### Что имеем? Что осталось?
 
