@@ -13,11 +13,11 @@ use App\Cruding\ServiceInterface\Entrypoint\CrudServiceInterface;
 final readonly class CrudDefaultServiceRegistry
 {
     public function __construct(
-        private DefaultCrudIndexService $index,
-        private DefaultCrudShowService $show,
-        private DefaultCrudCreateService $create,
-        private DefaultCrudEditService $edit,
-        private DefaultCrudService $generic,
+        private CrudDefaultIndexService $index,
+        private CrudDefaultShowService $show,
+        private CrudDefaultCreateService $create,
+        private CrudDefaultEditService $edit,
+        private CrudDefaultService $generic,
     ) {
     }
 

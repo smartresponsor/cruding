@@ -18,7 +18,7 @@ This keeps existing granular component services compatible while preserving the 
 
 ## Config-driven operation tokens
 
-CRUD operation tokens are configured in `config/cruding_reserved_token.yaml`.
+CRUD operation tokens are configured in `config/crud_reserved_token.yaml`.
 
 Core operations keep their explicit routes. Additional configured operations are routed by generic operation-token routes:
 

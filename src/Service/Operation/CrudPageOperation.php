@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Operation;
 
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
+use App\Cruding\Policy\CrudReservedRouteTokenPolicy;
 use App\Cruding\Runner\CrudServiceRunner;
-use App\Cruding\Service\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Operation\CrudPageOperationInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

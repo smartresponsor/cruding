@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$webRoutes = file_get_contents($root.'/config/routes/cruding_crud.yaml');
-$apiRoutes = file_get_contents($root.'/config/routes/cruding_api_crud.yaml');
+$webRoutes = file_get_contents($root.'/config/routes/crud_crud.yaml');
+$apiRoutes = file_get_contents($root.'/config/routes/crud_api_crud.yaml');
 if (false === $webRoutes || false === $apiRoutes) {
     fwrite(STDERR, "Unable to read Cruding route configuration.\n");
     exit(1);

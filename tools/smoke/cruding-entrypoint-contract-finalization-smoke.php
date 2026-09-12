@@ -6,7 +6,7 @@ $root = dirname(__DIR__, 2);
 
 $result = readRequired($root.'/src/DTO/Entrypoint/CrudServiceResultDTO.php');
 $resolution = readRequired($root.'/src/DTO/Entrypoint/CrudServiceResolutionDTO.php');
-$abstract = readRequired($root.'/src/Service/AbstractCrudService.php');
+$abstract = readRequired($root.'/src/Service/CrudAbstractService.php');
 $behavior = readRequired($root.'/src/Service/CrudDefaultServiceBehavior.php');
 $registry = readRequired($root.'/src/Service/CrudDefaultServiceRegistry.php');
 $resolver = readRequired($root.'/src/Resolver/CrudServiceResolver.php');
@@ -23,7 +23,7 @@ assert(str_contains($abstract, 'beforeDefault'), 'Base service must expose a pre
 assert(str_contains($abstract, 'afterDefault'), 'Base service must expose a post-default hook.');
 assert(str_contains($abstract, '$this->defaultBehavior->execute($context)'), 'A thin subclass must inherit executable behavior.');
 assert(str_contains($behavior, 'CrudServiceBehaviorInterface'), 'Default behavior must implement the executable contract.');
-assert(str_contains($registry, 'DefaultCrudIndexService'), 'Registry must provide action-specific defaults.');
+assert(str_contains($registry, 'CrudDefaultIndexService'), 'Registry must provide action-specific defaults.');
 assert(strpos($resolver, 'candidateServiceIds') < strpos($resolver, 'candidateShortClassNames'), 'Explicit service ids must remain first.');
 assert(str_contains($resolver, 'CrudDefaultServiceRegistry'), 'Resolver must select a contextual default service.');
 assert(str_contains($resolver, 'STATUS_DEFAULT_SERVICE'), 'Resolver must return a default service when no consumer service is selected.');

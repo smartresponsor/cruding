@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Resource;
 
+use App\Cruding\Normalizer\Resource\CrudRouteValueNormalizer;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 use App\Cruding\DTO\Runtime\CrudRuntimeLockDTO;
+use App\Cruding\Normalizer\Runtime\CrudRuntimeTokenNormalizer;
 
 /**
  * Reads runtime lock reader data required by Cruding.

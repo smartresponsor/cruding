@@ -11,7 +11,7 @@ use App\Cruding\Resolver\CrudFormTypeResolver;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Api;
 
-use App\Cruding\Service\Api\CrudApiProblemResponseFactory;
+use App\Cruding\Factory\Api\CrudApiProblemResponseFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 

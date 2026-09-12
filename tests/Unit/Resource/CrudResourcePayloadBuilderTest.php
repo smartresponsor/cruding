@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
+use App\Cruding\Builder\Resource\CrudResourcePayloadBuilder;
 use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
-use App\Cruding\Service\Resource\CrudResourcePayloadBuilder;
 use PHPUnit\Framework\TestCase;
 
 final class CrudResourcePayloadBuilderTest extends TestCase

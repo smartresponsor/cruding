@@ -130,6 +130,6 @@ final readonly class CrudServiceResolver
             return $service;
         }
 
-        return new PassiveCrudService($service);
+        return new CrudPassiveService($service);
     }
 }

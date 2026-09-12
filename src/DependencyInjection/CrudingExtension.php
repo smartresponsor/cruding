@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
+use App\Cruding\Builder\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Normalizer\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
-use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -25,10 +25,10 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
-        $loader->load('cruding_reserved_token.yaml');
+        $loader->load('crud_reserved_token.yaml');
         $loader->load('services.yaml');
 
-        $configuration = new Configuration();
+        $configuration = new CrudConfiguration();
         /** @var array{
          *     resource_path_requirement: string,
          *     route_guard: array{
@@ -50,7 +50,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
          *     form_type_map: array<string, string>
          * } $config
          */
-        $config = $this->processConfiguration($configuration, $configs);
+        $config = $this->processCrudConfiguration($configuration, $configs);
 
         $routeGuard = $config['route_guard'];
         $normalizer = new CrudRuntimeTokenNormalizer();

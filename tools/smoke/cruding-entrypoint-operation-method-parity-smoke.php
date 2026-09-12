@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
+$tokens = readFileStrict($root.'/config/crud_reserved_token.yaml');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
 $classResolver = readFileStrict($root.'/src/Resolver/CrudServiceClassNameResolver.php');
 $context = readFileStrict($root.'/src/DTO/Entrypoint/CrudServiceContextDTO.php');
 $invoker = readFileStrict($root.'/src/Invoker/CrudServiceInvoker.php');
-$abstract = readFileStrict($root.'/src/Service/AbstractCrudService.php');
+$abstract = readFileStrict($root.'/src/Service/CrudAbstractService.php');
 
 $configOperations = extractConfiguredOperations($tokens);
 assert([] !== $configOperations, 'Configured CRUD operation token list must not be empty.');

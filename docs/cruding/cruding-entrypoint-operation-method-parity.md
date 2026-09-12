@@ -51,7 +51,7 @@ restore
 duplicate
 ```
 
-Entrypoints may be empty, extend `AbstractCrudService`, or implement one or more optional method interfaces. Absence of a class is not a crash condition.
+Entrypoints may be empty, extend `CrudAbstractService`, or implement one or more optional method interfaces. Absence of a class is not a crash condition.
 
 Supported optional hooks:
 

@@ -8,7 +8,7 @@ use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
 use App\Cruding\Service\Resource\CrudResourceProviderLocator;
 use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use PHPUnit\Framework\TestCase;
 
 final class CrudResourceProviderLocatorTest extends TestCase

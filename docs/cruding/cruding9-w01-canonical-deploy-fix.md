@@ -6,7 +6,7 @@ Scope applied from requested items `1,2,4,5`:
 
 1. Fixed Twig bundle path registration from `/template` to `/templates` in `CrudingExtension`.
 2. Removed duplicate DI import collision by excluding `src/Service/` from the broad `App\Service\` service import while preserving the dedicated `App\Service\` import with required `bind` maps.
-4. Split hidden `ResponseTitle` out of `CrudApiExceptionSubscriber` into `src/Value/Api/CrudApiResponseTitle.php`.
+4. Split hidden `ResponseTitle` out of `CrudApiExceptionSubscriber` into `src/ValueObject/Api/CrudApiResponseTitle.php`.
 5. Canonicalized non-prefixed class/interface names:
    - `IdentifiableInterface` → `CrudIdentifiableInterface`
    - `SluggableInterface` → `CrudSluggableInterface`

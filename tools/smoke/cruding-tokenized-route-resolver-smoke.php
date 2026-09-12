@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
-$apiRoutes = readFileStrict($root.'/config/routes/cruding_api_crud.yaml');
+$routes = readFileStrict($root.'/config/routes/crud_crud.yaml');
+$apiRoutes = readFileStrict($root.'/config/routes/crud_api_crud.yaml');
 $routeIndex = readFileStrict($root.'/config/routes.yaml');
-$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
+$resolver = readFileStrict($root.'/src/Resolver/CrudTokenizedRouteIntentResolver.php');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
 $apiController = readFileStrict($root.'/src/Controller/Api/CrudApiController.php');
-$tokenNormalizer = readFileStrict($root.'/src/Service/CrudRouteTokenNormalizer.php');
+$tokenNormalizer = readFileStrict($root.'/src/Normalizer/CrudRouteTokenNormalizer.php');
 $intent = readFileStrict($root.'/src/DTO/CrudTokenizedRouteIntentDTO.php');
 
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Missing tokenized CRUD catch-all route.');
