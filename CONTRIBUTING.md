@@ -23,7 +23,7 @@ composer check:cruding
 
 `composer check:cruding` is the primary repository gate and includes canon guards, smoke checks, PHPDoc coverage, and PHPUnit.
 
-When changing PHP files, also run the configured static-analysis or formatting tools available in the local environment. CrudConfiguration is stored in `phpstan.neon`, `psalm.xml`, `rector.neon`, and `.php-cs-fixer.php`.
+When changing PHP files, also run the configured static-analysis or formatting tools available in the local environment. Configuration is stored in `phpstan.neon`, `psalm.xml`, `rector.neon`, and `.php-cs-fixer.php`.
 
 ## Documentation
 
