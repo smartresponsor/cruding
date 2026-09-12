@@ -7,8 +7,12 @@ namespace App\Cruding\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Provides the configuration responsibility within the Cruding component.
+ */
 final class Configuration implements ConfigurationInterface
 {
+    /**      * Returns config tree builder.      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('cruding');

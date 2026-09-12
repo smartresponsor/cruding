@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Runtime;
 
-use App\Cruding\Dto\Runtime\CrudRuntimeLock;
+use App\Cruding\DTO\Runtime\CrudRuntimeLockDTO;
 
 /**
- * Reads accepted runtime scope locks from config/kernel/runtime_scope.*lock.php.
+ * Reads runtime lock reader data required by Cruding.
  */
 final readonly class CrudRuntimeLockReader
 {
@@ -19,11 +19,12 @@ final readonly class CrudRuntimeLockReader
     ) {
     }
 
-    public function read(): CrudRuntimeLock
+    /**      * Executes the read operation.      */
+    public function read(): CrudRuntimeLockDTO
     {
         $path = $this->resolveLockPath();
         if (null === $path) {
-            return new CrudRuntimeLock(
+            return new CrudRuntimeLockDTO(
                 appEnv: $this->appEnv,
                 path: null,
                 found: false,
@@ -37,7 +38,7 @@ final readonly class CrudRuntimeLockReader
 
         $payload = $this->loadArray($path);
 
-        return new CrudRuntimeLock(
+        return new CrudRuntimeLockDTO(
             appEnv: $this->appEnv,
             path: $path,
             found: true,
@@ -78,14 +79,12 @@ final readonly class CrudRuntimeLockReader
         return null;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private function loadArray(string $path): array
     {
         $payload = require $path;
 
-        return \is_array($payload) ? $payload : [];
+        return is_array($payload) ? $payload : [];
     }
 
     /**
@@ -98,19 +97,15 @@ final readonly class CrudRuntimeLockReader
     {
         foreach ($keys as $key) {
             $value = $this->readPath($payload, $key);
-            if (null === $value) {
-                continue;
+            if (null !== $value) {
+                return $this->valueToTokenList($value);
             }
-
-            return $this->valueToTokenList($value);
         }
 
         return [];
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
+    /** @param array<string, mixed> $payload */
     private function readPath(array $payload, string $path): mixed
     {
         if (array_key_exists($path, $payload)) {
@@ -119,7 +114,7 @@ final readonly class CrudRuntimeLockReader
 
         $current = $payload;
         foreach (explode('.', $path) as $segment) {
-            if (!\is_array($current) || !array_key_exists($segment, $current)) {
+            if (!is_array($current) || !array_key_exists($segment, $current)) {
                 return null;
             }
 
@@ -129,22 +124,20 @@ final readonly class CrudRuntimeLockReader
         return $current;
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function valueToTokenList(mixed $value): array
     {
-        if (\is_string($value)) {
+        if (is_string($value)) {
             return $this->normalizer->csvToTokenList($value);
         }
 
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             return [];
         }
 
         $tokens = [];
         foreach ($value as $item) {
-            if (\is_string($item)) {
+            if (is_string($item)) {
                 $tokens[] = $item;
             }
         }
@@ -165,17 +158,17 @@ final readonly class CrudRuntimeLockReader
                 continue;
             }
 
-            if (\is_string($value)) {
+            if (is_string($value)) {
                 return $this->normalizer->csvToTokenList($value);
             }
 
-            if (!\is_array($value)) {
+            if (!is_array($value)) {
                 return [];
             }
 
             $packages = [];
             foreach ($value as $package) {
-                if (\is_string($package)) {
+                if (is_string($package)) {
                     $packages[$package] = $package;
                 }
             }

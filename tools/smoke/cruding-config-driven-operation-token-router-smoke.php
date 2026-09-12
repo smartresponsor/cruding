@@ -5,8 +5,8 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 $tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
 $routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
-$resolver = readFileStrict($root.'/src/Service/Crud/CrudTokenizedRouteIntentResolver.php');
-$controller = readFileStrict($root.'/src/Controller/Crud/CrudController.php');
+$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
+$controller = readFileStrict($root.'/src/Controller/CrudController.php');
 
 foreach (['assign', 'unassign', 'adjust', 'calculate', 'verify', 'reject', 'approve', 'pay', 'recalculate', 'start', 'overview', 'mutation'] as $token) {
     assert(str_contains($tokens, '        - '.$token), sprintf('Missing configured operation token: %s.', $token));

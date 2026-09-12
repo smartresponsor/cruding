@@ -58,7 +58,7 @@ Optional method contract:
 ```php
 final class AlphaIndexService implements CrudGetServiceInterface
 {
-    public function get(CrudServiceContext $context): ?CrudServiceResult
+    public function get(CrudServiceContextDTO $context): ?CrudServiceResultDTO
     {
         return null;
     }

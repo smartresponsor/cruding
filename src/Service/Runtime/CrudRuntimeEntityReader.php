@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Service\Runtime;
 
 /**
- * Reads APP_RUNTIME_ENTITY-style business root tokens.
+ * Reads runtime entity reader data required by Cruding.
  */
 final readonly class CrudRuntimeEntityReader
 {

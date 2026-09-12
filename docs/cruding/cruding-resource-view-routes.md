@@ -121,14 +121,14 @@ concrete producer routes, because their provider key is no longer just a sample.
 Producer resource providers should return `CrudResourceContract` and should not build `Response`, `JsonResponse`, HTML, or Twig output. For normal producer routes the small builder keeps payload shape uniform while allowing each component to choose its own locations and block data.
 
 ```php
-use App\Cruding\Dto\Resource\CrudResourceRequest;
-use App\Cruding\Service\view\CrudResourcePayloadBuilder;
-use App\Cruding\ServiceInterface\view\CrudResourceProviderInterface;
-use App\Cruding\Value\view\CrudResourceContract;
+use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
+use App\Service\view\CrudResourcePayloadBuilder;
+use App\ServiceInterface\view\CrudResourceProviderInterface;
+use App\Value\view\CrudResourceContract;
 
 final readonly class AlphaComplianceBriefingview implements CrudResourceProviderInterface
 {
-    public function provide(CrudResourceRequest $request): CrudResourceContract
+    public function provide(CrudResourceRequestDTO $request): CrudResourceContract
     {
         return CrudResourcePayloadBuilder::fromRequest($request)
             ->title('Alpha compliance briefing')

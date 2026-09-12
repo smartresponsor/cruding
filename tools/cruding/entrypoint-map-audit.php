@@ -10,14 +10,14 @@ if (is_file($autoload)) {
 }
 
 foreach ([
-    'src/Dto/Crud/CrudContext.php',
-    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
+    'src/DTO/CrudContextDTO.php',
+    'src/Resolver/CrudServiceClassNameResolver.php',
 ] as $requiredFile) {
     require_once $root.'/'.$requiredFile;
 }
 
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\Resolver\CrudServiceClassNameResolver;
 
 $options = parseArguments($argv);
 $paths = $options['path'] ?? [];
@@ -34,7 +34,7 @@ $rows = [];
 
 foreach ($paths as $path) {
     $intent = resolveIntent((string) $path, $operationTokens);
-    $context = new CrudContext(
+    $context = new CrudContextDTO(
         view: (string) ($options['view'][0] ?? 'public'),
         operation: $intent['operation'],
         resourcePath: $intent['resourcePath'],
@@ -58,7 +58,6 @@ foreach ($paths as $path) {
         'operation' => $intent['operation'],
         'identifierField' => $intent['identifierField'],
         'identifierValue' => $intent['identifierValue'],
-        'actorScope' => $intent['actorScope'] ?? null,
         'candidates' => $candidates,
     ];
 }
@@ -80,9 +79,6 @@ foreach ($rows as $row) {
     fwrite(STDOUT, sprintf("Path: %s\n", $row['path']));
     fwrite(STDOUT, sprintf("  resourcePath: %s\n", $row['resourcePath']));
     fwrite(STDOUT, sprintf("  operation: %s\n", $row['operation']));
-    if (isset($row['actorScope']) && null !== $row['actorScope']) {
-        fwrite(STDOUT, sprintf("  actorScope: %s\n", $row['actorScope']));
-    }
     if (null !== $row['identifierValue']) {
         fwrite(STDOUT, sprintf("  %s: %s\n", $row['identifierField'], (string) $row['identifierValue']));
     }
@@ -164,19 +160,12 @@ function resolveIntent(string $path, array $operationTokens): array
     if ([] !== $segments && 'api' === strtolower($segments[0])) {
         $segments = array_values(array_slice($segments, 1));
     }
-    $actorScope = null;
-    if ([] !== $segments && 'my' === strtolower($segments[0])) {
-        $actorScope = 'my';
-        $segments = array_values(array_slice($segments, 1));
-    }
-
     if ([] === $segments) {
         return [
             'resourcePath' => '',
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -191,7 +180,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $last,
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -204,7 +192,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $beforeLast,
             'identifierField' => ctype_digit($identifier) ? 'id' : 'slug',
             'identifierValue' => ctype_digit($identifier) ? (int) $identifier : $identifier,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -214,7 +201,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 

@@ -31,7 +31,7 @@ Examples using neutral sample resources:
   -> App\Service\Http\Alpha\Attachment\Media\AlphaAttachmentMediaArchiveService
 ```
 
-The route controller may be a shared core controller, but the component extension point remains operation-specific because the operation token is preserved in `CrudContext::operation` and used by `CrudServiceClassNameResolver`.
+The route controller may be a shared core controller, but the component extension point remains operation-specific because the operation token is preserved in `CrudContextDTO::operation` and used by `CrudServiceClassNameResolver`.
 
 All configured UI CRUD operation tokens must reach `CrudServiceRunner` before falling back to the default Cruding operation flow:
 
@@ -64,6 +64,6 @@ patch(context)
 delete(context)
 ```
 
-`CrudServiceContext` exposes helper methods for operation and HTTP-method checks, including `isOperation()`, `isGet()`, `isPost()`, `isPut()`, `isPatch()`, and `isDelete()`.
+`CrudServiceContextDTO` exposes helper methods for operation and HTTP-method checks, including `isOperation()`, `isGet()`, `isPost()`, `isPut()`, `isPatch()`, and `isDelete()`.
 
 `null` from a hook means: continue with the default Cruding engine behavior.

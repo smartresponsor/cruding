@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cruding\Command\Runtime;
 
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuard;
+use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +17,9 @@ use Symfony\Component\Routing\RouterInterface;
     name: 'crud:runtime:route-match-smoke',
     description: 'Smoke-test Cruding runtime route requirements against Symfony router matching.',
 )]
+/**
+ * Exposes the runtime route match smoke command workflow through the Symfony console.
+ */
 final class CrudRuntimeRouteMatchSmokeCommand extends Command
 {
     private const DEFAULT_RESERVED_PATHS = [

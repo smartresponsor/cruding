@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Cruding\Value\Api;
 
+/**
+ * Provides the api response title responsibility within the Cruding component.
+ */
 final class CrudApiResponseTitle
 {
+    /**      * Executes the from status code operation.      */
     public static function fromStatusCode(int $statusCode): string
     {
         return match ($statusCode) {

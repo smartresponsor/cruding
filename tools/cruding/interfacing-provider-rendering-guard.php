@@ -12,7 +12,7 @@ $root = dirname(__DIR__, 2);
 $requiredFiles = [
     'src/DependencyInjection/CrudingExtension.php',
     'src/DependencyInjection/Configuration.php',
-    'src/Service/Crud/Resource/CrudResourceContractFactory.php',
+    'src/Service/Resource/CrudResourceContractFactory.php',
     'config/routes/cruding_crud.yaml',
     'config/routes/cruding_api_crud.yaml',
 ];
@@ -25,9 +25,9 @@ foreach ($requiredFiles as $relativePath) {
 }
 
 foreach ([
-    'src/Service/Crud/CrudTemplateResolver.php',
-    'src/ServiceInterface/Crud/CrudTemplateResolverInterface.php',
-    'src/Service/Crud/CrudResourceResponseFactory.php',
+    'src/Service/CrudTemplateResolver.php',
+    'src/ServiceInterface/CrudTemplateResolverInterface.php',
+    'src/Service/CrudResourceResponseFactory.php',
     'templates/crud/index.html.twig',
 ] as $legacyFile) {
     if (is_file($root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $legacyFile))) {
@@ -35,13 +35,13 @@ foreach ([
     }
 }
 
-$factory = file_get_contents($root . '/src/Service/Crud/Resource/CrudResourceContractFactory.php') ?: '';
+$factory = file_get_contents($root . '/src/Service/Resource/CrudResourceContractFactory.php') ?: '';
 $viewContract = file_get_contents($root . '/src/Value/Resource/CrudResourceContract.php') ?: '';
-$builder = file_get_contents($root . '/src/Service/Crud/Resource/CrudInterfacingProviderResourceBuilder.php') ?: '';
-$pageProvider = file_get_contents($root . '/src/Provider/Crud/CrudPageDefinitionProvider.php') ?: '';
+$builder = file_get_contents($root . '/src/Service/Resource/CrudInterfacingProviderResourceBuilder.php') ?: '';
+$pageProvider = file_get_contents($root . '/src/Provider/CrudPageDefinitionProvider.php') ?: '';
 $extension = file_get_contents($root . '/src/DependencyInjection/CrudingExtension.php') ?: '';
 $configuration = file_get_contents($root . '/src/DependencyInjection/Configuration.php') ?: '';
-$contextResolver = file_get_contents($root . '/src/Resolver/Crud/CrudContextResolver.php') ?: '';
+$contextResolver = file_get_contents($root . '/src/Resolver/CrudContextResolver.php') ?: '';
 $routes = file_get_contents($root . '/config/routes.yaml') ?: '';
 $services = file_get_contents($root . '/config/services.yaml') ?: '';
 $composer = file_get_contents($root . '/composer.json') ?: '';
@@ -98,8 +98,8 @@ foreach ($forbiddenRuntimeNeedles as $needle) {
 $forbiddenPaths = [
     'src/Controller/ObjectMeta',
     'src/Controller/Relation',
-    'src/Dto/ObjectMeta',
-    'src/Dto/Relation',
+    'src/DTO/ObjectMeta',
+    'src/DTO/Relation',
     'src/Service/ObjectMeta',
     'src/Service/Relation',
     'src/ServiceInterface/ObjectMeta',

@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
-use App\Cruding\Service\Crud\Runtime\CrudRuntimeTokenNormalizer;
-use App\Cruding\ServiceInterface\Crud\Resource\CrudResourceProviderInterface;
+use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
+use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
+use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\HttpKernel\Kernel;
 
+/**
+ * Provides the ing extension responsibility within the Cruding component.
+ */
 final class CrudingExtension extends Extension implements PrependExtensionInterface
 {
     /**
@@ -63,7 +65,9 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             defaultOperationTokens: $defaultOperationTokens,
             defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
         );
-        $appEnv = $this->readAppEnv();
+        $appEnv = $container->hasParameter('kernel.environment')
+            ? (string) $container->getParameter('kernel.environment')
+            : 'dev';
         $runtimeLock = (new CrudRuntimeLockReader(
             normalizer: $normalizer,
             projectDir: (string) $container->getParameter('kernel.project_dir'),
@@ -216,6 +220,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             ->addTag('cruding.resource_provider');
     }
 
+    /**      * Executes the prepend operation.      */
     public function prepend(ContainerBuilder $container): void
     {
         if (!$container->hasExtension('twig')) {
@@ -234,6 +239,7 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         ]);
     }
 
+    /**      * Returns alias.      */
     public function getAlias(): string
     {
         return 'cruding';
@@ -339,18 +345,6 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         }
 
         return implode(',', $fallbackTokens);
-    }
-
-    private function readAppEnv(): string
-    {
-        if (class_exists(Kernel::class)) {
-            $environment = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV');
-            if (is_string($environment) && '' !== trim($environment)) {
-                return $environment;
-            }
-        }
-
-        return 'dev';
     }
 
     private function readEnvironmentValue(string $nameEntity): string

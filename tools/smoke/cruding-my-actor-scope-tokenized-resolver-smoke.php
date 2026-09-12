@@ -5,14 +5,14 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 
 foreach ([
-    'src/Dto/Crud/CrudContext.php',
-    'src/Dto/Crud/CrudTokenizedRouteIntent.php',
-    'src/Service/Crud/CrudRouteTokenNormalizer.php',
-    'src/Service/Crud/CrudReservedRouteTokenPolicy.php',
-    'src/Service/Crud/CrudTokenizedRouteIntentResolver.php',
-    'src/Resolver/Crud/CrudActorScopeContextResolver.php',
-    'src/Dto/Crud/Entrypoint/CrudServiceContext.php',
-    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
+    'src/DTO/CrudContextDTO.php',
+    'src/DTO/CrudTokenizedRouteIntentDTO.php',
+    'src/Service/CrudRouteTokenNormalizer.php',
+    'src/Service/CrudReservedRouteTokenPolicy.php',
+    'src/Service/CrudTokenizedRouteIntentResolver.php',
+    'src/Resolver/CrudActorScopeContextResolver.php',
+    'src/DTO/Entrypoint/CrudServiceContextDTO.php',
+    'src/Resolver/CrudServiceClassNameResolver.php',
 ] as $file) {
     require_once $root.'/'.$file;
 }
@@ -38,11 +38,11 @@ final class Request
 PHP);
 }
 
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Service\Crud\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\Crud\CrudRouteTokenNormalizer;
-use App\Cruding\Service\Crud\CrudTokenizedRouteIntentResolver;
-use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\Service\CrudReservedRouteTokenPolicy;
+use App\Cruding\Service\CrudRouteTokenNormalizer;
+use App\Cruding\Service\CrudTokenizedRouteIntentResolver;
+use App\Cruding\Resolver\CrudServiceClassNameResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
@@ -53,36 +53,25 @@ $resolver = new CrudTokenizedRouteIntentResolver(
 );
 
 $cases = [
-    '/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/my/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null],
-    '/api/my/vendor/index' => ['resourcePath' => 'vendor', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/my/api/vendor/attachment/index' => ['resourcePath' => 'vendor/attachment', 'operation' => 'index', 'actorScope' => 'my', 'identifierField' => null, 'identifierValue' => null, 'api' => true],
-    '/api/my/order/attachment/read/123' => ['resourcePath' => 'order/attachment', 'operation' => 'read', 'actorScope' => 'my', 'identifierField' => 'id', 'identifierValue' => '123', 'api' => true],
-    '/ea/my/api/vendor/attachment/show/acme-file' => ['resourcePath' => 'vendor/attachment', 'operation' => 'show', 'actorScope' => 'my', 'identifierField' => 'slug', 'identifierValue' => 'acme-file', 'api' => true],
+    '/vendor/page' => ['resourcePath' => 'vendor', 'operation' => 'page', 'identifierField' => 'slug', 'identifierValue' => null],
+    '/vendor/show' => ['resourcePath' => 'vendor', 'operation' => 'show', 'identifierField' => 'slug', 'identifierValue' => null],
+    '/vendor/attachment/page' => ['resourcePath' => 'vendor/attachment', 'operation' => 'page', 'identifierField' => 'slug', 'identifierValue' => null],
 ];
 
 foreach ($cases as $path => $expected) {
     $request = Request::create($path, 'GET');
     $request->attributes->set('crudPath', trim($path, '/'));
-    $intent = ($expected['api'] ?? false) ? $resolver->resolveApi($request) : $resolver->resolveWeb($request);
+    $intent = $resolver->resolveWeb($request);
 
     assert(null !== $intent, sprintf('%s must resolve to a tokenized intent.', $path));
     assert($expected['resourcePath'] === $intent->resourcePath, sprintf('%s resourcePath mismatch: %s', $path, $intent->resourcePath));
     assert($expected['operation'] === $intent->operation, sprintf('%s operation mismatch: %s', $path, $intent->operation));
-    assert($expected['actorScope'] === $intent->actorScope, sprintf('%s actorScope mismatch.', $path));
-    assert($intent->isMyScoped(), sprintf('%s must be my-scoped.', $path));
     assert($expected['identifierField'] === $intent->identifierField, sprintf('%s identifierField mismatch.', $path));
     assert($expected['identifierValue'] === $intent->identifierValue, sprintf('%s identifierValue mismatch.', $path));
 }
 
-foreach (['/my/vendor/attachment/document/index', '/api/my/vendor/attachment/document/show/acme-file', '/ea/api/my/vendor/attachment/document/index'] as $path) {
-    $request = Request::create($path, 'GET');
-    $request->attributes->set('crudPath', trim($path, '/'));
-    assert(null === $resolver->resolveWeb($request), sprintf('%s must exceed semantic CRUD resource depth after context-prefix trimming.', $path));
-}
-
 $classResolver = new CrudServiceClassNameResolver();
-$context = new CrudContext(
+$context = new CrudContextDTO(
     view: 'public',
     operation: 'index',
     resourcePath: 'vendor/attachment',
@@ -97,12 +86,15 @@ foreach ($candidates as $candidate) {
     assert(!str_contains($candidate, 'VendorMyAttachmentIndexService'), 'My scope must not require a *My* FQCN candidate by default.');
 }
 
-$entrypointContext = readFileStrict($root.'/src/Dto/Crud/Entrypoint/CrudServiceContext.php');
-foreach (['isActorScoped', 'actorScope', 'isMyScoped', 'isActorGrounded', 'actorUserId', 'actorUserSlug', 'actorIdentityField', 'actorAdminIdentityField'] as $method) {
-    assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContext missing %s().', $method));
+$entrypointContext = readFileStrict($root.'/src/DTO/Entrypoint/CrudServiceContextDTO.php');
+foreach (['isActorGrounded', 'actorUserId', 'actorUserSlug', 'actorIdentityField', 'actorAdminIdentityField'] as $method) {
+    assert(str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContextDTO missing %s().', $method));
+}
+foreach (['isActorScoped', 'actorScope', 'isMyScoped'] as $method) {
+    assert(!str_contains($entrypointContext, 'function '.$method), sprintf('CrudServiceContextDTO must not keep obsolete %s().', $method));
 }
 
-fwrite(STDOUT, "PASS: context prefixes are trimmed before CRUD grammar depth checks and my scope remains actor context.\n");
+fwrite(STDOUT, "PASS: page is the canonical implicit-current-actor CRUD operation and no actor-scope URL prefix is required.\n");
 
 /**
  * @return list<string>

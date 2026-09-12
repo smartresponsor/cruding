@@ -10,9 +10,11 @@ $psr4 = array_merge(
     $composer['autoload-dev']['psr-4'] ?? []
 );
 
-assert(isset($psr4['App\\Cruding\\Tests\\']), 'composer.json must expose App\\Cruding\\Tests\\ for existing test namespaces.');
-assert(($psr4['App\\Cruding\\Tests\\'] ?? null) === 'tests/', 'App\\Cruding\\Tests\\ must map to tests/.');
-assert(isset($psr4['App\\Tests\\']), 'composer.json must keep App\\Tests\\ for neutral test fixtures.');
+assert(($composer['autoload']['psr-4']['App\\Cruding\\'] ?? null) === 'src/', 'composer.json must map canonical App\\Cruding\\ to src/.');
+assert(!isset($composer['autoload']['psr-4']['App\\']), 'Bare App\\ source root is not canonical for the Cruding component.');
+
+assert(($psr4['App\\Cruding\\Tests\\'] ?? null) === 'tests/', 'App\\Cruding\\Tests\\ must map component tests to tests/.');
+assert(($psr4['App\\Tests\\'] ?? null) === 'tests/', 'App\\Tests\\ must remain available for neutral fixtures.');
 
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root . '/tests'));
 $issues = [];
@@ -61,4 +63,4 @@ foreach ($iterator as $file) {
 
 assert($issues === [], "All tests must comply with composer autoload-dev PSR-4.\n" . implode("\n", $issues));
 
-echo "PASS: composer autoload-dev maps App\\Cruding\\Tests\\ and App\\Tests\\ without PSR-4 drift.\n";
+echo "PASS: composer autoload uses App\\Cruding\\ for component source/tests and App\\Tests\\ for neutral fixtures.\n";

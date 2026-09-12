@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 $servicesPath = $root . '/config/services.yaml';
-$webControllerPath = $root . '/src/Controller/Crud/CrudController.php';
-$apiControllerPath = $root . '/src/Controller/Api/Crud/CrudApiController.php';
+$webControllerPath = $root . '/src/Controller/CrudController.php';
+$apiControllerPath = $root . '/src/Controller/Api/CrudApiController.php';
 
 foreach ([$servicesPath, $webControllerPath, $apiControllerPath] as $path) {
     if (!is_file($path)) {
@@ -19,8 +19,8 @@ $webController = file_get_contents($webControllerPath);
 $apiController = file_get_contents($apiControllerPath);
 
 $needles = [
-    'App\\Cruding\\Controller\\Crud\\CrudController:',
-    'App\\Cruding\\Controller\\Api\\Crud\\CrudApiController:',
+    'App\\Cruding\\Controller\\CrudController:',
+    'App\\Cruding\\Controller\\Api\\CrudApiController:',
     "tags: ['controller.service_arguments']",
     'public: true',
 ];

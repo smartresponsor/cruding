@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
-use App\Cruding\Service\Crud\Resource\CrudRouteMapLoader;
-use App\Cruding\Service\Crud\Resource\CrudRouteMapMatcher;
+use App\Cruding\Service\Resource\CrudRouteMapLoader;
+use App\Cruding\Service\Resource\CrudRouteMapMatcher;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 

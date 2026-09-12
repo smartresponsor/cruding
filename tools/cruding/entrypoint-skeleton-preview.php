@@ -10,14 +10,14 @@ if (is_file($autoload)) {
 }
 
 foreach ([
-    'src/Dto/Crud/CrudContext.php',
-    'src/Resolver/Crud/CrudServiceClassNameResolver.php',
+    'src/DTO/CrudContextDTO.php',
+    'src/Resolver/CrudServiceClassNameResolver.php',
 ] as $requiredFile) {
     require_once $root.'/'.$requiredFile;
 }
 
-use App\Cruding\Dto\Crud\CrudContext;
-use App\Cruding\Resolver\Crud\CrudServiceClassNameResolver;
+use App\Cruding\DTO\CrudContextDTO;
+use App\Cruding\Resolver\CrudServiceClassNameResolver;
 
 $options = parseArguments($argv);
 $path = (string) ($options['path'][0] ?? '');
@@ -29,7 +29,7 @@ if ('' === $path) {
 $style = strtolower((string) ($options['style'][0] ?? 'empty'));
 $operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
 $intent = resolveIntent($path, $operationTokens);
-$context = new CrudContext(
+$context = new CrudContextDTO(
     view: (string) ($options['view'][0] ?? 'public'),
     operation: $intent['operation'],
     resourcePath: $intent['resourcePath'],
@@ -53,9 +53,6 @@ $namespace = serviceNamespace((string) $serviceLayerPrefixes[0], $intent['resour
 fwrite(STDOUT, sprintf("// Path: %s\n", normalizePath($path)));
 fwrite(STDOUT, sprintf("// Resource: %s\n", $intent['resourcePath']));
 fwrite(STDOUT, sprintf("// Operation: %s\n", $intent['operation']));
-if (isset($intent['actorScope']) && null !== $intent['actorScope']) {
-    fwrite(STDOUT, sprintf("// Actor scope: %s\n", $intent['actorScope']));
-}
 fwrite(STDOUT, "// writeAction: false\n");
 fwrite(STDOUT, "// Preview only. Copy manually if this entrypoint should exist.\n\n");
 fwrite(STDOUT, renderSkeleton($namespace, $shortName, $style));
@@ -127,19 +124,12 @@ function resolveIntent(string $path, array $operationTokens): array
     if ([] !== $segments && 'api' === strtolower($segments[0])) {
         $segments = array_values(array_slice($segments, 1));
     }
-    $actorScope = null;
-    if ([] !== $segments && 'my' === strtolower($segments[0])) {
-        $actorScope = 'my';
-        $segments = array_values(array_slice($segments, 1));
-    }
-
     if ([] === $segments) {
         return [
             'resourcePath' => '',
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -152,7 +142,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $last,
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -164,7 +153,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => $beforeLast,
             'identifierField' => ctype_digit($identifier) ? 'id' : 'slug',
             'identifierValue' => ctype_digit($identifier) ? (int) $identifier : $identifier,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -174,7 +162,6 @@ function resolveIntent(string $path, array $operationTokens): array
             'operation' => 'index',
             'identifierField' => 'id',
             'identifierValue' => null,
-            'actorScope' => $actorScope,
         ];
     }
 
@@ -228,9 +215,9 @@ function renderSkeleton(string $namespace, string $shortName, string $style): st
     $header = "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n";
 
     return match ($style) {
-        'abstract' => $header."\nuse App\\Cruding\\Service\\Crud\\Entrypoint\\AbstractCrudService;\n\nfinal class {$shortName} extends AbstractCrudService\n{\n}\n",
-        'get' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudGetServiceInterface;\n\nfinal class {$shortName} implements CrudGetServiceInterface\n{\n    public function get(CrudServiceContext ".'$'."context): ?CrudServiceResult\n    {\n        return null;\n    }\n}\n",
-        'post' => $header."\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceContext;\nuse App\\Cruding\\Dto\\Crud\\Entrypoint\\CrudServiceResult;\nuse App\\Cruding\\ServiceInterface\\Crud\\Entrypoint\\CrudPostServiceInterface;\n\nfinal class {$shortName} implements CrudPostServiceInterface\n{\n    public function post(CrudServiceContext ".'$'."context): ?CrudServiceResult\n    {\n        return null;\n    }\n}\n",
+        'abstract' => $header."\nuse App\\Cruding\\Service\\AbstractCrudService;\n\nfinal class {$shortName} extends AbstractCrudService\n{\n}\n",
+        'get' => $header."\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceContextDTO;\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceResultDTO;\nuse App\\Cruding\\ServiceInterface\\Entrypoint\\CrudGetServiceInterface;\n\nfinal class {$shortName} implements CrudGetServiceInterface\n{\n    public function get(CrudServiceContextDTO ".'$'."context): ?CrudServiceResultDTO\n    {\n        return null;\n    }\n}\n",
+        'post' => $header."\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceContextDTO;\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceResultDTO;\nuse App\\Cruding\\ServiceInterface\\Entrypoint\\CrudPostServiceInterface;\n\nfinal class {$shortName} implements CrudPostServiceInterface\n{\n    public function post(CrudServiceContextDTO ".'$'."context): ?CrudServiceResultDTO\n    {\n        return null;\n    }\n}\n",
         default => $header."\nfinal class {$shortName}\n{\n}\n",
     };
 }

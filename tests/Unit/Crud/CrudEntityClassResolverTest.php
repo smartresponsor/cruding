@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
-use App\Cruding\Exception\Crud\CrudResourceNotFoundException;
-use App\Cruding\Parser\Crud\CrudResourcePathParser;
-use App\Cruding\Resolver\Crud\CrudEntityClassResolver;
+use App\Cruding\Exception\CrudResourceNotFoundException;
+use App\Cruding\Parser\CrudResourcePathParser;
+use App\Cruding\Resolver\CrudEntityClassResolver;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\ObjectManager;
@@ -71,6 +71,26 @@ final class CrudEntityClassResolverTest extends TestCase
         );
 
         self::assertSame('App\Tests\Fixture\Entity\Resource\ResourceCategoryEntity', $resolver->resolve('resource_item'));
+    }
+
+    public function testExplicitAliasMapBypassesMetadataDiscovery(): void
+    {
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadataFactory->expects(self::never())->method('getAllMetadata');
+
+        $manager = $this->createStub(ObjectManager::class);
+        $manager->method('getMetadataFactory')->willReturn($metadataFactory);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagers')->willReturn([$manager]);
+
+        $resolver = new CrudEntityClassResolver(
+            $registry,
+            new CrudResourcePathParser(),
+            ['category' => 'App\\Tests\\Fixture\\Entity\\Resource\\ResourceCategoryEntity'],
+        );
+
+        self::assertSame('App\\Tests\\Fixture\\Entity\\Resource\\ResourceCategoryEntity', $resolver->resolve('category'));
     }
 
     public function testExplicitAliasMapCanResolveHostMappedEntityWithoutNeighborNamespace(): void

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
 
-$resultPath = $root.'/src/Dto/Crud/Entrypoint/CrudServiceResult.php';
-$runnerPath = $root.'/src/Runner/Crud/CrudServiceRunner.php';
+$resultPath = $root.'/src/DTO/Entrypoint/CrudServiceResultDTO.php';
+$runnerPath = $root.'/src/Runner/CrudServiceRunner.php';
 $docPath = $root.'/docs/cruding/cruding-entrypoint-trace-diagnostics.md';
 
 $result = file_get_contents($resultPath);
 $runner = file_get_contents($runnerPath);
 $doc = file_get_contents($docPath);
 
-assert(false !== $result, 'Cannot read CrudServiceResult.');
+assert(false !== $result, 'Cannot read CrudServiceResultDTO.');
 assert(false !== $runner, 'Cannot read CrudServiceRunner.');
 assert(false !== $doc, 'Cannot read entrypoint trace diagnostics documentation.');
 
-assert(str_contains($result, 'function withDiagnostics('), 'CrudServiceResult must support immutable diagnostic enrichment.');
-assert(str_contains($result, 'function diagnostics()'), 'CrudServiceResult must expose diagnostics for audit/smoke code.');
+assert(str_contains($result, 'function withDiagnostics('), 'CrudServiceResultDTO must support immutable diagnostic enrichment.');
+assert(str_contains($result, 'function diagnostics()'), 'CrudServiceResultDTO must expose diagnostics for audit/smoke code.');
 
 assert(str_contains($runner, 'function run('), 'CrudServiceRunner must expose a result-preserving run() method.');
 assert(str_contains($runner, 'function tryRun('), 'CrudServiceRunner must preserve existing tryRun() payload API.');

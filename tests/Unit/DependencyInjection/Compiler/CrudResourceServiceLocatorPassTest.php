@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\DependencyInjection\Compiler;
 
 use App\Cruding\DependencyInjection\Compiler\CrudResourceServiceLocatorPass;
-use App\Cruding\Service\Crud\Resource\CrudResourceServiceLocator;
+use App\Cruding\Service\Resource\CrudResourceServiceLocator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -29,6 +29,21 @@ final class CrudResourceServiceLocatorPassTest extends TestCase
         self::assertArrayHasKey('component.document.index', $values);
         self::assertArrayHasKey('App\\Vendoring\\Service\\Runtime\\Profile\\VendorProfileShowService', $values);
         self::assertArrayNotHasKey('App\\Something\\ElseService', $values);
+    }
+
+    public function testCollectsExplicitlyTaggedComponentService(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(CrudResourceServiceLocator::class, new Definition(CrudResourceServiceLocator::class));
+        $definition = new Definition();
+        $definition->addTag('cruding.resource_service');
+        $container->setDefinition('App\\Shipping\\Service\\Http\\Shipment\\ShipmentNewService', $definition);
+
+        (new CrudResourceServiceLocatorPass())->process($container);
+
+        $argument = $container->getDefinition(CrudResourceServiceLocator::class)->getArgument(0);
+        self::assertInstanceOf(ServiceLocatorArgument::class, $argument);
+        self::assertArrayHasKey('App\\Shipping\\Service\\Http\\Shipment\\ShipmentNewService', $argument->getValues());
     }
 
     public function testSkipsAbstractCanonicalService(): void

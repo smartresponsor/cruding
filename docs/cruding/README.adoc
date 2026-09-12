@@ -1,0 +1,48 @@
+= Cruding documentation map
+
+This directory contains component-local documentation. The current contract is intentionally separated from engineering history so that migration notes are not mistaken for the runtime specification.
+
+== Current contract
+
+* `cruding-service-layout.md` — canonical source-tree and role naming rules.
+* `cruding-tokenized-route-resolver.md` — tokenized CRUD route interpretation.
+* `cruding-resource-view-routes.md` — resource/view/action route and payload contract.
+* `cruding-host-route-integration-verification.md` — host application route integration checks.
+* `cruding-uri-entrypoint-extension.md` — URI-derived entrypoint behavior and extension surface.
+* `cruding-entrypoint-safe-hook-invocation.md` — fail-soft entrypoint hook invocation contract.
+* `cruding-entrypoint-trace-diagnostics.md` — entrypoint trace and diagnostic behavior.
+
+== Supporting runtime specifications
+
+These documents describe bounded subsystems that remain relevant to the current implementation:
+
+* `cruding-w06-runtime-entity-route-guard.md`
+* `cruding-w07-runtime-route-match-smoke.md`
+* `cruding-w08-runtime-lock-decision.md`
+* `cruding-w09-route-map-registry.md`
+* `cruding-wave46-interfacing-provider-resource.md`
+* `cruding-my-actor-scope-tokenized-resolver.md`
+
+== Engineering history / migration records
+
+The following documents explain how the current contract was reached. They are useful for archaeology and regression analysis but are not authoritative over current source, configuration, tests, or the documents listed under _Current contract_.
+
+* `cruding-entrypoint-contract-finalization.md`
+* `cruding-entrypoint-migration-contract.md`
+* `cruding-entrypoint-operation-method-parity.md`
+* `cruding-legacy-invokable-and-config-operation-router.md`
+* `cruding-tokenized-before-legacy-resource-route-order.md`
+* `cruding9-w01-canonical-deploy-fix.md`
+
+== Repository-level product documentation
+
+The repository root contains the package-facing documents:
+
+* `README.adoc` — authoritative component overview and integration boundary.
+* `README.md` — concise landing page and quick start.
+* `MANIFEST.json` — machine-readable component identity and responsibility.
+* `CHANGELOG.md` — release-facing change history.
+* `CONTRIBUTING.md` — contribution and quality rules.
+* `SECURITY.md` — security reporting and regression expectations.
+* `LICENSE.md` — proprietary license notice.
+
