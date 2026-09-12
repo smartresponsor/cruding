@@ -25,8 +25,12 @@ foreach ([
     }
 }
 
-foreach (['Api', 'Runtime', 'Resource', 'Operation'] as $directory) {
+foreach (['Runtime', 'Resource', 'Operation'] as $directory) {
     assert(is_dir($root.'/src/Service/'.$directory), 'Missing canonical Service/'.$directory.' directory.');
 }
 
-echo "PASS: canonical Symfony-oriented Cruding service tree.\n";
+assert(is_dir($root.'/src/Factory/Api'), 'Missing canonical Factory/Api directory.');
+assert(is_dir($root.'/src/Normalizer'), 'Missing canonical Normalizer directory.');
+assert(is_dir($root.'/src/Responder'), 'Missing canonical Responder directory.');
+
+echo "PASS: canonical role-first Cruding service tree.\n";

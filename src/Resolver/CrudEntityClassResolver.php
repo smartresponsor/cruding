@@ -44,7 +44,7 @@ final class CrudEntityClassResolver
 
         foreach ($lookupKeys as $lookupKey) {
             $explicitAliasClass = $this->entityClassAliasMap[$lookupKey] ?? null;
-            if (is_string($explicitAliasClass) && '' !== $explicitAliasClass) {
+            if (is_string($explicitAliasClass)) {
                 return $explicitAliasClass;
             }
         }
@@ -61,7 +61,7 @@ final class CrudEntityClassResolver
     }
 
     /**
-     * @return list<string>
+     * Builds the canonical entity short name from every business token in the resource path.
      */
     public function canonicalEntityShortName(string $resourcePath): string
     {

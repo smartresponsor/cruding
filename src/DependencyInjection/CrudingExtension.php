@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\DependencyInjection;
 
+use App\Cruding\Builder\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
+use App\Cruding\Normalizer\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\Service\Runtime\CrudRuntimeLockReader;
-use App\Cruding\Service\Runtime\CrudRuntimeRouteGuardPolicyBuilder;
-use App\Cruding\Service\Runtime\CrudRuntimeTokenNormalizer;
 use App\Cruding\ServiceInterface\Resource\CrudResourceProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -25,10 +25,10 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
-        $loader->load('cruding_reserved_token.yaml');
+        $loader->load('crud_reserved_token.yaml');
         $loader->load('services.yaml');
 
-        $configuration = new Configuration();
+        $configuration = new CrudConfiguration();
         /** @var array{
          *     resource_path_requirement: string,
          *     route_guard: array{
@@ -65,12 +65,11 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
             defaultOperationTokens: $defaultOperationTokens,
             defaultResourcePathReservedTokens: $defaultResourcePathReservedTokens,
         );
-        $appEnv = $container->hasParameter('kernel.environment')
-            ? (string) $container->getParameter('kernel.environment')
-            : 'dev';
+        $appEnv = $this->parameterString($container, 'kernel.environment', 'dev');
+        $projectDir = $this->parameterString($container, 'kernel.project_dir', \dirname(__DIR__, 2));
         $runtimeLock = (new CrudRuntimeLockReader(
             normalizer: $normalizer,
-            projectDir: (string) $container->getParameter('kernel.project_dir'),
+            projectDir: $projectDir,
             appEnv: $appEnv,
             lockGlob: $routeGuard['runtime_lock_glob'],
         ))->read();
@@ -245,6 +244,17 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         return 'cruding';
     }
 
+    private function parameterString(ContainerBuilder $container, string $name, string $default): string
+    {
+        if (!$container->hasParameter($name)) {
+            return $default;
+        }
+
+        $value = $container->getParameter($name);
+
+        return is_string($value) ? $value : $default;
+    }
+
     /** @return list<string> */
     private function parameterTokenList(ContainerBuilder $container, string $nameEntity): array
     {
@@ -283,9 +293,11 @@ final class CrudingExtension extends Extension implements PrependExtensionInterf
         if (!\is_array($payload)) {
             return [];
         }
+        /** @var array<string, mixed> $typedPayload */
+        $typedPayload = $payload;
 
         foreach ($paths as $path) {
-            $value = $this->readPayloadPath($payload, $path);
+            $value = $this->readPayloadPath($typedPayload, $path);
             if (null === $value) {
                 continue;
             }

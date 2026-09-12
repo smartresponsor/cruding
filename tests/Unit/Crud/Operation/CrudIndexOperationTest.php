@@ -9,13 +9,13 @@ use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\CrudOwnershipDTO;
 use App\Cruding\DTO\CrudPageDefinitionDTO;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
 use App\Cruding\Service\Operation\CrudIndexOperation;
-use App\Cruding\Service\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\Entrypoint\CrudServiceDispatcherInterface;
 use App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 

@@ -31,12 +31,17 @@ final class CrudCollectionProjectionReader
      */
     public function read(CrudContextDTO $context): ?array
     {
-        $manager = $this->managerRegistry->getManagerForClass($context->entityClass);
+        $entityClass = $context->entityClass;
+        if ('' === $entityClass) {
+            return null;
+        }
+        /** @var class-string $entityClass */
+        $manager = $this->managerRegistry->getManagerForClass($entityClass);
         if (!$manager instanceof EntityManagerInterface) {
             return null;
         }
 
-        $projectionPlan = $this->projectionPlan($manager, $context->entityClass);
+        $projectionPlan = $this->projectionPlan($manager, $entityClass);
         if (null === $projectionPlan) {
             return null;
         }
@@ -44,28 +49,44 @@ final class CrudCollectionProjectionReader
         [$limit, $offset] = $this->pagination();
         $queryBuilder = $manager->createQueryBuilder()
             ->select($projectionPlan['select'])
-            ->from($context->entityClass, 'entity')
+            ->from($entityClass, 'entity')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
         $startedAt = hrtime(true);
-        $rows = $queryBuilder->getQuery()->getArrayResult();
+        $rawRows = $queryBuilder->getQuery()->getArrayResult();
+        $rows = [];
+        foreach ($rawRows as $rawRow) {
+            if (!is_array($rawRow)) {
+                continue;
+            }
+
+            $row = [];
+            foreach ($rawRow as $key => $value) {
+                if (is_string($key)) {
+                    $row[$key] = $value;
+                }
+            }
+            $rows[] = $row;
+        }
         $this->requestStack->getCurrentRequest()?->attributes->set(
             '_crud_collection_projection_ms',
             number_format((hrtime(true) - $startedAt) / 1_000_000, 2, '.', ''),
         );
 
-        return array_map(
-            static fn (array $row): array => [
-                'id' => $row['id'],
-                'title' => $row['title'] ?? $row['code'] ?? (string) $row['id'],
-                'code' => $row['code'] ?? (string) $row['id'],
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                'id' => $row['id'] ?? null,
+                'title' => self::scalarString($row['title'] ?? $row['code'] ?? $row['id'] ?? null),
+                'code' => self::scalarString($row['code'] ?? $row['id'] ?? null),
                 'owner' => 'cruding',
                 'status' => self::status($row),
                 'locale' => $row['locale'] ?? 'en',
-            ],
-            $rows,
-        );
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -79,7 +100,7 @@ final class CrudCollectionProjectionReader
             return $this->projectionPlanByEntityClass[$entityClass];
         }
 
-        $fieldMap = $this->fieldMap($manager->getClassMetadata($entityClass)->getFieldNames());
+        $fieldMap = $this->fieldMap(array_values($manager->getClassMetadata($entityClass)->getFieldNames()));
         if (null === $fieldMap['id']) {
             return null;
         }
@@ -114,7 +135,10 @@ final class CrudCollectionProjectionReader
         ];
     }
 
-    /** @param list<string> $fields */
+    /**
+     * @param list<string> $fields
+     * @param list<string> $candidates
+     */
     private function firstField(array $fields, array $candidates): ?string
     {
         foreach ($candidates as $candidate) {
@@ -134,6 +158,11 @@ final class CrudCollectionProjectionReader
         $page = max(1, (int) $request?->query->get('page', 1));
 
         return [$limit, ($page - 1) * $limit];
+    }
+
+    private static function scalarString(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
     }
 
     /** @param array<string, mixed> $row */

@@ -7,9 +7,9 @@ $root = dirname(__DIR__, 2);
 foreach ([
     'src/DTO/CrudContextDTO.php',
     'src/DTO/CrudTokenizedRouteIntentDTO.php',
-    'src/Service/CrudRouteTokenNormalizer.php',
-    'src/Service/CrudReservedRouteTokenPolicy.php',
-    'src/Service/CrudTokenizedRouteIntentResolver.php',
+    'src/Normalizer/CrudRouteTokenNormalizer.php',
+    'src/Policy/CrudReservedRouteTokenPolicy.php',
+    'src/Resolver/CrudTokenizedRouteIntentResolver.php',
     'src/Resolver/CrudActorScopeContextResolver.php',
     'src/DTO/Entrypoint/CrudServiceContextDTO.php',
     'src/Resolver/CrudServiceClassNameResolver.php',
@@ -39,13 +39,13 @@ PHP);
 }
 
 use App\Cruding\DTO\CrudContextDTO;
-use App\Cruding\Service\CrudReservedRouteTokenPolicy;
-use App\Cruding\Service\CrudRouteTokenNormalizer;
-use App\Cruding\Service\CrudTokenizedRouteIntentResolver;
+use App\Cruding\Policy\CrudReservedRouteTokenPolicy;
+use App\Cruding\Normalizer\CrudRouteTokenNormalizer;
+use App\Cruding\Resolver\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Resolver\CrudServiceClassNameResolver;
 use Symfony\Component\HttpFoundation\Request;
 
-$operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
+$operationTokens = operationTokens($root.'/config/crud_reserved_token.yaml');
 $resolver = new CrudTokenizedRouteIntentResolver(
     new CrudRouteTokenNormalizer(),
     new CrudReservedRouteTokenPolicy([], $operationTokens),

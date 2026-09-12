@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__, 2);
-$tokens = readFileStrict($root.'/config/cruding_reserved_token.yaml');
-$routes = readFileStrict($root.'/config/routes/cruding_crud.yaml');
-$resolver = readFileStrict($root.'/src/Service/CrudTokenizedRouteIntentResolver.php');
+$tokens = readFileStrict($root.'/config/crud_reserved_token.yaml');
+$routes = readFileStrict($root.'/config/routes/crud_crud.yaml');
+$resolver = readFileStrict($root.'/src/Resolver/CrudTokenizedRouteIntentResolver.php');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
 
 foreach (['assign', 'unassign', 'adjust', 'calculate', 'verify', 'reject', 'approve', 'pay', 'recalculate', 'start', 'overview', 'mutation'] as $token) {

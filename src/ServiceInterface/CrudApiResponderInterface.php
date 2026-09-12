@@ -22,7 +22,7 @@ interface CrudApiResponderInterface
     public function item(CrudContextDTO $context, object $object, int $status = JsonResponse::HTTP_OK): JsonResponse;
 
     /**
-     * @return JsonResponse<array{resource: string, deleted: true}>
+     * Creates the API response returned after a successful delete operation.
      */
     public function deleted(CrudContextDTO $context): JsonResponse;
 
@@ -30,7 +30,7 @@ interface CrudApiResponderInterface
     public function notFound(string $resourcePath, string $detail = 'Resource not found.'): JsonResponse;
 
     /**
-     * @return JsonResponse<array{resource: string, errors: array<int, array{field: string, message: string}>}>
+     * Creates the API problem response for a submitted form with validation errors.
      */
     public function validationError(CrudContextDTO $context, FormInterface $form): JsonResponse;
 }

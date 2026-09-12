@@ -2,6 +2,12 @@
 /composer.lock
 /.phpunit.cache/
 /var/
+/.idea/
+/.vscode/
 /.env.local
 *.zip
 /.gating/
+/.console-mcp/
+.DS_Store
+Thumbs.db
+/.php-cs-fixer.cache

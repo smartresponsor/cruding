@@ -11,10 +11,10 @@ function guard_fail(string $message): never
 $root = dirname(__DIR__, 2);
 $requiredFiles = [
     'src/DependencyInjection/CrudingExtension.php',
-    'src/DependencyInjection/Configuration.php',
-    'src/Service/Resource/CrudResourceContractFactory.php',
-    'config/routes/cruding_crud.yaml',
-    'config/routes/cruding_api_crud.yaml',
+    'src/DependencyInjection/CrudConfiguration.php',
+    'src/Factory/Resource/CrudResourceContractFactory.php',
+    'config/routes/crud_crud.yaml',
+    'config/routes/crud_api_crud.yaml',
 ];
 
 foreach ($requiredFiles as $relativePath) {
@@ -35,12 +35,12 @@ foreach ([
     }
 }
 
-$factory = file_get_contents($root . '/src/Service/Resource/CrudResourceContractFactory.php') ?: '';
-$viewContract = file_get_contents($root . '/src/Value/Resource/CrudResourceContract.php') ?: '';
-$builder = file_get_contents($root . '/src/Service/Resource/CrudInterfacingProviderResourceBuilder.php') ?: '';
+$factory = file_get_contents($root . '/src/Factory/Resource/CrudResourceContractFactory.php') ?: '';
+$viewContract = file_get_contents($root . '/src/ValueObject/Resource/CrudResourceContract.php') ?: '';
+$builder = file_get_contents($root . '/src/Builder/Resource/CrudInterfacingProviderResourceBuilder.php') ?: '';
 $pageProvider = file_get_contents($root . '/src/Provider/CrudPageDefinitionProvider.php') ?: '';
 $extension = file_get_contents($root . '/src/DependencyInjection/CrudingExtension.php') ?: '';
-$configuration = file_get_contents($root . '/src/DependencyInjection/Configuration.php') ?: '';
+$configuration = file_get_contents($root . '/src/DependencyInjection/CrudConfiguration.php') ?: '';
 $contextResolver = file_get_contents($root . '/src/Resolver/CrudContextResolver.php') ?: '';
 $routes = file_get_contents($root . '/config/routes.yaml') ?: '';
 $services = file_get_contents($root . '/config/services.yaml') ?: '';
@@ -61,7 +61,7 @@ if (str_contains($factory . $viewContract . $builder . $pageProvider, 'CrudTempl
 $extensionNeedles = [
     "new FileLocator(\\dirname(__DIR__, 2).'/config')",
     "->load('services.yaml')",
-    'new Configuration()',
+    'new CrudConfiguration()',
     "=> 'Cruding'",
 ];
 
@@ -73,7 +73,7 @@ foreach ($extensionNeedles as $needle) {
 
 foreach (['resource_path_requirement', 'capability_map', 'entity_class_alias_map', 'form_type_map'] as $configNeedle) {
     if (!str_contains($configuration, $configNeedle)) {
-        guard_fail(sprintf('Configuration tree misses Cruding option: %s', $configNeedle));
+        guard_fail(sprintf('CrudConfiguration tree misses Cruding option: %s', $configNeedle));
     }
 }
 

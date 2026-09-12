@@ -30,20 +30,20 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
             return $context;
         }
 
-        $resourcePath = (string) $request->attributes->get('resourcePath', '');
+        $resourcePath = $this->attributeString($request, 'resourcePath', '');
         throw CrudResourceNotFoundException::forResourcePath($resourcePath);
     }
 
     /**      * Executes the try resolve operation.      */
     public function tryResolve(Request $request): ?CrudContextDTO
     {
-        $resourcePath = $this->resourcePathParser->normalize((string) $request->attributes->get('resourcePath', ''));
+        $resourcePath = $this->resourcePathParser->normalize($this->attributeString($request, 'resourcePath', ''));
         if ('' === $resourcePath) {
             return null;
         }
 
-        $view = (string) $request->attributes->get('_crud_view', 'public');
-        $operation = (string) $request->attributes->get('_crud_operation', 'index');
+        $view = $this->attributeString($request, '_crud_view', 'public');
+        $operation = $this->attributeString($request, '_crud_operation', 'index');
         $entityClass = $this->entityClassResolver->tryResolve($resourcePath);
         if (null === $entityClass) {
             return null;
@@ -58,8 +58,15 @@ final readonly class CrudContextResolver implements CrudContextResolverInterface
             resourcePath: $resourcePath,
             entityClass: $entityClass,
             identifierField: $identifierField,
-            identifierValue: is_scalar($identifierValue) ? $identifierValue : null,
+            identifierValue: is_int($identifierValue) || is_string($identifierValue) ? $identifierValue : null,
             formTypeClass: $this->formTypeResolver->resolve($entityClass),
         );
+    }
+
+    private function attributeString(Request $request, string $name, string $default): string
+    {
+        $value = $request->attributes->get($name, $default);
+
+        return is_scalar($value) ? (string) $value : $default;
     }
 }

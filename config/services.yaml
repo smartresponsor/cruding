@@ -1,7 +1,7 @@
 parameters:
     # Route-loader fallbacks.
     # The bundle extension recomputes and overrides these values from runtime scope/entity
-    # and config/cruding_reserved_token.yaml when the Symfony container is fully built.
+    # and config/crud_reserved_token.yaml when the Symfony container is fully built.
     # They must still exist here because imported route YAML resolves %parameters% before
     # any CRUD controller/runtime guard can run.
     cruding.resource_requirement: '[a-z][a-z0-9_-]*'
@@ -45,8 +45,8 @@ services:
     App\Cruding\Controller\CrudResourceController:
         tags: ['controller.service_arguments']
         arguments:
-            $routeShapeResolver: '@App\Cruding\Service\Resource\CrudRouteShapeResolver'
-            $serviceResolver: '@App\Cruding\Service\Resource\CrudResourceServiceResolver'
+            $routeShapeResolver: '@App\Cruding\Resolver\Resource\CrudRouteShapeResolver'
+            $serviceResolver: '@App\Cruding\Resolver\Resource\CrudResourceServiceResolver'
             $serviceInvoker: '@App\Cruding\Service\Resource\CrudResourceServiceInvoker'
             $providerLocator: '@App\Cruding\Service\Resource\CrudResourceProviderLocator'
             $genericFallback: '@App\Cruding\Service\Resource\CrudResourceGenericFallback'
@@ -75,9 +75,6 @@ services:
     App\Cruding\Builder\:
         resource: '../src/Builder/'
 
-    App\Cruding\Dispatcher\:
-        resource: '../src/Dispatcher/'
-
     App\Cruding\Factory\:
         resource: '../src/Factory/'
 
@@ -87,10 +84,13 @@ services:
     App\Cruding\Service\:
         resource: '../src/Service/'
         exclude:
-            - '../src/Service/PassiveCrudService.php'
+            - '../src/Service/CrudPassiveService.php'
 
     App\Cruding\Invoker\:
         resource: '../src/Invoker/'
+
+    App\Cruding\Normalizer\:
+        resource: '../src/Normalizer/'
 
     App\Cruding\Parser\:
         resource: '../src/Parser/'
@@ -98,13 +98,13 @@ services:
     App\Cruding\Provider\:
         resource: '../src/Provider/'
 
+    App\Cruding\Responder\:
+        resource: '../src/Responder/'
+
     App\Cruding\Runner\:
         resource: '../src/Runner/'
 
-    App\Cruding\Routing\:
-        resource: '../src/Routing/'
-
-    App\Cruding\Routing\CrudingRouteManifest:
+    App\Cruding\Service\Routing\CrudRouteManifest:
         tags:
             - routing.loader
 
@@ -124,7 +124,7 @@ services:
         arguments:
             $binderList: !tagged_iterator cruding.create_owner_binder
 
-    App\Cruding\Service\CrudReservedRouteTokenPolicy:
+    App\Cruding\Policy\CrudReservedRouteTokenPolicy:
         arguments:
             $viewTokens: '%cruding.runtime_view_tokens%'
             $operationTokens: '%cruding.runtime_operation_tokens%'
@@ -143,9 +143,9 @@ services:
     App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface: '@App\Cruding\Builder\CrudAccessContextBuilder'
     App\Cruding\ServiceInterface\CrudMutationGuardInterface: '@App\Cruding\Guard\CrudMutationGuard'
     App\Cruding\ServiceInterface\CrudApiInputHandlerInterface: '@App\Cruding\Handler\CrudApiInputHandler'
-    App\Cruding\ServiceInterface\CrudApiResponderInterface: '@App\Cruding\Service\CrudApiResponder'
+    App\Cruding\ServiceInterface\CrudApiResponderInterface: '@App\Cruding\Responder\CrudApiResponder'
     App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface: '@App\Cruding\Provider\CrudPageDefinitionProvider'
-    App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface: '@App\Cruding\Service\Resource\CrudInterfacingProviderResourceBuilder'
+    App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface: '@App\Cruding\Builder\Resource\CrudInterfacingProviderResourceBuilder'
 
     App\Cruding\Handler\:
         resource: '../src/Handler/'
@@ -196,7 +196,7 @@ services:
             $requireRuntimeLock: '%cruding.runtime_require_lock%'
             $requireComposerPackages: '%cruding.runtime_require_composer_packages%'
 
-    App\Cruding\Service\Api\CrudApiProblemResponseFactory: ~
+    App\Cruding\Factory\Api\CrudApiProblemResponseFactory: ~
 
     App\Cruding\EventSubscriber\CrudApiExceptionSubscriber:
         tags: ['kernel.event_subscriber']

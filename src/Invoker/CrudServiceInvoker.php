@@ -12,7 +12,7 @@ use App\Cruding\ServiceInterface\Entrypoint\CrudGroundedServiceInterface;
 use App\Cruding\ServiceInterface\Entrypoint\CrudPatchServiceInterface;
 use App\Cruding\ServiceInterface\Entrypoint\CrudPostServiceInterface;
 use App\Cruding\ServiceInterface\Entrypoint\CrudPutServiceInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -66,7 +66,13 @@ final class CrudServiceInvoker
         }
 
         try {
-            return (bool) $entrypoint->isGrounded($context);
+            if ($entrypoint instanceof CrudGroundedServiceInterface) {
+                return $entrypoint->isGrounded($context);
+            }
+
+            $method = new \ReflectionMethod($entrypoint, 'isGrounded');
+
+            return (bool) $method->invoke($entrypoint, $context);
         } catch (\Throwable $exception) {
             return CrudServiceResultDTO::continueDefault(CrudServiceResultDTO::STATUS_ENTRYPOINT_GROUNDING_FAILED, [
                 'entrypoint' => $entrypoint::class,
@@ -161,6 +167,10 @@ final class CrudServiceInvoker
      */
     private function callLegacyInvokable(object $entrypoint, CrudServiceContextDTO $context, array $resolutionDiagnostics): mixed
     {
+        if (!is_callable($entrypoint)) {
+            return null;
+        }
+
         try {
             return $entrypoint($context->request);
         } catch (\Throwable $exception) {

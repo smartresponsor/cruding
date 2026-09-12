@@ -22,8 +22,12 @@ final readonly class CrudRouteParameterExtractor
                 continue;
             }
 
-            if (is_scalar($value) || null === $value) {
-                $parameters[(string) $key] = is_bool($value) ? (int) $value : $value;
+            if (is_int($value) || is_string($value) || null === $value) {
+                $parameters[(string) $key] = $value;
+            } elseif (is_bool($value)) {
+                $parameters[(string) $key] = (int) $value;
+            } elseif (is_float($value)) {
+                $parameters[(string) $key] = (string) $value;
             }
         }
 

@@ -87,7 +87,12 @@ final readonly class CrudRuntimeComposerInventoryReader
         }
 
         $payload = json_decode($contents, true);
+        if (!is_array($payload)) {
+            return [];
+        }
+        /** @var array<string, mixed> $typedPayload */
+        $typedPayload = $payload;
 
-        return is_array($payload) ? $payload : [];
+        return $typedPayload;
     }
 }

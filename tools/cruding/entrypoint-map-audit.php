@@ -29,7 +29,7 @@ if ([] === $paths) {
 
 $appSrc = rtrim((string) ($options['app-src'][0] ?? 'src'), '/\\');
 $classResolver = new CrudServiceClassNameResolver();
-$operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
+$operationTokens = operationTokens($root.'/config/crud_reserved_token.yaml');
 $rows = [];
 
 foreach ($paths as $path) {

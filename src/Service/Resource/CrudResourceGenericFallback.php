@@ -6,12 +6,13 @@ namespace App\Cruding\Service\Resource;
 
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
 use App\Cruding\Resolver\CrudEntityClassResolver;
 use App\Cruding\Resolver\CrudFormTypeResolver;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
-use App\Cruding\Value\Resource\CrudResourceContract;
+use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Resource;
 
+use App\Cruding\Builder\Resource\CrudResourcePayloadBuilder;
 use App\Cruding\DTO\Resource\CrudResourceRequestDTO;
 use App\Cruding\DTO\Resource\CrudRouteContextDTO;
-use App\Cruding\Service\Resource\CrudResourcePayloadBuilder;
 use PHPUnit\Framework\TestCase;
 
 final class CrudResourcePayloadBuilderTest extends TestCase
@@ -41,9 +41,22 @@ final class CrudResourcePayloadBuilderTest extends TestCase
 
         self::assertSame('briefing', $contract->view);
         self::assertSame('Alpha compliance briefing', $contract->workbench['title']);
-        self::assertSame('alpha-header', $contract->locations['top'][0]['key']);
-        self::assertSame('compliance-briefing', $contract->locations['body'][0]['type']);
-        self::assertSame('next-action', $contract->locations['right.panel'][0]['key']);
-        self::assertSame('alpha', $contract->workbench['routeContext']['resource']);
+
+        $top = $contract->locations['top'] ?? null;
+        $body = $contract->locations['body'] ?? null;
+        $right = $contract->locations['right.panel'] ?? null;
+        $routeContext = $contract->workbench['routeContext'] ?? null;
+        self::assertIsArray($top);
+        self::assertIsArray($body);
+        self::assertIsArray($right);
+        self::assertIsArray($routeContext);
+        self::assertIsArray($top[0] ?? null);
+        self::assertIsArray($body[0] ?? null);
+        self::assertIsArray($right[0] ?? null);
+
+        self::assertSame('alpha-header', $top[0]['key']);
+        self::assertSame('compliance-briefing', $body[0]['type']);
+        self::assertSame('next-action', $right[0]['key']);
+        self::assertSame('alpha', $routeContext['resource']);
     }
 }

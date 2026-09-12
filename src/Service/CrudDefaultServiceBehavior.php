@@ -8,8 +8,8 @@ use App\Cruding\DTO\CrudMutationLifecycleContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceContextDTO;
 use App\Cruding\DTO\Entrypoint\CrudServiceResultDTO;
 use App\Cruding\Factory\CrudNotFoundResponseFactory;
+use App\Cruding\Factory\Resource\CrudResourceContractFactory;
 use App\Cruding\Service\Operation\CrudIdentifierReader;
-use App\Cruding\Service\Resource\CrudResourceContractFactory;
 use App\Cruding\ServiceInterface\CrudFormHandlerInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
 use App\Cruding\ServiceInterface\CrudRouteNameResolverInterface;
@@ -99,13 +99,14 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
 
     private function create(CrudServiceContextDTO $context): CrudServiceResultDTO
     {
-        if (null === $context->object || null === $context->crudContext->formTypeClass) {
+        $object = $context->object;
+        if (null === $object || null === $context->crudContext->formTypeClass) {
             return $this->notFound($context, 'crud_resource_not_found');
         }
 
         $form = $this->formHandler->createAndHandle(
             $context->crudContext->formTypeClass,
-            $context->object,
+            $object,
             $context->request,
         );
 
@@ -118,11 +119,13 @@ final readonly class CrudDefaultServiceBehavior implements CrudServiceBehaviorIn
             );
             $this->mutationLifecycleDispatcher->execute(
                 $lifecycleContext,
-                fn (): mixed => $this->formHandler->persist($context->object),
+                function () use ($object): void {
+                    $this->formHandler->persist($object);
+                },
             );
 
-            $identifierField = $this->identifierReader->detectField($context->object);
-            $identifierValue = $this->identifierReader->read($context->object, $identifierField);
+            $identifierField = $this->identifierReader->detectField($object);
+            $identifierValue = $this->identifierReader->read($object, $identifierField);
 
             if (null === $identifierValue) {
                 return CrudServiceResultDTO::response(

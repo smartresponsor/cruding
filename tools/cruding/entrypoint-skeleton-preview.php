@@ -27,7 +27,7 @@ if ('' === $path) {
 }
 
 $style = strtolower((string) ($options['style'][0] ?? 'empty'));
-$operationTokens = operationTokens($root.'/config/cruding_reserved_token.yaml');
+$operationTokens = operationTokens($root.'/config/crud_reserved_token.yaml');
 $intent = resolveIntent($path, $operationTokens);
 $context = new CrudContextDTO(
     view: (string) ($options['view'][0] ?? 'public'),
@@ -215,7 +215,7 @@ function renderSkeleton(string $namespace, string $shortName, string $style): st
     $header = "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n";
 
     return match ($style) {
-        'abstract' => $header."\nuse App\\Cruding\\Service\\AbstractCrudService;\n\nfinal class {$shortName} extends AbstractCrudService\n{\n}\n",
+        'abstract' => $header."\nuse App\\Cruding\\Service\\CrudAbstractService;\n\nfinal class {$shortName} extends CrudAbstractService\n{\n}\n",
         'get' => $header."\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceContextDTO;\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceResultDTO;\nuse App\\Cruding\\ServiceInterface\\Entrypoint\\CrudGetServiceInterface;\n\nfinal class {$shortName} implements CrudGetServiceInterface\n{\n    public function get(CrudServiceContextDTO ".'$'."context): ?CrudServiceResultDTO\n    {\n        return null;\n    }\n}\n",
         'post' => $header."\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceContextDTO;\nuse App\\Cruding\\DTO\\Entrypoint\\CrudServiceResultDTO;\nuse App\\Cruding\\ServiceInterface\\Entrypoint\\CrudPostServiceInterface;\n\nfinal class {$shortName} implements CrudPostServiceInterface\n{\n    public function post(CrudServiceContextDTO ".'$'."context): ?CrudServiceResultDTO\n    {\n        return null;\n    }\n}\n",
         default => $header."\nfinal class {$shortName}\n{\n}\n",

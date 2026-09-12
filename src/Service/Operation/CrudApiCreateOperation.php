@@ -36,10 +36,17 @@ final readonly class CrudApiCreateOperation implements CrudApiCreateOperationInt
     {
         $context = $this->contextResolver->tryResolve($request);
         if (null === $context) {
-            return $this->apiResponder->notFound((string) $request->attributes->get('resourcePath', ''));
+            $resourcePath = $request->attributes->get('resourcePath', '');
+
+            return $this->apiResponder->notFound(is_scalar($resourcePath) ? (string) $resourcePath : '');
         }
 
-        $object = $this->objectFactory->create($context->entityClass);
+        $entityClass = $context->entityClass;
+        if ('' === $entityClass) {
+            return $this->apiResponder->notFound($context->resourcePath, 'Entity class could not be resolved.');
+        }
+        /** @var class-string $entityClass */
+        $object = $this->objectFactory->create($entityClass);
 
         if (null === $context->formTypeClass) {
             return $this->apiResponder->notFound($context->resourcePath, sprintf('Form type for "%s" could not be resolved.', $context->resourcePath));

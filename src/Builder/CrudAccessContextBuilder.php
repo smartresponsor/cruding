@@ -34,8 +34,8 @@ final readonly class CrudAccessContextBuilder implements CrudAccessContextBuilde
 
         return new CrudAccessContextDTO(
             $context,
-            (bool) ($capabilities['supportsSlug'] ?? false),
-            (bool) ($capabilities['supportsId'] ?? true),
+            $capabilities['supportsSlug'],
+            $capabilities['supportsId'],
             $ownership,
             $canView,
             $canEdit,

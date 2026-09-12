@@ -23,6 +23,7 @@ final class CrudObjectFactoryTest extends TestCase
         $factory = new CrudObjectFactory();
 
         $object = $factory->create(ObjectFactoryScalarConstructorFixture::class);
+        self::assertInstanceOf(ObjectFactoryScalarConstructorFixture::class, $object);
 
         self::assertSame('', $object->nameEntity);
         self::assertSame(0, $object->count);
