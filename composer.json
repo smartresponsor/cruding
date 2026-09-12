@@ -6,6 +6,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
+    "collectioning/collection": "dev-main || dev-master",
     "doctrine/doctrine-bundle": "^3.2",
     "doctrine/orm": "^3.0",
     "php": "^8.4",
@@ -33,6 +34,15 @@
       "App\\Tests\\": "tests/"
     }
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../Collectioning",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
   "extra": {
     "symfony": {
       "bundle": "App\\Cruding\\CrudingBundle"
