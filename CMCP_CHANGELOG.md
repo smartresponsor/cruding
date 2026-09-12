@@ -113,6 +113,20 @@ No authorized in-scope implementation tail remains. The only outstanding operati
 
 ### Что имеем? Что осталось?
 
-The Cruding implementation and deterministic product gates are green. Remaining work is Git integration and the iteration-5 post-integration acceptance check; the stale copied Gating shell distribution is a separately recorded tooling tail.
+The Cruding implementation and deterministic product gates are green. The stale copied Gating shell distribution is a separately recorded tooling tail.
+
+### Iteration 5 — final acceptance and handoff
+
+- Fetched current `origin/master` and discovered PR #6 was conflicting because master had advanced with the earlier route-map consolidation work.
+- Rebased the RC work onto current master and resolved six conflicts inside Cruding: `CMCP_CHANGELOG.md`, `README.md`, `config/services.yaml`, `CrudRuntimeRouteMapAuditCommand`, `CrudController`, and `CrudRouteMapMatcher`.
+- Conflict resolution preserved master's single-owner route-map matcher behavior while applying the canonical role-first path `App\Cruding\Service\Resource\CrudRouteMapMatcher` and `App\Cruding\DTO\...` contracts.
+- Post-rebase `composer check:cruding` is green: all deterministic smoke guards pass; PHPUnit is 51/51 tests with 206 assertions.
+- Because the original feature branch history was rewritten and force-push is intentionally unavailable, published the verified rebased state on `engine-20260912084701-cruding-11db25` without force-push.
+- Closed superseded conflicting PR #6. Created replacement PR #7 against `master`; inspection reports `MERGEABLE` with no merge-gate blockers and no pending/failed checks.
+- Acceptance decision: PR #7 is authorized for immediate safe merge after this journal commit is published and the merge gate is re-inspected against the updated head SHA.
+
+### Что имеем? Что осталось?
+
+Cruding is canonically role-first, exact `DTO` casing is enforced, the advanced master-side route-map consolidation is preserved, deterministic gates are green, and PR #7 has a clean merge gate. Remaining action is the guarded merge of PR #7 and post-merge state inspection.
 
 

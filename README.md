@@ -49,10 +49,7 @@ composer check:cruding
 ## Documentation
 
 
-- [Cruding Resource View Routes](docs/cruding/cruding-resource-view-routes.md)
 - [Entrypoint Migration Contract](docs/cruding/cruding-entrypoint-migration-contract.md)
-- [Tokenized Route Resolver Details](docs/cruding/cruding-tokenized-route-resolver.md)
-- [Host Route Integration Verification Guide](docs/cruding/cruding-host-route-integration-verification.md)
 
 - [Component documentation map](docs/cruding/README.adoc)
 - [Canonical service layout](docs/cruding/cruding-service-layout.md)
