@@ -8,6 +8,7 @@
   "require": {
     "collectioning/collection": "dev-main || dev-master",
     "doctrine/doctrine-bundle": "^3.2",
+    "tabling/table": "dev-backend-table-metadata || dev-initial-platform-primitive || dev-main || dev-master",
     "doctrine/orm": "^3.0",
     "php": "^8.4",
     "symfony/config": "^8.1",
@@ -38,6 +39,13 @@
     {
       "type": "path",
       "url": "../Collectioning",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "../Tabling",
       "options": {
         "symlink": true
       }

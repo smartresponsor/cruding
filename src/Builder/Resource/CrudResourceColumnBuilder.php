@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
+use App\Tabling\Service\TableColumnMetadataBuilder;
 
 /**
  * Builds resource column builder values used by Cruding workflows.
@@ -14,6 +15,7 @@ final class CrudResourceColumnBuilder
     public function __construct(
         private readonly CrudResourceRowBuilder $rowBuilder,
         private readonly CrudResourceLabelFormatter $labelFormatter,
+        private readonly TableColumnMetadataBuilder $tableColumnMetadataBuilder,
     ) {
     }
 
@@ -24,24 +26,8 @@ final class CrudResourceColumnBuilder
      */
     public function build(array $objects, string $resourcePath, string $component): array
     {
-        $columns = [
-            ['key' => 'title', 'label' => $this->labelFormatter->humanize($resourcePath), 'type' => 'text', 'isCode' => false, 'isStatus' => false],
-            ['key' => 'code', 'label' => 'Code', 'type' => 'text', 'isCode' => true, 'isStatus' => false],
-            ['key' => 'owner', 'label' => 'Owner', 'type' => 'text', 'isCode' => false, 'isStatus' => false],
-            ['key' => 'status', 'label' => 'Status', 'type' => 'text', 'isCode' => false, 'isStatus' => true],
-            ['key' => 'locale', 'label' => 'Locale', 'type' => 'text', 'isCode' => false, 'isStatus' => false],
-        ];
+        $rows = [] !== $objects ? $this->rowBuilder->build([$objects[0]], $resourcePath, $component) : [];
 
-        if ([] !== $objects) {
-            $first = $this->rowBuilder->build([$objects[0]], $resourcePath, $component)[0];
-            $knownKeys = array_column($columns, 'key');
-            foreach (array_keys($first) as $key) {
-                if ('id' !== $key && !in_array($key, $knownKeys, true)) {
-                    $columns[] = ['key' => $key, 'label' => $this->labelFormatter->humanize($key), 'type' => 'text', 'isCode' => false, 'isStatus' => false];
-                }
-            }
-        }
-
-        return $columns;
+        return $this->tableColumnMetadataBuilder->build($rows, $this->labelFormatter->humanize($resourcePath));
     }
 }

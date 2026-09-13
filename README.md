@@ -6,7 +6,7 @@ The canonical component namespace is `App\Cruding\`. The source tree is role-fir
 
 ## Boundaries
 
-Cruding owns generic CRUD mechanics. It does **not** own platform navigation, external callbacks/webhooks, host shell styling, or the final cross-component HTML rendering boundary.
+Cruding owns generic CRUD mechanics. Collection query semantics (search, filters, sorting, pagination, projection, counts) belong to `collectioning/collection`, and backend table-definition metadata belongs to `tabling/table`. Cruding does **not** own platform navigation, external callbacks/webhooks, host shell styling, or the final cross-component HTML rendering boundary.
 
 ## Runtime surface
 
