@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\DTO\CrudPageActionDefinitionDTO;
+use App\Tabling\DTO\TableActionDTO;
+use App\Tabling\Service\TableActionMetadataBuilder;
 
 /**
  * Builds resource action builder values used by Cruding workflows.
  */
 final class CrudResourceActionBuilder
 {
+    public function __construct(private readonly TableActionMetadataBuilder $tableActionMetadataBuilder)
+    {
+    }
+
     /**
      * @param list<CrudPageActionDefinitionDTO> $actions
      *
@@ -20,14 +26,17 @@ final class CrudResourceActionBuilder
     {
         $items = [];
         foreach ($actions as $action) {
-            $items[] = [
-                'label' => $action->label,
-                'href' => $this->hrefForAction($action),
-                'variant' => 'danger' === $action->scope ? 'danger' : ('new' === $action->nameEntity ? 'primary' : 'default'),
-                'operation' => $action->nameEntity,
-                'enabled' => $action->enabled,
-                'visibility' => $action->enabled ? 'visible' : 'disabled',
-            ];
+            $tableAction = new TableActionDTO(
+                $action->nameEntity,
+                $action->label,
+                $action->routeName,
+                $action->routeParameters,
+                null,
+                $action->scope,
+                'danger' === $action->scope,
+                $action->enabled,
+            );
+            $items[] = $this->tableActionMetadataBuilder->build($tableAction, $this->hrefForAction($action));
         }
 
         return $items;
