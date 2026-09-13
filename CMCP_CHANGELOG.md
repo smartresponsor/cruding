@@ -186,3 +186,15 @@ The Cruding product and executable architecture gates are release-candidate gree
 
 The selected RC-critical route-support hardening is implemented and verified, with stronger direct regression coverage and improved branch evidence. Overall repository coverage remains a documented Canon040 `HIGH_TEST_DEBT` warning; it is genuine follow-up remediation debt, not a hard failure of this bounded RC wave. Remaining work in this run is Git integration and post-push final acceptance.
 
+### Iteration 5 — final acceptance and handoff
+
+- Signed implementation commit: `ca11cfe59a1c619b37a2242c5e9d7efba8bbd236` (`test(cruding): harden route support coverage`).
+- Push to `origin/tabling-action-boundary-refactor-v2` succeeded; post-push branch state is clean, ahead 0 / behind 0.
+- The integration commit contains only `CMCP_CHANGELOG.md` and the new `tests/Unit/Resource/CrudRouteSupportTest.php`; the temporary formatting-only source working-tree change normalized away and is not part of the commit.
+- Final accepted gate evidence for this bounded wave: `composer check:cruding` green (55 tests, 224 assertions), PHPStan 0 errors, CS check 0 fixable files, Composer strict/check-lock valid, and fresh coverage evidence generated successfully.
+- Acceptance decision: the selected RC-critical route-support hardening is complete and published. No additional implementation tail is required to make this bounded wave factual; broader Canon040 coverage remediation remains explicit post-RC debt.
+
+### Что имеем? Что осталось?
+
+Cruding now has direct regression protection for route parameter extraction, provider-key fallback/alias ordering, operation-to-view mapping, and template-candidate generation, with all deterministic repository gates green and the verified branch published. What remains is broader test-development work to lift repository-wide line/method coverage out of `HIGH_TEST_DEBT`; that is a separate continuing remediation track rather than unfinished work in this RC slice.
+
