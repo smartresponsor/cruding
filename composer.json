@@ -8,7 +8,7 @@
   "require": {
     "collectioning/collection": "dev-main || dev-master",
     "doctrine/doctrine-bundle": "^3.2",
-    "tabling/table": "dev-backend-table-metadata || dev-initial-platform-primitive || dev-main || dev-master",
+    "tabling/table": "dev-backend-table-actions || dev-backend-table-metadata || dev-initial-platform-primitive || dev-main || dev-master",
     "doctrine/orm": "^3.0",
     "php": "^8.4",
     "symfony/config": "^8.1",
