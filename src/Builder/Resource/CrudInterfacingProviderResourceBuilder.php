@@ -8,6 +8,8 @@ use App\Cruding\DTO\CrudPageDefinitionDTO;
 use App\Cruding\Resolver\Resource\CrudResourceOperationResolver;
 use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
 use App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface;
+use App\Tabling\Service\TableColumnMetadataBuilder;
+use App\Tabling\Service\TableFilterMetadataBuilder;
 use Symfony\Component\Form\FormView;
 
 /**
@@ -22,8 +24,8 @@ final class CrudInterfacingProviderResourceBuilder implements CrudInterfacingPro
         private readonly CrudResourceOperationResolver $operationResolver,
         private readonly CrudResourceLabelFormatter $labelFormatter,
         private readonly CrudResourceRowBuilder $rowBuilder,
-        private readonly CrudResourceColumnBuilder $columnBuilder,
-        private readonly CrudResourceFilterBuilder $filterBuilder,
+        private readonly TableColumnMetadataBuilder $columnBuilder,
+        private readonly TableFilterMetadataBuilder $filterBuilder,
         private readonly CrudResourceFormFieldBuilder $formFieldBuilder,
         private readonly CrudResourceActionBuilder $actionBuilder,
         private readonly CrudResourceWorkbenchBuilder $workbenchBuilder,
@@ -45,8 +47,9 @@ final class CrudInterfacingProviderResourceBuilder implements CrudInterfacingPro
             : null;
         /** @var list<array<string, mixed>>|null $projectedRows */
         $rows = null !== $projectedRows ? $projectedRows : $this->rowBuilder->build($objects, $resourcePath, $component);
-        $columns = $this->columnBuilder->build($objects, $resourcePath, $component);
-        $filters = $this->filterBuilder->build($resourcePath);
+        $resourceLabel = $this->labelFormatter->humanize($resourcePath);
+        $columns = $this->columnBuilder->build($rows, $resourceLabel);
+        $filters = $this->filterBuilder->build($resourceLabel);
         $formFields = $this->formFieldBuilder->build($form, $resourcePath);
         $actions = $this->actionBuilder->build($page->actions);
         $workbench = $this->workbenchBuilder->build($page, $rows, $columns, $filters, $formFields, $actions, $resourcePath, $component, $operation);

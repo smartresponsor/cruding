@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
+use App\Tabling\Service\TableFilterMetadataBuilder;
 
 /**
  * Builds resource filter builder values used by Cruding workflows.
  */
 final class CrudResourceFilterBuilder
 {
-    public function __construct(private readonly CrudResourceLabelFormatter $labelFormatter)
-    {
+    public function __construct(
+        private readonly CrudResourceLabelFormatter $labelFormatter,
+        private readonly TableFilterMetadataBuilder $tableFilterMetadataBuilder,
+    ) {
     }
 
     /**
@@ -20,9 +23,6 @@ final class CrudResourceFilterBuilder
      */
     public function build(string $resourcePath): array
     {
-        return [
-            ['nameEntity' => 'q', 'label' => 'Search', 'type' => 'text', 'value' => null, 'placeholder' => 'Search '.$this->labelFormatter->humanize($resourcePath), 'options' => []],
-            ['nameEntity' => 'status', 'label' => 'Status', 'type' => 'select', 'value' => null, 'placeholder' => 'Any status', 'options' => []],
-        ];
+        return $this->tableFilterMetadataBuilder->build($this->labelFormatter->humanize($resourcePath));
     }
 }
