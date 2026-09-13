@@ -144,3 +144,45 @@ Cruding is canonically role-first, exact `DTO` casing is enforced, the advanced 
 
 The Cruding product and executable architecture gates are release-candidate green with zero hard Gating failures, zero PHPStan errors, clean CS, current PHPUnit/path-coverage evidence, and a documented non-blocking test/PHPDoc debt tail.
 
+## 2026-09-13 — repository implementation RC cycle
+
+### Iteration 1 — reconnaissance and baseline
+
+- Workspace: `D:\PhpstormProjects\www\cruding`; branch `tabling-action-boundary-refactor-v2`; baseline HEAD `86d93cb51a17504ba702a0260d112ea1332ed6be`; clean worktree and upstream in sync.
+- Read target contracts: `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, `CONTRIBUTING.md`, `SECURITY.md`, current CRUD route/resource/service docs, prior CMCP evidence, and current coverage summary.
+- Mandatory dependency contour checked: Objecting owns entity/system-field primitives; Viewing owns final rendering; Interfacing owns shell/template assets. Cruding currently has no direct production imports from those components, so Canon008 does not justify inventing hard Composer coupling merely because sibling folders exist. Collectioning and Tabling are direct runtime dependencies and are declared as local path repositories.
+- Canonization consulted directly: architecture authority model plus Canon008, Canon017, Canon021, Canon029, Canon031, Canon039, and Canon040. Gating remains the executable mirror.
+- Target-to-canon mapping: Cruding owns generic CRUD as required by Canon021; its role-first `App\\Cruding\\` tree and explicit DTO contract remain canonical; quality tooling/coverage scripts are present; current persistent coverage is materially below Canon040 targets and is `HIGH_TEST_DEBT` by line/method coverage (25.26% lines, 15.25% methods; branch coverage 61.26%).
+- Market baseline: mature Symfony CRUD systems expect deterministic route/action behavior, permissions, extension hooks, search/filter/pagination surfaces, and regression-tested customization points. Cruding keeps only generic route/operation/payload/diagnostic responsibility; final rendering, navigation, business actions, and Objecting field ownership remain outside this component.
+- RC-critical workstream selected: reduce factual high-risk test debt around under-covered core CRUD runtime collaborators, starting with route parameter extraction and route/provider resolution surfaces that already execute heavily but lack direct method-level tests. Preserve behavior; do not expand component ownership.
+- Growth workstream (non-blocking): richer host-facing diagnostics and generated integration reports after RC; no speculative UI or business behavior in Cruding.
+- Material risks: accidentally testing implementation trivia instead of public behavior, perturbing route grammar, or masking coverage debt with count-based heuristics. Canon040 requires php-code-coverage evidence, not test-count proxies.
+- Gates planned: targeted PHPUnit, `composer check:cruding`, PHPStan, CS check, fresh `test:coverage`, Canon/Gating inspection, Git diff/status, then coherent integration if green.
+
+### Iteration 2 — material implementation
+
+- Added `tests/Unit/Resource/CrudRouteSupportTest.php` as direct regression coverage for four route-boundary collaborators without changing production semantics.
+- Coverage exercises public scalar route-parameter extraction, boolean/float normalization, private/non-scalar attribute exclusion, provider-key detail aliases and index fallbacks, operation-to-view mapping, and deterministic template candidate order.
+- No Objecting, Viewing, Interfacing, navigation, business-operation, or rendering responsibility was pulled into Cruding.
+
+### Iteration 3 — verification and fix
+
+- Initial PHPUnit verification exposed an incomplete generated test file (`Unclosed '{'`); the truncated tail was repaired immediately and `php -l` then passed.
+- A subsequent direct `composer test` retry hit a transient Console MCP HTTP 502, so verification continued through the repository's primary deterministic gate rather than treating the connector error as a product failure.
+- `composer check:cruding` is green: all Cruding canon/smoke guards pass and PHPUnit reports 55/55 tests with 224 assertions.
+- `composer phpstan` is green with zero errors across 224 analyzed files.
+- Fresh `composer test:coverage` is green and produced current php-code-coverage evidence: 25.40% lines (1021/4020), 15.40% methods (85/552), and 63.86% branches (866/1356). This improves branch evidence from 61.26% while overall Canon040 `HIGH_TEST_DEBT` remains because line and method coverage are still below 50%.
+- Route-support evidence improved materially: `CrudRouteProviderKeyResolver` now reaches 100% lines / 83.33% branches, `CrudRouteViewResolver` reaches 100% lines and branches, and `CrudRouteParameterExtractor` reaches 100% lines / 94.74% branches. php-code-coverage method/path semantics remain authoritative even where a fully executed small method is not classified as method-covered.
+
+### Iteration 4 — debt closure and integration preparation
+
+- `composer cs:check` identified formatting normalization in the new test plus `src/Builder/Resource/CrudResourceActionBuilder.php`; `composer cs:fix` normalized both. Git shows no semantic textual diff for the pre-existing source file, so no production behavior change was introduced there.
+- Post-fix `composer cs:check` is green: 0/224 files require formatting changes.
+- `composer validate --strict --check-lock` is green.
+- Post-fix `composer check:cruding` was re-run and remains green at 55 tests / 224 assertions.
+- Canonization textual rules and their actual Gating mirrors were both inspected for Canon008, Canon021, Canon031, Canon039, and Canon040; the implementation remains inside Cruding ownership and the remaining coverage debt is explicitly classified rather than hidden.
+
+### Что имеем? Что осталось?
+
+The selected RC-critical route-support hardening is implemented and verified, with stronger direct regression coverage and improved branch evidence. Overall repository coverage remains a documented Canon040 `HIGH_TEST_DEBT` warning; it is genuine follow-up remediation debt, not a hard failure of this bounded RC wave. Remaining work in this run is Git integration and post-push final acceptance.
+
