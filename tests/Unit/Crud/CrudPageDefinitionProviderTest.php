@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Cruding\Tests\Unit\Crud;
 
+use App\Collectioning\DTO\CollectionPageDTO;
+use App\Collectioning\DTO\CollectionResultDTO;
+use App\Collectioning\ServiceInterface\CollectionRequestReaderInterface;
 use App\Cruding\DTO\CrudAccessContextDTO;
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\CrudOwnershipDTO;
 use App\Cruding\Provider\CrudPageDefinitionProvider;
-use App\Cruding\Service\CrudCollectionProjectionReader;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudRouteNameResolverInterface;
-use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CrudPageDefinitionProviderTest extends TestCase
 {
@@ -97,7 +97,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
             }
         };
 
-        $provider = new CrudPageDefinitionProvider($objectFinder, $this->projectionReader(), $accessBuilder, $routeResolver);
+        $provider = new CrudPageDefinitionProvider($objectFinder, $this->collectionReader($objects), $accessBuilder, $routeResolver);
         $page = $provider->provideIndex($context);
 
         self::assertSame('product index', $page->title);
@@ -177,7 +177,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
             }
         };
 
-        $provider = new CrudPageDefinitionProvider($objectFinder, $this->projectionReader(), $accessBuilder, $routeResolver);
+        $provider = new CrudPageDefinitionProvider($objectFinder, $this->collectionReader(), $accessBuilder, $routeResolver);
         $page = $provider->provideIndex($context);
 
         self::assertSame([], $page->actions);
@@ -266,7 +266,7 @@ final class CrudPageDefinitionProviderTest extends TestCase
             }
         };
 
-        $provider = new CrudPageDefinitionProvider($objectFinder, $this->projectionReader(), $accessBuilder, $routeResolver);
+        $provider = new CrudPageDefinitionProvider($objectFinder, $this->collectionReader(), $accessBuilder, $routeResolver);
         $page = $provider->provideShow($context, $object);
 
         self::assertSame('product show', $page->title);
@@ -279,11 +279,24 @@ final class CrudPageDefinitionProviderTest extends TestCase
         self::assertSame(13, $page->meta['identifierValue']);
     }
 
-    private function projectionReader(): CrudCollectionProjectionReader
+    /** @param list<array<string, mixed>|object> $items */
+    private function collectionReader(array $items = []): CollectionRequestReaderInterface
     {
-        return new CrudCollectionProjectionReader(
-            $this->createStub(ManagerRegistry::class),
-            new RequestStack(),
-        );
+        return new class($items) implements CollectionRequestReaderInterface {
+            /** @param list<array<string, mixed>|object> $items */
+            public function __construct(private array $items)
+            {
+            }
+
+            public function read(string $entityClass): CollectionResultDTO
+            {
+                return new CollectionResultDTO(
+                    $this->items,
+                    count($this->items),
+                    count($this->items),
+                    new CollectionPageDTO(1, 25),
+                );
+            }
+        };
     }
 }

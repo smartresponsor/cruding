@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Cruding\Provider;
 
+use App\Collectioning\ServiceInterface\CollectionRequestReaderInterface;
 use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\DTO\CrudPageActionDefinitionDTO;
 use App\Cruding\DTO\CrudPageDefinitionDTO;
-use App\Cruding\Service\CrudCollectionProjectionReader;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudObjectFinderInterface;
 use App\Cruding\ServiceInterface\CrudPageDefinitionProviderInterface;
@@ -20,7 +20,7 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
 {
     public function __construct(
         private CrudObjectFinderInterface $objectFinder,
-        private CrudCollectionProjectionReader $collectionProjectionReader,
+        private CollectionRequestReaderInterface $collectionReader,
         private CrudAccessContextBuilderInterface $accessContextBuilder,
         private CrudRouteNameResolverInterface $routeNameResolver,
     ) {
@@ -41,14 +41,19 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
             );
         }
 
-        $projectedRows = $this->collectionProjectionReader->read($context);
+        $entityClass = $context->entityClass;
+        /** @var class-string|null $entityClass */
+        $entityClass = '' !== $entityClass ? $entityClass : null;
+        $collection = null !== $entityClass ? $this->collectionReader->read($entityClass) : null;
+        $collectionObjects = null === $collection ? [] : array_values(array_filter($collection->items, 'is_object'));
+        $projectedRows = null === $collection ? null : array_values(array_filter($collection->items, 'is_array'));
 
         return new CrudPageDefinitionDTO(
             $context,
             $access,
             sprintf('%s index', $context->resourcePath),
             'index',
-            null === $projectedRows ? $this->objectFinder->findAll($context) : [],
+            null === $collection ? $this->objectFinder->findAll($context) : $collectionObjects,
             $actions,
             [
                 'resourcePath' => $context->resourcePath,
@@ -103,14 +108,19 @@ final readonly class CrudPageDefinitionProvider implements CrudPageDefinitionPro
     {
         if (null === $object) {
             $access = $this->accessContextBuilder->build($context);
-            $projectedRows = $this->collectionProjectionReader->read($context);
+            $entityClass = $context->entityClass;
+            /** @var class-string|null $entityClass */
+            $entityClass = '' !== $entityClass ? $entityClass : null;
+            $collection = null !== $entityClass ? $this->collectionReader->read($entityClass) : null;
+            $collectionObjects = null === $collection ? [] : array_values(array_filter($collection->items, 'is_object'));
+            $projectedRows = null === $collection ? null : array_values(array_filter($collection->items, 'is_array'));
 
             return new CrudPageDefinitionDTO(
                 $context,
                 $access,
                 sprintf('%s page', $context->resourcePath),
                 'page',
-                null === $projectedRows ? $this->objectFinder->findAll($context) : [],
+                null === $collection ? $this->objectFinder->findAll($context) : $collectionObjects,
                 [],
                 [
                     'resourcePath' => $context->resourcePath,
