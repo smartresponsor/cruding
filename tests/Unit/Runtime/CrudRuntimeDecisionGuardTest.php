@@ -121,6 +121,62 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
         self::assertSame('(?:alpha|beta)', $policy->resourceRequirement);
     }
 
+    public function testRuntimeLockReaderReturnsMissingStateWithoutLockFile(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-runtime-lock-missing-'.bin2hex(random_bytes(6));
+        mkdir($projectDir.'/config/kernel', 0777, true);
+
+        $lock = (new CrudRuntimeLockReader(
+            new CrudRuntimeTokenNormalizer(),
+            $projectDir,
+            'test',
+            'config/kernel/runtime_scope.%env%.lock.php',
+        ))->read();
+
+        self::assertFalse($lock->found);
+        self::assertNull($lock->path);
+        self::assertSame('test', $lock->appEnv);
+        self::assertSame([], $lock->scopeTokens);
+        self::assertSame([], $lock->packageNames);
+    }
+
+    public function testRuntimeLockReaderNormalizesNestedAndCsvPayloads(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-runtime-lock-nested-'.bin2hex(random_bytes(6));
+        mkdir($projectDir.'/config/kernel', 0777, true);
+        $payload = [
+            'runtime' => [
+                'scope' => [
+                    'components' => ' Cruding, Viewing, cruding ',
+                    'packages' => ['cruding/crud', 'viewing/view', 'cruding/crud'],
+                ],
+                'routing' => [
+                    'entities' => [' Alpha ', 'beta', '', 42],
+                    'view_tokens' => ' Card, detail, card ',
+                    'reserved_roots' => [' Admin ', 'api', 'admin'],
+                ],
+            ],
+        ];
+        file_put_contents(
+            $projectDir.'/config/kernel/runtime_scope.test.lock.php',
+            '<?php return '.var_export($payload, true).';'.PHP_EOL,
+        );
+
+        $lock = (new CrudRuntimeLockReader(
+            new CrudRuntimeTokenNormalizer(),
+            $projectDir,
+            'test',
+            'config/kernel/runtime_scope.%env%.lock.php',
+        ))->read();
+
+        self::assertTrue($lock->found);
+        self::assertSame(['cruding', 'viewing'], $lock->scopeTokens);
+        self::assertSame(['alpha', 'beta'], $lock->entityTokens);
+        self::assertSame(['card', 'detail'], $lock->viewTokens);
+        self::assertSame(['admin', 'api'], $lock->reservedTokens);
+        self::assertSame(['cruding/crud', 'viewing/view'], $lock->packageNames);
+    }
+
     /**
      * @param array<string, mixed> $lockPayload
      * @param array<string, mixed> $composerJson

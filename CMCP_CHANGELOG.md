@@ -290,3 +290,18 @@ The rebased Cruding tree now sits cleanly on current master with the already-mer
 
 The RC-critical Cruding package-version hardening and the accumulated verified regression-coverage work are integrated into `master`. No authorized in-scope RC tail remains; subsequent work is the separate growth track for broader Canon040 coverage and host-facing diagnostics.
 
+### Iteration 7 — Canon040 branch threshold closure
+
+- Continued the explicit post-RC Canon040 remediation track on branch `cruding-rc-journal-close-v2`, starting from clean synchronized head `46cfe44c3f0e8a9f7284c89742556c96400dec5f`.
+- Selected public runtime behavior rather than synthetic count inflation: implicit actor-owned lookup in `CrudObjectFinder` and lock discovery/normalization in `CrudRuntimeLockReader`.
+- Added `CrudObjectFinder` regression scenarios for unauthenticated implicit page lookup diagnostics and authenticated owner-association fallback using a concrete Symfony user.
+- Added `CrudRuntimeLockReader` regression scenarios for missing-lock state plus nested runtime payloads combining CSV token lists, array token lists, duplicate package names, normalization, and reserved/view/entity extraction.
+- No Cruding production semantics or cross-component ownership boundaries were changed in this wave.
+- Final gates are green: PHP lint on changed tests; `composer check:cruding` 66/66 tests with 291 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; `composer validate --strict --check-lock` valid; Xdebug/php-code-coverage execution green.
+- Repository coverage moved from 26.74% lines / 15.40% methods / 68.36% branches to 27.61% lines (1110/4020) / 15.76% methods (87/552) / 70.35% branches (954/1356). The Canon040 branch threshold of 70% is now satisfied.
+- Focused improvements: `CrudObjectFinder` reached 73.91% lines / 62.12% branches; `CrudRuntimeLockReader` reached 50.00% methods / 90.12% lines / 83.56% branches.
+
+### Что имеем? Что осталось?
+
+Canon040 branch coverage is now above target and no longer contributes to the warning. The remaining `HIGH_TEST_DEBT` is driven by repository-wide line and especially method coverage; the next useful waves should prioritize public methods on high-line/low-method runtime classes rather than further optimizing branch percentage alone.
+
