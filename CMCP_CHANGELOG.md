@@ -144,3 +144,136 @@ Cruding is canonically role-first, exact `DTO` casing is enforced, the advanced 
 
 The Cruding product and executable architecture gates are release-candidate green with zero hard Gating failures, zero PHPStan errors, clean CS, current PHPUnit/path-coverage evidence, and a documented non-blocking test/PHPDoc debt tail.
 
+## 2026-09-13 — repository implementation RC cycle
+
+### Iteration 1 — reconnaissance and baseline
+
+- Workspace: `D:\PhpstormProjects\www\cruding`; branch `tabling-action-boundary-refactor-v2`; baseline HEAD `86d93cb51a17504ba702a0260d112ea1332ed6be`; clean worktree and upstream in sync.
+- Read target contracts: `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, `CONTRIBUTING.md`, `SECURITY.md`, current CRUD route/resource/service docs, prior CMCP evidence, and current coverage summary.
+- Mandatory dependency contour checked: Objecting owns entity/system-field primitives; Viewing owns final rendering; Interfacing owns shell/template assets. Cruding currently has no direct production imports from those components, so Canon008 does not justify inventing hard Composer coupling merely because sibling folders exist. Collectioning and Tabling are direct runtime dependencies and are declared as local path repositories.
+- Canonization consulted directly: architecture authority model plus Canon008, Canon017, Canon021, Canon029, Canon031, Canon039, and Canon040. Gating remains the executable mirror.
+- Target-to-canon mapping: Cruding owns generic CRUD as required by Canon021; its role-first `App\\Cruding\\` tree and explicit DTO contract remain canonical; quality tooling/coverage scripts are present; current persistent coverage is materially below Canon040 targets and is `HIGH_TEST_DEBT` by line/method coverage (25.26% lines, 15.25% methods; branch coverage 61.26%).
+- Market baseline: mature Symfony CRUD systems expect deterministic route/action behavior, permissions, extension hooks, search/filter/pagination surfaces, and regression-tested customization points. Cruding keeps only generic route/operation/payload/diagnostic responsibility; final rendering, navigation, business actions, and Objecting field ownership remain outside this component.
+- RC-critical workstream selected: reduce factual high-risk test debt around under-covered core CRUD runtime collaborators, starting with route parameter extraction and route/provider resolution surfaces that already execute heavily but lack direct method-level tests. Preserve behavior; do not expand component ownership.
+- Growth workstream (non-blocking): richer host-facing diagnostics and generated integration reports after RC; no speculative UI or business behavior in Cruding.
+- Material risks: accidentally testing implementation trivia instead of public behavior, perturbing route grammar, or masking coverage debt with count-based heuristics. Canon040 requires php-code-coverage evidence, not test-count proxies.
+- Gates planned: targeted PHPUnit, `composer check:cruding`, PHPStan, CS check, fresh `test:coverage`, Canon/Gating inspection, Git diff/status, then coherent integration if green.
+
+### Iteration 2 — material implementation
+
+- Added `tests/Unit/Resource/CrudRouteSupportTest.php` as direct regression coverage for four route-boundary collaborators without changing production semantics.
+- Coverage exercises public scalar route-parameter extraction, boolean/float normalization, private/non-scalar attribute exclusion, provider-key detail aliases and index fallbacks, operation-to-view mapping, and deterministic template candidate order.
+- No Objecting, Viewing, Interfacing, navigation, business-operation, or rendering responsibility was pulled into Cruding.
+
+### Iteration 3 — verification and fix
+
+- Initial PHPUnit verification exposed an incomplete generated test file (`Unclosed '{'`); the truncated tail was repaired immediately and `php -l` then passed.
+- A subsequent direct `composer test` retry hit a transient Console MCP HTTP 502, so verification continued through the repository's primary deterministic gate rather than treating the connector error as a product failure.
+- `composer check:cruding` is green: all Cruding canon/smoke guards pass and PHPUnit reports 55/55 tests with 224 assertions.
+- `composer phpstan` is green with zero errors across 224 analyzed files.
+- Fresh `composer test:coverage` is green and produced current php-code-coverage evidence: 25.40% lines (1021/4020), 15.40% methods (85/552), and 63.86% branches (866/1356). This improves branch evidence from 61.26% while overall Canon040 `HIGH_TEST_DEBT` remains because line and method coverage are still below 50%.
+- Route-support evidence improved materially: `CrudRouteProviderKeyResolver` now reaches 100% lines / 83.33% branches, `CrudRouteViewResolver` reaches 100% lines and branches, and `CrudRouteParameterExtractor` reaches 100% lines / 94.74% branches. php-code-coverage method/path semantics remain authoritative even where a fully executed small method is not classified as method-covered.
+
+### Iteration 4 — debt closure and integration preparation
+
+- `composer cs:check` identified formatting normalization in the new test plus `src/Builder/Resource/CrudResourceActionBuilder.php`; `composer cs:fix` normalized both. Git shows no semantic textual diff for the pre-existing source file, so no production behavior change was introduced there.
+- Post-fix `composer cs:check` is green: 0/224 files require formatting changes.
+- `composer validate --strict --check-lock` is green.
+- Post-fix `composer check:cruding` was re-run and remains green at 55 tests / 224 assertions.
+- Canonization textual rules and their actual Gating mirrors were both inspected for Canon008, Canon021, Canon031, Canon039, and Canon040; the implementation remains inside Cruding ownership and the remaining coverage debt is explicitly classified rather than hidden.
+
+### Что имеем? Что осталось?
+
+The selected RC-critical route-support hardening is implemented and verified, with stronger direct regression coverage and improved branch evidence. Overall repository coverage remains a documented Canon040 `HIGH_TEST_DEBT` warning; it is genuine follow-up remediation debt, not a hard failure of this bounded RC wave. Remaining work in this run is Git integration and post-push final acceptance.
+
+### Iteration 5 — final acceptance and handoff
+
+- Signed implementation commit: `ca11cfe59a1c619b37a2242c5e9d7efba8bbd236` (`test(cruding): harden route support coverage`).
+- Push to `origin/tabling-action-boundary-refactor-v2` succeeded; post-push branch state is clean, ahead 0 / behind 0.
+- The integration commit contains only `CMCP_CHANGELOG.md` and the new `tests/Unit/Resource/CrudRouteSupportTest.php`; the temporary formatting-only source working-tree change normalized away and is not part of the commit.
+- Final accepted gate evidence for this bounded wave: `composer check:cruding` green (55 tests, 224 assertions), PHPStan 0 errors, CS check 0 fixable files, Composer strict/check-lock valid, and fresh coverage evidence generated successfully.
+- Acceptance decision: the selected RC-critical route-support hardening is complete and published. No additional implementation tail is required to make this bounded wave factual; broader Canon040 coverage remediation remains explicit post-RC debt.
+
+### Что имеем? Что осталось?
+
+Cruding now has direct regression protection for route parameter extraction, provider-key fallback/alias ordering, operation-to-view mapping, and template-candidate generation, with all deterministic repository gates green and the verified branch published. What remains is broader test-development work to lift repository-wide line/method coverage out of `HIGH_TEST_DEBT`; that is a separate continuing remediation track rather than unfinished work in this RC slice.
+
+### Iteration 6 — continuous RC coverage hardening
+
+- Continued Canon040 remediation by risk rather than test-count inflation. The next wave targeted `CrudObjectFinder`, `CrudRuntimeRouteGuard`, and `CrudResourceContract` because they sit on persistence lookup, route-policy, and neutral payload boundaries.
+- Expanded `CrudObjectFinderTest` with empty/unsupported entity handling, canonical `objectSlug` fallback, bounded pagination (`limit` capped at 500), offset calculation, and request timing diagnostics.
+- Expanded runtime guard verification with root-token normalization, allow-list rejection, policy projection, and conflict signaling.
+- Expanded resource-contract verification across template context, fallback payload, metadata, defaults, view modes, and slot-location fallback.
+- Verification exposed a real Canon017 documentation/runtime mismatch: `CrudResourceContract::toTemplateContext()` promotes arbitrary producer metadata through `+ $meta`, while its prior PHPDoc described a sealed array shape. The return contract was corrected to truthful open `array<string, mixed>` documentation with meaningful descriptions; runtime behavior was not changed.
+- PHPUnit 12 mock strictness also exposed one expectation-free metadata mock; it was replaced with a stub rather than suppressing the notice.
+- Final deterministic gates are green: `composer check:cruding` reports 62/62 tests and 271 assertions; PHPStan reports 0 errors; `composer cs:check` reports 0/224 fixable files; fresh coverage execution passes under Xdebug/php-code-coverage.
+- Coverage moved from the Iteration 5 baseline of 25.40% lines / 15.40% methods / 63.86% branches to 26.74% lines (1075/4020) / 15.40% methods (85/552) / 68.36% branches (927/1356). Branch coverage is now 1.64 percentage points below the Canon040 70% target.
+- Focused class evidence: `CrudRuntimeRouteGuard` is 100% lines / 85.00% branches; `CrudResourceContract` is 98.72% lines / 84.62% branches; `CrudObjectFinder` improved to 46.38% lines / 36.36% branches.
+
+### Что имеем? Что осталось?
+
+This continuous RC wave materially improved branch and line coverage while also repairing a factual public-contract PHPDoc drift discovered by strict analysis. The next useful wave should prioritize `CrudObjectFinder` actor-owned branches and other high-line/low-method classes; repository-wide method coverage remains the dominant Canon040 `HIGH_TEST_DEBT` driver.
+
+## 2026-09-14 — repository implementation RC cycle
+
+### Reconnaissance and baseline
+
+- Workspace: `D:\PhpstormProjects\www\cruding`; branch `tabling-action-boundary-refactor-v2`; baseline HEAD `a923a054a923441a3be99201ac5fee51eb68b661`; worktree clean and upstream synchronized.
+- Read target contracts and implementation: root `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, contribution/security/release documentation, current CRUD architecture documents, `CrudingBundle`, `CrudingExtension`, `CrudController`, existing CMCP journal, Composer scripts, and Git state.
+- Mandatory dependency contour checked: Objecting owns reusable entity/system fields; Collectioning owns provider-neutral query semantics; Tabling owns backend table metadata/actions; Viewing owns final render decisions; Interfacing owns shell/templates. Cruding has no direct production imports from Objecting, Viewing, or Interfacing, so no unsupported direct runtime dependency is invented.
+- Canonization textual rules consulted directly: Canon021 (Cruding generic CRUD ownership), Canon022 (standalone application dependency baseline), Canon043 (local development dependencies use exact `dev-master` plus path `options.versions`), and Canon045 (root local repository closure). Gating mirrors for Canon021/022/043/045 and the Cruding profile were inspected separately.
+- Target-to-canon mapping: Canon021 is satisfied by Cruding ownership; Canon022 is applicable only to standalone Symfony boot surfaces and must not be used to force application-only dependencies into this pure bundle package; Canon043 applies because Cruding locally links Collectioning and Tabling; Canon045 applies to their reachable local path closure, with Collectioning already exposed at the root.
+- Factual RC-critical defect: Cruding's development manifest still uses non-canonical `dev-main`/feature-branch alternatives for local first-party dependencies and omits `options.versions[package] = dev-master` on both path repositories. The README quick-start also still advertises `*@dev`. Current local Cruding gates do not catch this because the checked Cruding Gating profile predates Canon043/045 enablement.
+- Market baseline: mature CRUD systems centralize generic CRUD orchestration while separating query, table/action metadata, and presentation responsibilities. Cruding's current boundary remains competitive and coherent; package determinism is the immediate RC concern rather than speculative feature expansion.
+- RC-critical workstream: materialize Canon043 in Cruding's development Composer contract and package-facing installation example, verify dependency solving and the complete existing quality gate, then integrate the bounded change.
+- Growth workstream: continue Canon040 coverage uplift and richer host-facing diagnostics after this packaging hardening; do not block this RC slice on speculative UI/DX growth.
+- Material risks: Composer package identity changing with sibling feature branches, root repository-closure assumptions, and accidentally adding application-only Objecting/Viewing/Interfacing dependencies to a component that does not consume them.
+- Gates planned: strict Composer validation, Composer dependency-resolution dry run, `composer check:cruding`, PHPStan, CS check, targeted Canon043/045 evidence, Git diff/status, signed commit, push, and post-push branch verification.
+
+### Что имеем? Что осталось?
+
+The runtime baseline is green (`composer check:cruding`: 62 tests / 271 assertions; PHPStan: 0 errors), and the remaining concrete RC defect is the stale local Composer package-version identity contract. Next: patch only `composer.json`, `README.md`, and this orchestration journal, then execute the full acceptance contour.
+
+### Material implementation and verification
+
+- Updated Cruding's direct local first-party constraints to exact `dev-master` for `collectioning/collection` and `tabling/table`.
+- Added `options.versions` pins for both local path repositories so sibling feature-branch checkouts retain canonical `dev-master` Composer identity while `symlink: true` remains intact.
+- Updated the README local installation example to use `dev-master` and a matching path-package version pin instead of the obsolete `*@dev` example.
+- The first strict Composer validation correctly failed because the ignored local `composer.lock` still identified Tabling as `dev-backend-table-actions`; package-scoped Composer update synchronized the local resolution state. No tracked lock-file change was introduced.
+- Composer resolution upgraded the local path identities to `collectioning/collection dev-master` and `tabling/table dev-master`; the update also refreshed ignored local lock entries for Doctrine ORM and Symfony YAML. Composer reported no security advisories.
+- `composer validate --strict` now passes.
+- `composer check:cruding` passes after the package change: 62 tests, 271 assertions, all repository canon/smoke guards green.
+- `composer phpstan` passes with 0 errors across 224 analyzed files.
+- `composer cs:check` passes with 0/224 fixable files.
+- Canon043 evidence is satisfied directly in the resulting manifest: `minimum-stability=dev`, `prefer-stable=true`, exact `dev-master` direct constraints, `symlink=true`, and matching `options.versions` for each local first-party path repository.
+- Canon045 closure remains satisfied for Cruding: both directly linked first-party repositories are visible from the root, and Tabling's local Collectioning dependency is already exposed by Cruding's root Collectioning repository. Tabling's own manifest policy is a sibling-repository concern and was not modified from the Cruding task.
+- The canonical Gating implementation contains Canon043/Canon045 enforcement, but the currently inspected Cruding Gating profile does not yet enable those newer rules. No duplicate Cruding-local gate was invented because Gating owns executable canon enforcement.
+
+### Что имеем? Что осталось?
+
+Cruding's runtime and static-analysis baseline remains green, and its development Composer contract is now aligned with the current canonical first-party `dev-master` policy without adding application-only dependencies. Remaining work in this bounded RC slice is Git diff review, signed integration, push, and post-push state verification.
+
+### Integration and acceptance
+
+- Final pre-integration diff is bounded to `composer.json`, `README.md`, and `CMCP_CHANGELOG.md`; no runtime PHP source was changed.
+- Initial signed implementation commit was `caaa916`; after fetching current `origin/master`, rebase skipped the already-applied table-action commit and replayed the package change as `5693c81` (`chore(cruding): canonicalize local package versions`).
+- The ignored local Composer lock was synchronized for verification only and is not part of the tracked change set.
+- Acceptance gates before publication remain green: strict Composer validation, full `composer check:cruding` (62 tests / 271 assertions), PHPStan (0 errors), and CS check (0/224 fixable files).
+
+### Что имеем? Что осталось?
+
+The bounded RC-critical package-version hardening is implemented, verified, and signed. Only branch publication and the final post-push clean/upstream-state inspection remain.
+
+### PR conflict repair
+
+- The original branch was pushed and PR #14 opened against `master`; GitHub correctly reported the PR as `CONFLICTING` because the branch still had pre-merge ancestry from the earlier Tabling action work.
+- Fetched current `origin/master` (`0dc8264`, merged PR #13) before changing history; the first local rebase attempt had been against a stale remote-tracking ref and made no change.
+- Rebased onto the refreshed `origin/master`. Git automatically skipped previously applied commit `86d93cb` and replayed the five genuinely new commits without content conflicts.
+- Post-rebase strict Composer validation, `composer check:cruding` (62 tests / 271 assertions), and PHPStan (0 errors) remain green.
+- PHP-CS-Fixer initially reported replay-related formatting normalization across the newer coverage files; `composer cs:fix` normalized five files, and `git diff` is empty afterward, proving no semantic/textual delta remained from that normalization pass.
+- The already-published old branch will not be force-pushed. The rebased state must be published under a new branch, then PR #14 can be superseded safely.
+
+### Что имеем? Что осталось?
+
+The rebased Cruding tree now sits cleanly on current master with the already-merged Tabling action commit deduplicated, all semantic gates green, and no uncommitted formatter delta. Remaining work: commit this factual journal correction, publish the rebased head under a new branch, replace PR #14, inspect the new merge gate, and merge only if green.
+

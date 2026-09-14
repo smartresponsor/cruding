@@ -6,9 +6,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "collectioning/collection": "dev-main || dev-master",
+    "collectioning/collection": "dev-master",
     "doctrine/doctrine-bundle": "^3.2",
-    "tabling/table": "dev-backend-table-actions || dev-backend-table-metadata || dev-initial-platform-primitive || dev-main || dev-master",
+    "tabling/table": "dev-master",
     "doctrine/orm": "^3.0",
     "php": "^8.4",
     "symfony/config": "^8.1",
@@ -40,14 +40,20 @@
       "type": "path",
       "url": "../Collectioning",
       "options": {
-        "symlink": true
+        "symlink": true,
+        "versions": {
+          "collectioning/collection": "dev-master"
+        }
       }
     },
     {
       "type": "path",
       "url": "../Tabling",
       "options": {
-        "symlink": true
+        "symlink": true,
+        "versions": {
+          "tabling/table": "dev-master"
+        }
       }
     }
   ],

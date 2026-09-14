@@ -86,25 +86,14 @@ final readonly class CrudResourceContract
     }
 
     /**
-     * @return array{
-     *     word: string,
-     *     view: string,
-     *     slotMap: array<string, string>,
-     *     workbench: array<string, mixed>,
-     *     slots: array<string, mixed>,
-     *     locations: array<string, mixed>,
-     *     adminProviderPageTitle: string,
-     *     adminProviderResourceName: string,
-     *     adminProviderResourceLabel: string,
-     *     adminProviderOperation: string,
-     *     adminProviderview: string,
-     *     adminProviderDefaultView: string,
-     *     adminProviderViewModes: list<string>
-     * }
+     * Builds the template context with stable Cruding keys plus producer metadata promoted at top level.
+     *
+     * @return array<string, mixed>
      */
     public function toTemplateContext(): array
     {
         $routeContext = is_array($this->workbench['routeContext'] ?? null) ? $this->workbench['routeContext'] : [];
+        /** @var array<string, mixed> $meta */
         $meta = is_array($this->workbench['meta'] ?? null) ? $this->workbench['meta'] : [];
 
         return [
@@ -130,13 +119,9 @@ final readonly class CrudResourceContract
     }
 
     /**
-     * @return array{
-     *     word: string,
-     *     view: string,
-     *     workbench: array<string, mixed>,
-     *     slots: array<string, mixed>,
-     *     locations: array<string, mixed>
-     * }
+     * Builds the JSON/fallback payload using the same producer metadata envelope as template rendering.
+     *
+     * @return array<string, mixed>
      */
     public function toFallbackData(): array
     {

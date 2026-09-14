@@ -37,11 +37,14 @@ composer check:cruding
     {
       "type": "path",
       "url": "../Cruding",
-      "options": { "symlink": true }
+      "options": {
+        "symlink": true,
+        "versions": { "cruding/crud": "dev-master" }
+      }
     }
   ],
   "require": {
-    "cruding/crud": "*@dev"
+    "cruding/crud": "dev-master"
   }
 }
 ```
