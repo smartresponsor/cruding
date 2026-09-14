@@ -59,4 +59,71 @@ final class CrudResourcePayloadBuilderTest extends TestCase
         self::assertSame('next-action', $right[0]['key']);
         self::assertSame('alpha', $routeContext['resource']);
     }
+
+    public function testResourceContractBuildsTemplateAndFallbackContexts(): void
+    {
+        $contract = \App\Cruding\ValueObject\Resource\CrudResourceContract::forResource(
+            'detail',
+            [
+                'resourcePath' => 'product/document',
+                'resourceLabel' => 'Product document',
+                'operation' => 'show',
+                'view' => 'detail',
+            ],
+            ['body' => [['type' => 'document']]],
+            [
+                'title' => 'Document detail',
+                'format' => 'html',
+                'custom' => 'meta-value',
+            ],
+        );
+
+        $template = $contract->toTemplateContext();
+        self::assertSame('crud', $template['word']);
+        self::assertSame('detail', $template['view']);
+        self::assertSame('Document detail', $template['adminProviderPageTitle']);
+        self::assertSame('product/document', $template['adminProviderResourceName']);
+        self::assertSame('Product document', $template['adminProviderResourceLabel']);
+        self::assertSame('show', $template['adminProviderOperation']);
+        self::assertSame('detail', $template['adminProviderview']);
+        self::assertSame('detail', $template['adminProviderDefaultView']);
+        self::assertSame(['detail'], $template['adminProviderViewModes']);
+        self::assertSame('html', $template['format']);
+        $templateMeta = $template['meta'];
+        self::assertIsArray($templateMeta);
+        self::assertSame('meta-value', $templateMeta['custom'] ?? null);
+
+        $fallback = $contract->toFallbackData();
+        self::assertSame($contract->locations, $fallback['locations']);
+        self::assertSame('html', $fallback['format']);
+        $fallbackMeta = $fallback['meta'];
+        self::assertIsArray($fallbackMeta);
+        self::assertSame('meta-value', $fallbackMeta['custom'] ?? null);
+    }
+
+    public function testResourceContractFallsBackToSlotLocationsAndDefaults(): void
+    {
+        $contract = new \App\Cruding\ValueObject\Resource\CrudResourceContract(
+            word: 'crud',
+            view: 'index',
+            slotMap: [],
+            workbench: ['routeContext' => [], 'meta' => []],
+            slots: [
+                'locations' => ['body' => [['type' => 'fallback']]],
+                'defaultView' => null,
+                'viewModes' => ['table', null, '', 'cards'],
+            ],
+        );
+
+        $template = $contract->toTemplateContext();
+        self::assertSame(['body' => [['type' => 'fallback']]], $template['locations']);
+        self::assertSame('Cruding', $template['adminProviderPageTitle']);
+        self::assertSame('resource', $template['adminProviderResourceName']);
+        self::assertSame('Cruding', $template['adminProviderResourceLabel']);
+        self::assertSame('index', $template['adminProviderOperation']);
+        self::assertSame('admin', $template['adminProviderview']);
+        self::assertSame('table', $template['adminProviderDefaultView']);
+        self::assertSame(['table', 'cards'], $template['adminProviderViewModes']);
+        self::assertSame('auto', $template['format']);
+    }
 }

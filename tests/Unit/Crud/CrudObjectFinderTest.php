@@ -67,6 +67,66 @@ final class CrudObjectFinderTest extends TestCase
         self::assertNull($finder->findOne($context));
     }
 
+    public function testFindOneReturnsNullForEmptyEntityClass(): void
+    {
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->expects(self::never())->method('getManagerForClass');
+        $registry->expects(self::never())->method('getRepository');
+
+        $context = new CrudContextDTO('public', 'show', 'document', '', 'id', 1, null);
+
+        self::assertNull($this->finder($registry)->findOne($context));
+    }
+
+    public function testFindOneReturnsNullWhenNoManagerOwnsEntityClass(): void
+    {
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn(null);
+        $context = new CrudContextDTO('public', 'show', 'document', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'id', 1, null);
+
+        self::assertNull($this->finder($registry)->findOne($context));
+    }
+
+    public function testFindOneUsesObjectSlugFallback(): void
+    {
+        $expected = new \stdClass();
+        $metadata = $this->createStub(ClassMetadata::class);
+        $metadata->method('hasField')->willReturnCallback(static fn (string $field): bool => 'objectSlug' === $field);
+
+        $manager = $this->createStub(ObjectManager::class);
+        $manager->method('getClassMetadata')->willReturn($metadata);
+
+        $repository = $this->createMock(ObjectRepository::class);
+        $repository->expects(self::once())->method('findOneBy')->with(['objectSlug' => 'alpha'])->willReturn($expected);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn($manager);
+        $registry->method('getRepository')->willReturn($repository);
+        $context = new CrudContextDTO('public', 'show', 'product', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'slug', 'alpha', null);
+
+        self::assertSame($expected, $this->finder($registry)->findOne($context));
+    }
+
+    public function testFindAllAppliesBoundedPaginationAndRecordsTiming(): void
+    {
+        $request = \Symfony\Component\HttpFoundation\Request::create('/product?limit=999&page=3');
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $repository = $this->createMock(ObjectRepository::class);
+        $repository->expects(self::once())->method('findBy')->with([], null, 500, 1000)->willReturn([]);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
+        $finder = new CrudObjectFinder($registry, $requestStack, $this->createStub(Security::class));
+        $context = new CrudContextDTO('public', 'index', 'product', 'App\\Tests\\Fixture\\Entity\\ProductEntity', 'id', null, null);
+
+        self::assertSame([], $finder->findAll($context));
+        $timing = $request->attributes->get('_crud_object_find_all_ms');
+        self::assertIsString($timing);
+        self::assertMatchesRegularExpression('/^\\d+\\.\\d{2}$/', $timing);
+    }
+
     private function finder(ManagerRegistry $registry): CrudObjectFinder
     {
         return new CrudObjectFinder(
