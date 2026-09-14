@@ -335,3 +335,20 @@ The method-focused wave produced a measurable method gain and improved test dete
 
 This wave confirms that targeting callable contract behavior is materially more effective for Canon040 method debt than further branch-only hardening. The next useful targets are `CrudPageDefinitionProvider`, `CrudOwnershipDTO`/`CrudContextDTO` behavior, `CrudRuntimeDecisionGuard`, and other classes where multiple public methods remain under-classified despite substantial line execution.
 
+### Iteration 10 — page-definition and DTO behavior coverage
+
+- Continued Canon040 remediation against `CrudPageDefinitionProvider`, `CrudContextDTO`, and `CrudOwnershipDTO`, prioritizing a large line-debt runtime provider plus small behavioral DTO methods.
+- Added collection-page coverage for `providePage()` without an object, verifying Collectioning-backed object/projected-row splitting, collection-page metadata, and no fallback repository call when collection data exists.
+- Added detail-page coverage for `providePage()` with an object, including index/edit actions and identifier metadata.
+- Added `provideNew()` / `provideEdit()` coverage for form-view propagation and delete action generation; the initial assertion incorrectly treated the fifth action-constructor argument as `style`, and was corrected to the actual DTO field `scope` after reading the contract.
+- Added direct behavior coverage for `CrudContextDTO::isAdminView()` and every material branch of `CrudOwnershipDTO::canMutate()` (admin override, unsupported ownership, authenticated owner, unauthenticated owner).
+- PHPStan found one nullable helper route parameter in the new test double; the helper now falls back to the context operation so it honors the interface return type without suppression.
+- No production PHP source or component responsibility changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 77/77 tests with 362 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage green.
+- Coverage moved from 28.28% lines / 16.85% methods / 73.16% branches to 31.09% lines (1250/4020) / 17.57% methods (97/552) / 75.29% branches (1021/1356).
+- Focused evidence: `CrudPageDefinitionProvider` now reaches 66.67% methods / 100% lines / 80.77% branches; `CrudContextDTO` and `CrudOwnershipDTO` now reach 100% methods, paths, branches, and lines.
+
+### Что имеем? Что осталось?
+
+This wave delivered the largest recent line-coverage gain while still improving method coverage, confirming that large public runtime providers are the highest-value next targets. Remaining `HIGH_TEST_DEBT` is still driven by repository-wide line and method coverage; the next wave should prioritize `CrudRuntimeDecisionGuard`, `CrudObjectFinder`, `CrudApiExceptionSubscriber`, and other public runtime classes with meaningful uncovered behavior.
+
