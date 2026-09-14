@@ -214,3 +214,42 @@ Cruding now has direct regression protection for route parameter extraction, pro
 
 This continuous RC wave materially improved branch and line coverage while also repairing a factual public-contract PHPDoc drift discovered by strict analysis. The next useful wave should prioritize `CrudObjectFinder` actor-owned branches and other high-line/low-method classes; repository-wide method coverage remains the dominant Canon040 `HIGH_TEST_DEBT` driver.
 
+## 2026-09-14 — repository implementation RC cycle
+
+### Reconnaissance and baseline
+
+- Workspace: `D:\PhpstormProjects\www\cruding`; branch `tabling-action-boundary-refactor-v2`; baseline HEAD `a923a054a923441a3be99201ac5fee51eb68b661`; worktree clean and upstream synchronized.
+- Read target contracts and implementation: root `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, contribution/security/release documentation, current CRUD architecture documents, `CrudingBundle`, `CrudingExtension`, `CrudController`, existing CMCP journal, Composer scripts, and Git state.
+- Mandatory dependency contour checked: Objecting owns reusable entity/system fields; Collectioning owns provider-neutral query semantics; Tabling owns backend table metadata/actions; Viewing owns final render decisions; Interfacing owns shell/templates. Cruding has no direct production imports from Objecting, Viewing, or Interfacing, so no unsupported direct runtime dependency is invented.
+- Canonization textual rules consulted directly: Canon021 (Cruding generic CRUD ownership), Canon022 (standalone application dependency baseline), Canon043 (local development dependencies use exact `dev-master` plus path `options.versions`), and Canon045 (root local repository closure). Gating mirrors for Canon021/022/043/045 and the Cruding profile were inspected separately.
+- Target-to-canon mapping: Canon021 is satisfied by Cruding ownership; Canon022 is applicable only to standalone Symfony boot surfaces and must not be used to force application-only dependencies into this pure bundle package; Canon043 applies because Cruding locally links Collectioning and Tabling; Canon045 applies to their reachable local path closure, with Collectioning already exposed at the root.
+- Factual RC-critical defect: Cruding's development manifest still uses non-canonical `dev-main`/feature-branch alternatives for local first-party dependencies and omits `options.versions[package] = dev-master` on both path repositories. The README quick-start also still advertises `*@dev`. Current local Cruding gates do not catch this because the checked Cruding Gating profile predates Canon043/045 enablement.
+- Market baseline: mature CRUD systems centralize generic CRUD orchestration while separating query, table/action metadata, and presentation responsibilities. Cruding's current boundary remains competitive and coherent; package determinism is the immediate RC concern rather than speculative feature expansion.
+- RC-critical workstream: materialize Canon043 in Cruding's development Composer contract and package-facing installation example, verify dependency solving and the complete existing quality gate, then integrate the bounded change.
+- Growth workstream: continue Canon040 coverage uplift and richer host-facing diagnostics after this packaging hardening; do not block this RC slice on speculative UI/DX growth.
+- Material risks: Composer package identity changing with sibling feature branches, root repository-closure assumptions, and accidentally adding application-only Objecting/Viewing/Interfacing dependencies to a component that does not consume them.
+- Gates planned: strict Composer validation, Composer dependency-resolution dry run, `composer check:cruding`, PHPStan, CS check, targeted Canon043/045 evidence, Git diff/status, signed commit, push, and post-push branch verification.
+
+### Что имеем? Что осталось?
+
+The runtime baseline is green (`composer check:cruding`: 62 tests / 271 assertions; PHPStan: 0 errors), and the remaining concrete RC defect is the stale local Composer package-version identity contract. Next: patch only `composer.json`, `README.md`, and this orchestration journal, then execute the full acceptance contour.
+
+### Material implementation and verification
+
+- Updated Cruding's direct local first-party constraints to exact `dev-master` for `collectioning/collection` and `tabling/table`.
+- Added `options.versions` pins for both local path repositories so sibling feature-branch checkouts retain canonical `dev-master` Composer identity while `symlink: true` remains intact.
+- Updated the README local installation example to use `dev-master` and a matching path-package version pin instead of the obsolete `*@dev` example.
+- The first strict Composer validation correctly failed because the ignored local `composer.lock` still identified Tabling as `dev-backend-table-actions`; package-scoped Composer update synchronized the local resolution state. No tracked lock-file change was introduced.
+- Composer resolution upgraded the local path identities to `collectioning/collection dev-master` and `tabling/table dev-master`; the update also refreshed ignored local lock entries for Doctrine ORM and Symfony YAML. Composer reported no security advisories.
+- `composer validate --strict` now passes.
+- `composer check:cruding` passes after the package change: 62 tests, 271 assertions, all repository canon/smoke guards green.
+- `composer phpstan` passes with 0 errors across 224 analyzed files.
+- `composer cs:check` passes with 0/224 fixable files.
+- Canon043 evidence is satisfied directly in the resulting manifest: `minimum-stability=dev`, `prefer-stable=true`, exact `dev-master` direct constraints, `symlink=true`, and matching `options.versions` for each local first-party path repository.
+- Canon045 closure remains satisfied for Cruding: both directly linked first-party repositories are visible from the root, and Tabling's local Collectioning dependency is already exposed by Cruding's root Collectioning repository. Tabling's own manifest policy is a sibling-repository concern and was not modified from the Cruding task.
+- The canonical Gating implementation contains Canon043/Canon045 enforcement, but the currently inspected Cruding Gating profile does not yet enable those newer rules. No duplicate Cruding-local gate was invented because Gating owns executable canon enforcement.
+
+### Что имеем? Что осталось?
+
+Cruding's runtime and static-analysis baseline remains green, and its development Composer contract is now aligned with the current canonical first-party `dev-master` policy without adding application-only dependencies. Remaining work in this bounded RC slice is Git diff review, signed integration, push, and post-push state verification.
+
