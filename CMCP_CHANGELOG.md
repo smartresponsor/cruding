@@ -256,11 +256,24 @@ Cruding's runtime and static-analysis baseline remains green, and its developmen
 ### Integration and acceptance
 
 - Final pre-integration diff is bounded to `composer.json`, `README.md`, and `CMCP_CHANGELOG.md`; no runtime PHP source was changed.
-- Signed implementation commit created: `caaa916` (`chore(cruding): canonicalize local package versions`).
+- Initial signed implementation commit was `caaa916`; after fetching current `origin/master`, rebase skipped the already-applied table-action commit and replayed the package change as `5693c81` (`chore(cruding): canonicalize local package versions`).
 - The ignored local Composer lock was synchronized for verification only and is not part of the tracked change set.
 - Acceptance gates before publication remain green: strict Composer validation, full `composer check:cruding` (62 tests / 271 assertions), PHPStan (0 errors), and CS check (0/224 fixable files).
 
 ### Что имеем? Что осталось?
 
 The bounded RC-critical package-version hardening is implemented, verified, and signed. Only branch publication and the final post-push clean/upstream-state inspection remain.
+
+### PR conflict repair
+
+- The original branch was pushed and PR #14 opened against `master`; GitHub correctly reported the PR as `CONFLICTING` because the branch still had pre-merge ancestry from the earlier Tabling action work.
+- Fetched current `origin/master` (`0dc8264`, merged PR #13) before changing history; the first local rebase attempt had been against a stale remote-tracking ref and made no change.
+- Rebased onto the refreshed `origin/master`. Git automatically skipped previously applied commit `86d93cb` and replayed the five genuinely new commits without content conflicts.
+- Post-rebase strict Composer validation, `composer check:cruding` (62 tests / 271 assertions), and PHPStan (0 errors) remain green.
+- PHP-CS-Fixer initially reported replay-related formatting normalization across the newer coverage files; `composer cs:fix` normalized five files, and `git diff` is empty afterward, proving no semantic/textual delta remained from that normalization pass.
+- The already-published old branch will not be force-pushed. The rebased state must be published under a new branch, then PR #14 can be superseded safely.
+
+### Что имеем? Что осталось?
+
+The rebased Cruding tree now sits cleanly on current master with the already-merged Tabling action commit deduplicated, all semantic gates green, and no uncommitted formatter delta. Remaining work: commit this factual journal correction, publish the rebased head under a new branch, replace PR #14, inspect the new merge gate, and merge only if green.
 
