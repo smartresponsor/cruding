@@ -253,3 +253,14 @@ The runtime baseline is green (`composer check:cruding`: 62 tests / 271 assertio
 
 Cruding's runtime and static-analysis baseline remains green, and its development Composer contract is now aligned with the current canonical first-party `dev-master` policy without adding application-only dependencies. Remaining work in this bounded RC slice is Git diff review, signed integration, push, and post-push state verification.
 
+### Integration and acceptance
+
+- Final pre-integration diff is bounded to `composer.json`, `README.md`, and `CMCP_CHANGELOG.md`; no runtime PHP source was changed.
+- Signed implementation commit created: `caaa916` (`chore(cruding): canonicalize local package versions`).
+- The ignored local Composer lock was synchronized for verification only and is not part of the tracked change set.
+- Acceptance gates before publication remain green: strict Composer validation, full `composer check:cruding` (62 tests / 271 assertions), PHPStan (0 errors), and CS check (0/224 fixable files).
+
+### Что имеем? Что осталось?
+
+The bounded RC-critical package-version hardening is implemented, verified, and signed. Only branch publication and the final post-push clean/upstream-state inspection remain.
+
