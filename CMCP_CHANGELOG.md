@@ -277,3 +277,16 @@ The bounded RC-critical package-version hardening is implemented, verified, and 
 
 The rebased Cruding tree now sits cleanly on current master with the already-merged Tabling action commit deduplicated, all semantic gates green, and no uncommitted formatter delta. Remaining work: commit this factual journal correction, publish the rebased head under a new branch, replace PR #14, inspect the new merge gate, and merge only if green.
 
+### Final integration acceptance
+
+- Published the rebased state as `cruding-rc-dev-master-hardening` without force-pushing the superseded branch.
+- Replacement PR #15 passed the GitHub merge gate as `MERGEABLE` with zero blockers and no pending or failed checks, then squash-merged successfully into `master`.
+- Superseded conflicting PR #14 was closed after #15 merged.
+- Post-merge fetch advanced `origin/master` to `f873082`; the published integration branch was clean and synchronized with its upstream at head `0c2a0fb` before this journal-only closure.
+- Final accepted technical evidence remains: strict Composer validation green; `composer check:cruding` 62/62 tests with 271 assertions; PHPStan 0 errors; CS check 0/224 fixable files; Canon043 development package identity materialized; Canon045 root local repository closure preserved.
+- No runtime PHP semantics were changed by the package-policy slice. The broader Canon040 line/method coverage debt remains an explicit growth/remediation track rather than an RC blocker for this bounded workstream.
+
+### Что имеем? Что осталось?
+
+The RC-critical Cruding package-version hardening and the accumulated verified regression-coverage work are integrated into `master`. No authorized in-scope RC tail remains; subsequent work is the separate growth track for broader Canon040 coverage and host-facing diagnostics.
+
