@@ -305,3 +305,18 @@ The RC-critical Cruding package-version hardening and the accumulated verified r
 
 Canon040 branch coverage is now above target and no longer contributes to the warning. The remaining `HIGH_TEST_DEBT` is driven by repository-wide line and especially method coverage; the next useful waves should prioritize public methods on high-line/low-method runtime classes rather than further optimizing branch percentage alone.
 
+### Iteration 8 — method-coverage runtime wave
+
+- Continued Canon040 remediation with explicit focus on method coverage rather than branch percentage, targeting `CrudRouteMapLoader` and `CrudRuntimeComposerInventoryReader` because both already had strong line execution but weak method classification.
+- Added route-map loader scenarios for malformed-line rejection, nested inline values containing commas, non-YAML exclusion, extra metadata preservation, and a host with no local route directory.
+- The first full gate exposed fixture contamination from an older `%TEMP%/Vendoring` sibling created by `testScansSiblingComponentRouteMaps`. This was a test-isolation defect, not production behavior: every route-map fixture is now nested under its own unique parent so central sibling scanning remains deterministic across the suite.
+- Added composer-inventory scenarios covering `require`, `require-dev`, `replace`, and `provide`; installed package aggregation/deduplication; malformed lock entries; missing files; and invalid JSON.
+- No production PHP source or Cruding ownership boundary changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 70/70 tests with 310 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage run green.
+- Coverage moved from 27.61% lines / 15.76% methods / 70.35% branches to 27.86% lines (1120/4020) / 15.94% methods (88/552) / 71.68% branches (972/1356).
+- Focused evidence: `CrudRuntimeComposerInventoryReader` improved from 20% to 40% methods and now reaches 97.56% lines / 94.34% branches; `CrudRouteMapLoader` reaches 96.74% lines / 85.44% branches while php-code-coverage still classifies only 2/9 methods because its method score is path-completion-sensitive.
+
+### Что имеем? Что осталось?
+
+The method-focused wave produced a measurable method gain and improved test determinism without touching production semantics. The next high-value targets remain public runtime classes with multiple callable methods and high existing line coverage, such as `CrudResourceContractFactory`, `CrudPageDefinitionProvider`, `CrudCapabilityResolver`, and selected DTO/value-object behavior where tests can verify real contracts rather than constructors.
+
