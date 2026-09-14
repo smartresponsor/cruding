@@ -92,6 +92,35 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
         self::assertSame([], $report->errors);
     }
 
+    public function testRouteGuardNormalizesRootResourcePathAndExposesPolicy(): void
+    {
+        $guard = new CrudRuntimeRouteGuard(
+            scopeTokens: ['cruding'],
+            entityTokens: ['alpha'],
+            viewTokens: ['card'],
+            reservedRootTokens: ['cruding'],
+            operationTokens: ['show'],
+            resourcePathReservedTokens: ['show'],
+            allowedResourceTokens: ['alpha', 'beta'],
+            conflictingEntityTokens: ['beta'],
+            resourceRequirement: '(?:alpha|beta)',
+            resourcePathRequirement: '(?:alpha|beta)(?:/[a-z0-9][a-z0-9_-]*)*',
+            viewTokenRequirement: '(?:card)',
+            identitySlugRequirement: '(?!(?:card|show)$)[A-Za-z0-9][A-Za-z0-9_-]*',
+        );
+
+        self::assertTrue($guard->allowsResourcePath('/ALPHA/document'));
+        self::assertTrue($guard->allowsResourcePath('beta'));
+        self::assertFalse($guard->allowsResourcePath(''));
+        self::assertFalse($guard->allowsResourcePath('/gamma/document'));
+
+        $policy = $guard->policy();
+        self::assertSame(['alpha', 'beta'], $policy->allowedResourceTokens);
+        self::assertSame(['beta'], $policy->conflictingEntityTokens);
+        self::assertTrue($policy->hasConflicts());
+        self::assertSame('(?:alpha|beta)', $policy->resourceRequirement);
+    }
+
     /**
      * @param array<string, mixed> $lockPayload
      * @param array<string, mixed> $composerJson

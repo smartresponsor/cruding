@@ -198,3 +198,19 @@ The selected RC-critical route-support hardening is implemented and verified, wi
 
 Cruding now has direct regression protection for route parameter extraction, provider-key fallback/alias ordering, operation-to-view mapping, and template-candidate generation, with all deterministic repository gates green and the verified branch published. What remains is broader test-development work to lift repository-wide line/method coverage out of `HIGH_TEST_DEBT`; that is a separate continuing remediation track rather than unfinished work in this RC slice.
 
+### Iteration 6 — continuous RC coverage hardening
+
+- Continued Canon040 remediation by risk rather than test-count inflation. The next wave targeted `CrudObjectFinder`, `CrudRuntimeRouteGuard`, and `CrudResourceContract` because they sit on persistence lookup, route-policy, and neutral payload boundaries.
+- Expanded `CrudObjectFinderTest` with empty/unsupported entity handling, canonical `objectSlug` fallback, bounded pagination (`limit` capped at 500), offset calculation, and request timing diagnostics.
+- Expanded runtime guard verification with root-token normalization, allow-list rejection, policy projection, and conflict signaling.
+- Expanded resource-contract verification across template context, fallback payload, metadata, defaults, view modes, and slot-location fallback.
+- Verification exposed a real Canon017 documentation/runtime mismatch: `CrudResourceContract::toTemplateContext()` promotes arbitrary producer metadata through `+ $meta`, while its prior PHPDoc described a sealed array shape. The return contract was corrected to truthful open `array<string, mixed>` documentation with meaningful descriptions; runtime behavior was not changed.
+- PHPUnit 12 mock strictness also exposed one expectation-free metadata mock; it was replaced with a stub rather than suppressing the notice.
+- Final deterministic gates are green: `composer check:cruding` reports 62/62 tests and 271 assertions; PHPStan reports 0 errors; `composer cs:check` reports 0/224 fixable files; fresh coverage execution passes under Xdebug/php-code-coverage.
+- Coverage moved from the Iteration 5 baseline of 25.40% lines / 15.40% methods / 63.86% branches to 26.74% lines (1075/4020) / 15.40% methods (85/552) / 68.36% branches (927/1356). Branch coverage is now 1.64 percentage points below the Canon040 70% target.
+- Focused class evidence: `CrudRuntimeRouteGuard` is 100% lines / 85.00% branches; `CrudResourceContract` is 98.72% lines / 84.62% branches; `CrudObjectFinder` improved to 46.38% lines / 36.36% branches.
+
+### Что имеем? Что осталось?
+
+This continuous RC wave materially improved branch and line coverage while also repairing a factual public-contract PHPDoc drift discovered by strict analysis. The next useful wave should prioritize `CrudObjectFinder` actor-owned branches and other high-line/low-method classes; repository-wide method coverage remains the dominant Canon040 `HIGH_TEST_DEBT` driver.
+
