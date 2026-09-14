@@ -320,3 +320,18 @@ Canon040 branch coverage is now above target and no longer contributes to the wa
 
 The method-focused wave produced a measurable method gain and improved test determinism without touching production semantics. The next high-value targets remain public runtime classes with multiple callable methods and high existing line coverage, such as `CrudResourceContractFactory`, `CrudPageDefinitionProvider`, `CrudCapabilityResolver`, and selected DTO/value-object behavior where tests can verify real contracts rather than constructors.
 
+### Iteration 9 — capability and resource-contract method coverage
+
+- Continued the Canon040 method-focused remediation track against `CrudCapabilityResolver`, `CrudCapabilityProfileDTO`, and `CrudResourceContractFactory`, selecting public contract behavior with strong existing line execution but low method classification.
+- Expanded capability tests to cover `resolve()` with object capability detection, `supports()` with missing-class rejection, profile-level `supports()`/`match()` behavior, and unsupported capability fallback.
+- Expanded resource-contract factory tests to cover route-operation override mapping, malformed workbench/location fallback, nested metadata sanitization, object-to-class conversion, resource-to-resource-type conversion, source-operation propagation, and location projection.
+- The first PHPStan pass found only test-side mixed-offset access in the new contract assertions. Added explicit `assertIsArray()` narrowing and local variables instead of suppressions; PHPStan then returned to 0 errors.
+- No production PHP source or component ownership boundary changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 73/73 tests with 332 assertions before narrowing and 335 assertions in the fresh coverage run; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage green.
+- Coverage moved from 27.86% lines / 15.94% methods / 71.68% branches to 28.28% lines (1137/4020) / 16.85% methods (93/552) / 73.16% branches (992/1356).
+- Focused evidence: `CrudCapabilityResolver` now reaches 66.67% methods / 100% lines / 89.19% branches; `CrudCapabilityProfileDTO` reaches 100% methods/lines/branches; `CrudResourceContractFactory` reaches 50.00% methods / 97.62% lines / 93.33% branches.
+
+### Что имеем? Что осталось?
+
+This wave confirms that targeting callable contract behavior is materially more effective for Canon040 method debt than further branch-only hardening. The next useful targets are `CrudPageDefinitionProvider`, `CrudOwnershipDTO`/`CrudContextDTO` behavior, `CrudRuntimeDecisionGuard`, and other classes where multiple public methods remain under-classified despite substantial line execution.
+
