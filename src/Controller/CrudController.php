@@ -13,6 +13,7 @@ use App\Cruding\Runner\CrudServiceRunner;
 use App\Cruding\Service\Resource\CrudRouteMapMatcher;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
+use App\Cruding\ServiceInterface\Operation\CrudBulkOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudCreateOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudDeleteOperationInterface;
 use App\Cruding\ServiceInterface\Operation\CrudEditOperationInterface;
@@ -33,7 +34,7 @@ final class CrudController extends AbstractController
 {
     private const DEFAULT_OPERATION_HANDLER = [
         'index' => 'index', 'show' => 'show', 'read' => 'show', 'page' => 'page', 'new' => 'create', 'create' => 'create',
-        'import' => 'create', 'bulk' => 'create', 'edit' => 'edit', 'update' => 'edit',
+        'import' => 'create', 'bulk' => 'bulk', 'edit' => 'edit', 'update' => 'edit',
         'archive' => 'edit', 'restore' => 'edit', 'duplicate' => 'edit', 'delete' => 'delete',
     ];
 
@@ -45,6 +46,7 @@ final class CrudController extends AbstractController
         private readonly CrudIndexOperationInterface $indexOperation,
         private readonly CrudShowOperationInterface $showOperation,
         private readonly CrudPageOperationInterface $pageOperation,
+        private readonly CrudBulkOperationInterface $bulkOperation,
         private readonly CrudCreateOperationInterface $createOperation,
         private readonly CrudEditOperationInterface $editOperation,
         private readonly CrudDeleteOperationInterface $deleteOperation,
@@ -75,6 +77,7 @@ final class CrudController extends AbstractController
                 'index' => $this->indexOperation->handle($request),
                 'show' => $this->showOperation->handle($request),
                 'page' => $this->pageOperation->handle($request),
+                'bulk' => $this->bulkOperation->handle($request),
                 'create' => $this->createOperation->handle($request),
                 'edit' => $this->editOperation->handle($request),
                 'delete' => $this->deleteOperation->handle($request),
