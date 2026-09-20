@@ -1,6 +1,33 @@
 
 # CMCP_CHANGELOG
 
+## 2026-09-20 — Cruding RC completion pass
+
+- Reconnaissance read the current Cruding `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, source/service wiring, tests, scripts, staged/unstaged Git state, and the current bulk-mutation implementation. Mandatory helper contracts were reviewed from Objecting, Viewing, Interfacing, Gating, and Canonization; Collectioning and Tabling runtime contracts were additionally inspected because the bulk implementation imports them directly.
+- Market/competitor baseline: mature Symfony CRUD/admin systems expose dedicated batch/bulk actions rather than aliasing them to create/update entrypoints; API Platform similarly separates mutation processing from state provision. Enterprise practice additionally requires backend authorization and non-leaking error responses.
+- Canonization textual rules consulted directly: Canon001 (technical-role-first), Canon002 (interface-tree mirroring), Canon003 (explicit DTO naming), Canon008 (Composer dependency integrity), Canon014 (executable orchestration responsibility), Canon019 (no alternative layer taxonomy), Canon021 (Cruding generic CRUD ownership), Canon040 (independent php-code-coverage line/method/branch thresholds), Canon043 (local dev-master path dependency identity), and Canon045 (root local dependency closure). `OWNER_GUARD_CONSOLIDATION.md` was also read because the pre-existing staged cleanup removes local architecture-policy guards; it explicitly classifies Cruding as mixing architecture assertions with component behavior and directs platform invariants to Canonization/Gating while behavior stays in tests. Gating mirrors for the applicable Canon rules were located in the current Gating rule registry/source, and the current Cruding Gating profile enables Canon001/002/003/008/014/019/021/040.
+- Target-to-canon mapping: the new `Service/Operation`, `ServiceInterface/Operation`, `Resolver`, and `DTO` paths comply with Canon001/002/003; Cruding is the Canon021 owner so generic bulk mutation belongs here; direct Collectioning/Tabling imports are declared runtime dependencies under Canon008; Objecting/Viewing/Interfacing are application-contour dependencies but are not direct Cruding package dependencies because this bundle imports no production namespace from them; existing Collectioning/Tabling path repositories satisfy Canon043 and Canon045 for Cruding's actual local runtime closure.
+- Baseline gates on the factual dirty tree were green before this pass: `composer check:cruding` 83 tests / 398 assertions, PHPStan 0 errors, PHP-CS-Fixer clean, Composer strict/check-lock valid, and changed-file PHP lint green.
+- RC-critical hardening selected: keep the explicit bulk mutation boundary and remove implementation-detail leakage from bulk error responses. Unsupported-action/scope validation no longer echoes internal exception messages; partial row failures expose a stable `crud_bulk_mutation_failed` code plus batch position instead of raw exception text and PHP class names.
+- Growth workstream kept separate: richer bulk observability/audit correlation, idempotency keys, asynchronous/job-backed bulk execution, progress reporting, cancellation, and very-large-scope UX remain post-RC capabilities rather than release blockers.
+- Material risks: bulk mutation is intentionally per-object transactional rather than one unbounded transaction; handlers must make `continueOnFailure()` policy explicit, and host UI confirmation remains presentation responsibility rather than Cruding server authorization.
+- Gates to re-run after hardening: changed PHP lint, `composer check:cruding`, PHPStan, CS check, strict Composer validation, Git diff/status, signed commits, publication, and post-integration branch state.
+
+### Что имеем? Что осталось?
+
+The explicit bulk mutation boundary is materially implemented and response-hardened. Post-hardening verification is green: `composer check:cruding` passes 83 tests / 404 assertions; PHPStan reports 0 errors; PHP-CS-Fixer reports 0 fixable files; strict Composer validation with lock checking passes; changed/untracked PHP lint is clean. Remaining RC work is Git integration: commit the pre-existing staged owner-guard cleanup separately from this bulk change, publish the branch, and inspect the remote merge gate.
+
+## 2026-09-19 — explicit bulk mutation boundary
+
+- Reconnaissance verified the local Cruding controller, lifecycle, access, object resolution, service wiring, and the existing staged Canon040 cleanup. The four pre-existing staged files were preserved and not used as bulk implementation targets.
+- Replaced the legacy controller dispatch `bulk -> create` with an explicit `CrudBulkOperationInterface` / `CrudBulkOperation` boundary; `import -> create` is intentionally unchanged.
+- Added host-provided named `CrudBulkMutationHandlerInterface` handlers through a tagged resolver. Backend permission is enforced independently of UI visibility, and per-object authorization is evaluated before mutation.
+- Bulk scope resolution reuses Collectioning definitions/query/scoped reading and Tabling `TableDataScopeResolver`; Cruding does not introduce a second selected/filtering language. Selected keys therefore remain the canonical single-scalar identifier `in` constraint, while filtered/currentPage preserve Collectioning semantics.
+- Mutation lifecycle is executed per object through the existing dispatcher. `continueOnFailure()` makes partial-batch behavior explicit; otherwise failures abort. Existing lifecycle `after()` remains inside the transaction, so no after-commit/realtime guarantee is claimed.
+- Regression coverage covers selected, filtered, currentPage, operation-level denial, unsupported action, malformed selection, partial failure reporting, and controller dispatch no longer falling through create.
+- Final local verification: `composer check:cruding` green with 83 tests / 398 assertions; PHPStan green with zero errors; PHP-CS-Fixer dry-run clean; Composer strict/check-lock valid; Composer audit reports no advisories; changed-file PHP lint green; Xdebug coverage run green. Repository coverage is 32.79% lines / 18.57% methods / 75.41% branches; `CrudBulkOperation` is 89.33% lines / 78.33% branches. Canon040 line/method debt remains a separate remediation track.
+- Integration is intentionally not attempted from this worktree because four unrelated Canon040 cleanup files were already staged before this bulk wave. The available signed-commit tool commits the whole Git index after staging explicit paths, and Console MCP exposes no non-destructive unstage operation; committing now would conflate unrelated work.
+
 ## engine-20260911150014-cruding-34e436
 
 ### Iteration 1 — reconnaissance and baseline
@@ -289,4 +316,66 @@ The rebased Cruding tree now sits cleanly on current master with the already-mer
 ### Что имеем? Что осталось?
 
 The RC-critical Cruding package-version hardening and the accumulated verified regression-coverage work are integrated into `master`. No authorized in-scope RC tail remains; subsequent work is the separate growth track for broader Canon040 coverage and host-facing diagnostics.
+
+### Iteration 7 — Canon040 branch threshold closure
+
+- Continued the explicit post-RC Canon040 remediation track on branch `cruding-rc-journal-close-v2`, starting from clean synchronized head `46cfe44c3f0e8a9f7284c89742556c96400dec5f`.
+- Selected public runtime behavior rather than synthetic count inflation: implicit actor-owned lookup in `CrudObjectFinder` and lock discovery/normalization in `CrudRuntimeLockReader`.
+- Added `CrudObjectFinder` regression scenarios for unauthenticated implicit page lookup diagnostics and authenticated owner-association fallback using a concrete Symfony user.
+- Added `CrudRuntimeLockReader` regression scenarios for missing-lock state plus nested runtime payloads combining CSV token lists, array token lists, duplicate package names, normalization, and reserved/view/entity extraction.
+- No Cruding production semantics or cross-component ownership boundaries were changed in this wave.
+- Final gates are green: PHP lint on changed tests; `composer check:cruding` 66/66 tests with 291 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; `composer validate --strict --check-lock` valid; Xdebug/php-code-coverage execution green.
+- Repository coverage moved from 26.74% lines / 15.40% methods / 68.36% branches to 27.61% lines (1110/4020) / 15.76% methods (87/552) / 70.35% branches (954/1356). The Canon040 branch threshold of 70% is now satisfied.
+- Focused improvements: `CrudObjectFinder` reached 73.91% lines / 62.12% branches; `CrudRuntimeLockReader` reached 50.00% methods / 90.12% lines / 83.56% branches.
+
+### Что имеем? Что осталось?
+
+Canon040 branch coverage is now above target and no longer contributes to the warning. The remaining `HIGH_TEST_DEBT` is driven by repository-wide line and especially method coverage; the next useful waves should prioritize public methods on high-line/low-method runtime classes rather than further optimizing branch percentage alone.
+
+### Iteration 8 — method-coverage runtime wave
+
+- Continued Canon040 remediation with explicit focus on method coverage rather than branch percentage, targeting `CrudRouteMapLoader` and `CrudRuntimeComposerInventoryReader` because both already had strong line execution but weak method classification.
+- Added route-map loader scenarios for malformed-line rejection, nested inline values containing commas, non-YAML exclusion, extra metadata preservation, and a host with no local route directory.
+- The first full gate exposed fixture contamination from an older `%TEMP%/Vendoring` sibling created by `testScansSiblingComponentRouteMaps`. This was a test-isolation defect, not production behavior: every route-map fixture is now nested under its own unique parent so central sibling scanning remains deterministic across the suite.
+- Added composer-inventory scenarios covering `require`, `require-dev`, `replace`, and `provide`; installed package aggregation/deduplication; malformed lock entries; missing files; and invalid JSON.
+- No production PHP source or Cruding ownership boundary changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 70/70 tests with 310 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage run green.
+- Coverage moved from 27.61% lines / 15.76% methods / 70.35% branches to 27.86% lines (1120/4020) / 15.94% methods (88/552) / 71.68% branches (972/1356).
+- Focused evidence: `CrudRuntimeComposerInventoryReader` improved from 20% to 40% methods and now reaches 97.56% lines / 94.34% branches; `CrudRouteMapLoader` reaches 96.74% lines / 85.44% branches while php-code-coverage still classifies only 2/9 methods because its method score is path-completion-sensitive.
+
+### Что имеем? Что осталось?
+
+The method-focused wave produced a measurable method gain and improved test determinism without touching production semantics. The next high-value targets remain public runtime classes with multiple callable methods and high existing line coverage, such as `CrudResourceContractFactory`, `CrudPageDefinitionProvider`, `CrudCapabilityResolver`, and selected DTO/value-object behavior where tests can verify real contracts rather than constructors.
+
+### Iteration 9 — capability and resource-contract method coverage
+
+- Continued the Canon040 method-focused remediation track against `CrudCapabilityResolver`, `CrudCapabilityProfileDTO`, and `CrudResourceContractFactory`, selecting public contract behavior with strong existing line execution but low method classification.
+- Expanded capability tests to cover `resolve()` with object capability detection, `supports()` with missing-class rejection, profile-level `supports()`/`match()` behavior, and unsupported capability fallback.
+- Expanded resource-contract factory tests to cover route-operation override mapping, malformed workbench/location fallback, nested metadata sanitization, object-to-class conversion, resource-to-resource-type conversion, source-operation propagation, and location projection.
+- The first PHPStan pass found only test-side mixed-offset access in the new contract assertions. Added explicit `assertIsArray()` narrowing and local variables instead of suppressions; PHPStan then returned to 0 errors.
+- No production PHP source or component ownership boundary changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 73/73 tests with 332 assertions before narrowing and 335 assertions in the fresh coverage run; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage green.
+- Coverage moved from 27.86% lines / 15.94% methods / 71.68% branches to 28.28% lines (1137/4020) / 16.85% methods (93/552) / 73.16% branches (992/1356).
+- Focused evidence: `CrudCapabilityResolver` now reaches 66.67% methods / 100% lines / 89.19% branches; `CrudCapabilityProfileDTO` reaches 100% methods/lines/branches; `CrudResourceContractFactory` reaches 50.00% methods / 97.62% lines / 93.33% branches.
+
+### Что имеем? Что осталось?
+
+This wave confirms that targeting callable contract behavior is materially more effective for Canon040 method debt than further branch-only hardening. The next useful targets are `CrudPageDefinitionProvider`, `CrudOwnershipDTO`/`CrudContextDTO` behavior, `CrudRuntimeDecisionGuard`, and other classes where multiple public methods remain under-classified despite substantial line execution.
+
+### Iteration 10 — page-definition and DTO behavior coverage
+
+- Continued Canon040 remediation against `CrudPageDefinitionProvider`, `CrudContextDTO`, and `CrudOwnershipDTO`, prioritizing a large line-debt runtime provider plus small behavioral DTO methods.
+- Added collection-page coverage for `providePage()` without an object, verifying Collectioning-backed object/projected-row splitting, collection-page metadata, and no fallback repository call when collection data exists.
+- Added detail-page coverage for `providePage()` with an object, including index/edit actions and identifier metadata.
+- Added `provideNew()` / `provideEdit()` coverage for form-view propagation and delete action generation; the initial assertion incorrectly treated the fifth action-constructor argument as `style`, and was corrected to the actual DTO field `scope` after reading the contract.
+- Added direct behavior coverage for `CrudContextDTO::isAdminView()` and every material branch of `CrudOwnershipDTO::canMutate()` (admin override, unsupported ownership, authenticated owner, unauthenticated owner).
+- PHPStan found one nullable helper route parameter in the new test double; the helper now falls back to the context operation so it honors the interface return type without suppression.
+- No production PHP source or component responsibility changed in this wave.
+- Final gates are green: changed-file PHP lint; `composer check:cruding` 77/77 tests with 362 assertions; PHPStan 0 errors; `composer cs:check` 0/224 fixable files; Xdebug/php-code-coverage green.
+- Coverage moved from 28.28% lines / 16.85% methods / 73.16% branches to 31.09% lines (1250/4020) / 17.57% methods (97/552) / 75.29% branches (1021/1356).
+- Focused evidence: `CrudPageDefinitionProvider` now reaches 66.67% methods / 100% lines / 80.77% branches; `CrudContextDTO` and `CrudOwnershipDTO` now reach 100% methods, paths, branches, and lines.
+
+### Что имеем? Что осталось?
+
+This wave delivered the largest recent line-coverage gain while still improving method coverage, confirming that large public runtime providers are the highest-value next targets. Remaining `HIGH_TEST_DEBT` is still driven by repository-wide line and method coverage; the next wave should prioritize `CrudRuntimeDecisionGuard`, `CrudObjectFinder`, `CrudApiExceptionSubscriber`, and other public runtime classes with meaningful uncovered behavior.
 

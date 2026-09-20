@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Tests\Unit\Crud;
 
 use App\Cruding\Contract\Capability\CrudSluggableInterface;
+use App\Cruding\DTO\CrudContextDTO;
 use App\Cruding\Resolver\CrudCapabilityResolver;
 use PHPUnit\Framework\TestCase;
 
@@ -103,5 +104,40 @@ final class CrudCapabilityResolverTest extends TestCase
         self::assertArrayHasKey('displayable', $profile->matches);
         self::assertTrue($profile->matches['sluggable']->supported);
         self::assertFalse($profile->matches['displayable']->supported);
+        self::assertTrue($profile->supports('sluggable'));
+        self::assertFalse($profile->supports('unknown'));
+        self::assertFalse($profile->match('unknown')->supported);
+    }
+
+    public function testResolveUsesObjectCapabilitiesAndRejectsUnknownClass(): void
+    {
+        $resolver = new CrudCapabilityResolver([
+            'sluggable' => ['methods_any' => ['getSlug']],
+            'identifiable' => ['properties_any' => ['id']],
+        ]);
+        $context = new CrudContextDTO(
+            view: 'public',
+            operation: 'show',
+            resourcePath: 'demo',
+            entityClass: 'App\\Tests\\MissingEntity',
+            identifierField: 'id',
+            identifierValue: null,
+            formTypeClass: null,
+        );
+        $subject = new class {
+            public int $id = 7;
+
+            public function getSlug(): string
+            {
+                return 'demo';
+            }
+        };
+
+        self::assertSame(
+            ['supportsSlug' => true, 'supportsId' => true],
+            $resolver->resolve($context, $subject),
+        );
+        self::assertFalse($resolver->supports('sluggable', 'App\\Tests\\MissingEntity'));
+        self::assertFalse($resolver->match('sluggable', 'App\\Tests\\MissingEntity')->supported);
     }
 }

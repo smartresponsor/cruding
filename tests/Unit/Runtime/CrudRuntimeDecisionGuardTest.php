@@ -121,6 +121,118 @@ final class CrudRuntimeDecisionGuardTest extends TestCase
         self::assertSame('(?:alpha|beta)', $policy->resourceRequirement);
     }
 
+    public function testRuntimeLockReaderReturnsMissingStateWithoutLockFile(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-runtime-lock-missing-'.bin2hex(random_bytes(6));
+        mkdir($projectDir.'/config/kernel', 0777, true);
+
+        $lock = (new CrudRuntimeLockReader(
+            new CrudRuntimeTokenNormalizer(),
+            $projectDir,
+            'test',
+            'config/kernel/runtime_scope.%env%.lock.php',
+        ))->read();
+
+        self::assertFalse($lock->found);
+        self::assertNull($lock->path);
+        self::assertSame('test', $lock->appEnv);
+        self::assertSame([], $lock->scopeTokens);
+        self::assertSame([], $lock->packageNames);
+    }
+
+    public function testRuntimeLockReaderNormalizesNestedAndCsvPayloads(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-runtime-lock-nested-'.bin2hex(random_bytes(6));
+        mkdir($projectDir.'/config/kernel', 0777, true);
+        $payload = [
+            'runtime' => [
+                'scope' => [
+                    'components' => ' Cruding, Viewing, cruding ',
+                    'packages' => ['cruding/crud', 'viewing/view', 'cruding/crud'],
+                ],
+                'routing' => [
+                    'entities' => [' Alpha ', 'beta', '', 42],
+                    'view_tokens' => ' Card, detail, card ',
+                    'reserved_roots' => [' Admin ', 'api', 'admin'],
+                ],
+            ],
+        ];
+        file_put_contents(
+            $projectDir.'/config/kernel/runtime_scope.test.lock.php',
+            '<?php return '.var_export($payload, true).';'.PHP_EOL,
+        );
+
+        $lock = (new CrudRuntimeLockReader(
+            new CrudRuntimeTokenNormalizer(),
+            $projectDir,
+            'test',
+            'config/kernel/runtime_scope.%env%.lock.php',
+        ))->read();
+
+        self::assertTrue($lock->found);
+        self::assertSame(['cruding', 'viewing'], $lock->scopeTokens);
+        self::assertSame(['alpha', 'beta'], $lock->entityTokens);
+        self::assertSame(['card', 'detail'], $lock->viewTokens);
+        self::assertSame(['admin', 'api'], $lock->reservedTokens);
+        self::assertSame(['cruding/crud', 'viewing/view'], $lock->packageNames);
+    }
+
+    public function testComposerInventoryReaderAggregatesDeclaredAndInstalledPackages(): void
+    {
+        $projectDir = sys_get_temp_dir().'/cruding-composer-inventory-'.bin2hex(random_bytes(6));
+        mkdir($projectDir, 0777, true);
+        file_put_contents($projectDir.'/composer.json', json_encode([
+            'require' => ['cruding/crud' => 'dev-master', 'php' => '^8.4'],
+            'require-dev' => ['phpunit/phpunit' => '^12.5'],
+            'replace' => ['legacy/crud' => '*'],
+            'provide' => ['virtual/crud' => '1.0'],
+        ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+        file_put_contents($projectDir.'/composer.lock', json_encode([
+            'packages' => [
+                ['nameEntity' => 'cruding/crud'],
+                ['nameEntity' => 'symfony/framework-bundle'],
+                ['name' => 'ignored/legacy-shape'],
+                'invalid',
+            ],
+            'packages-dev' => [
+                ['nameEntity' => 'phpunit/phpunit'],
+                ['nameEntity' => 'cruding/crud'],
+            ],
+        ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+
+        $inventory = (new CrudRuntimeComposerInventoryReader($projectDir))->read();
+
+        self::assertSame($projectDir.'/composer.json', $inventory->composerJsonPath);
+        self::assertSame($projectDir.'/composer.lock', $inventory->composerLockPath);
+        self::assertSame(
+            ['cruding/crud', 'phpunit/phpunit', 'legacy/crud', 'virtual/crud'],
+            $inventory->declaredPackageNames,
+        );
+        self::assertSame(
+            ['cruding/crud', 'symfony/framework-bundle', 'phpunit/phpunit'],
+            $inventory->installedPackageNames,
+        );
+    }
+
+    public function testComposerInventoryReaderHandlesMissingAndInvalidFiles(): void
+    {
+        $missingDir = sys_get_temp_dir().'/cruding-composer-missing-'.bin2hex(random_bytes(6));
+        mkdir($missingDir, 0777, true);
+        $missing = (new CrudRuntimeComposerInventoryReader($missingDir))->read();
+        self::assertNull($missing->composerJsonPath);
+        self::assertNull($missing->composerLockPath);
+        self::assertSame([], $missing->declaredPackageNames);
+        self::assertSame([], $missing->installedPackageNames);
+
+        $invalidDir = sys_get_temp_dir().'/cruding-composer-invalid-'.bin2hex(random_bytes(6));
+        mkdir($invalidDir, 0777, true);
+        file_put_contents($invalidDir.'/composer.json', '{invalid');
+        file_put_contents($invalidDir.'/composer.lock', 'null');
+        $invalid = (new CrudRuntimeComposerInventoryReader($invalidDir))->read();
+        self::assertSame([], $invalid->declaredPackageNames);
+        self::assertSame([], $invalid->installedPackageNames);
+    }
+
     /**
      * @param array<string, mixed> $lockPayload
      * @param array<string, mixed> $composerJson

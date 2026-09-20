@@ -279,6 +279,158 @@ final class CrudPageDefinitionProviderTest extends TestCase
         self::assertSame(13, $page->meta['identifierValue']);
     }
 
+    public function testProvidePageWithoutObjectBuildsCollectionPage(): void
+    {
+        $context = new CrudContextDTO('public', 'page', 'product', 'App\\Entity\\Product', 'id', null, null);
+        $access = new CrudAccessContextDTO(
+            $context,
+            true,
+            true,
+            new CrudOwnershipDTO(false, true, false, false, null),
+            true,
+            false,
+            false,
+        );
+        $object = new \stdClass();
+        $objectFinder = $this->createMock(CrudObjectFinderInterface::class);
+        $objectFinder->expects(self::never())->method('findAll');
+        $accessBuilder = $this->createStub(CrudAccessContextBuilderInterface::class);
+        $accessBuilder->method('build')->willReturn($access);
+        $routeResolver = $this->createStub(CrudRouteNameResolverInterface::class);
+
+        $provider = new CrudPageDefinitionProvider(
+            $objectFinder,
+            $this->collectionReader([$object, ['id' => 1]]),
+            $accessBuilder,
+            $routeResolver,
+        );
+        $page = $provider->providePage($context);
+
+        self::assertSame('product page', $page->title);
+        self::assertSame('page', $page->template);
+        self::assertSame([$object], $page->objects);
+        self::assertSame([], $page->actions);
+        self::assertTrue($page->meta['collectionPage']);
+        self::assertSame([['id' => 1]], $page->meta['projectedRows']);
+    }
+
+    public function testProvidePageWithObjectBuildsDetailActions(): void
+    {
+        $context = new CrudContextDTO('public', 'page', 'product', 'App\\Entity\\Product', 'id', 7, 'App\\Form\\ProductType');
+        $object = new \stdClass();
+        $access = new CrudAccessContextDTO(
+            $context,
+            true,
+            true,
+            new CrudOwnershipDTO(true, true, true, false, 'owner'),
+            true,
+            true,
+            false,
+        );
+        $accessBuilder = $this->createStub(CrudAccessContextBuilderInterface::class);
+        $accessBuilder->method('build')->willReturn($access);
+        $routeResolver = $this->routeResolver();
+
+        $provider = new CrudPageDefinitionProvider(
+            $this->createStub(CrudObjectFinderInterface::class),
+            $this->collectionReader(),
+            $accessBuilder,
+            $routeResolver,
+        );
+        $page = $provider->providePage($context, $object);
+
+        self::assertSame([$object], $page->objects);
+        self::assertCount(2, $page->actions);
+        self::assertSame('index', $page->actions[0]->nameEntity);
+        self::assertSame('edit', $page->actions[1]->nameEntity);
+        self::assertFalse($page->meta['collectionPage']);
+        self::assertSame(7, $page->meta['identifierValue']);
+    }
+
+    public function testProvideNewAndEditExposeFormAndDeleteAction(): void
+    {
+        $context = new CrudContextDTO('admin', 'edit', 'product', 'App\\Entity\\Product', 'id', 7, 'App\\Form\\ProductType');
+        $object = new \stdClass();
+        $access = new CrudAccessContextDTO(
+            $context,
+            true,
+            true,
+            new CrudOwnershipDTO(true, true, true, false, 'owner'),
+            true,
+            true,
+            true,
+        );
+        $accessBuilder = $this->createStub(CrudAccessContextBuilderInterface::class);
+        $accessBuilder->method('build')->willReturn($access);
+        $provider = new CrudPageDefinitionProvider(
+            $this->createStub(CrudObjectFinderInterface::class),
+            $this->collectionReader(),
+            $accessBuilder,
+            $this->routeResolver(),
+        );
+        $formView = new \stdClass();
+
+        $newPage = $provider->provideNew($context, $object, $formView);
+        $editPage = $provider->provideEdit($context, $object, $formView);
+
+        self::assertSame('new', $newPage->template);
+        self::assertSame($formView, $newPage->meta['formView']);
+        self::assertCount(1, $newPage->actions);
+        self::assertSame('edit', $editPage->template);
+        self::assertSame($formView, $editPage->meta['formView']);
+        self::assertCount(2, $editPage->actions);
+        self::assertSame('delete', $editPage->actions[1]->nameEntity);
+        self::assertSame('danger', $editPage->actions[1]->scope);
+    }
+
+    public function testContextAndOwnershipBehaviorContracts(): void
+    {
+        $admin = new CrudContextDTO('admin', 'index', 'product', '', 'id', null, null);
+        $public = new CrudContextDTO('public', 'index', 'product', '', 'id', null, null);
+        self::assertTrue($admin->isAdminView());
+        self::assertFalse($public->isAdminView());
+
+        self::assertTrue((new CrudOwnershipDTO(false, false, false, true, null))->canMutate());
+        self::assertFalse((new CrudOwnershipDTO(false, true, true, false, null))->canMutate());
+        self::assertTrue((new CrudOwnershipDTO(true, true, true, false, 'owner'))->canMutate());
+        self::assertFalse((new CrudOwnershipDTO(true, false, true, false, 'owner'))->canMutate());
+    }
+
+    private function routeResolver(): CrudRouteNameResolverInterface
+    {
+        return new class implements CrudRouteNameResolverInterface {
+            public function resolveIndex(CrudContextDTO $context): string
+            {
+                return 'crud_index';
+            }
+
+            public function resolveNew(CrudContextDTO $context): string
+            {
+                return 'crud_new';
+            }
+
+            public function resolveShow(CrudContextDTO $context, ?string $identifierField = null): string
+            {
+                return 'crud_show';
+            }
+
+            public function resolveEdit(CrudContextDTO $context, ?string $identifierField = null): string
+            {
+                return 'crud_edit';
+            }
+
+            public function resolveDelete(CrudContextDTO $context, ?string $identifierField = null): string
+            {
+                return 'crud_delete';
+            }
+
+            public function parameters(CrudContextDTO $context, string|int|null $identifierValue = null, ?string $identifierField = null, ?string $operation = null): array
+            {
+                return ['resourcePath' => $context->resourcePath, 'operation' => $operation ?? $context->operation];
+            }
+        };
+    }
+
     /** @param list<array<string, mixed>|object> $items */
     private function collectionReader(array $items = []): CollectionRequestReaderInterface
     {

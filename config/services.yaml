@@ -37,6 +37,8 @@ services:
             tags: ['cruding.create_owner_binder']
         App\Cruding\ServiceInterface\CrudOwnershipProviderInterface:
             tags: ['cruding.ownership_provider']
+        App\Cruding\ServiceInterface\CrudBulkMutationHandlerInterface:
+            tags: ['cruding.bulk_mutation_handler']
 
     App\Cruding\Controller\:
         resource: '../src/Controller/'
@@ -124,6 +126,10 @@ services:
         arguments:
             $binderList: !tagged_iterator cruding.create_owner_binder
 
+    App\Cruding\Resolver\CrudBulkMutationHandlerResolver:
+        arguments:
+            $handlers: !tagged_iterator cruding.bulk_mutation_handler
+
     App\Cruding\Policy\CrudReservedRouteTokenPolicy:
         arguments:
             $viewTokens: '%cruding.runtime_view_tokens%'
@@ -204,6 +210,7 @@ services:
     App\Cruding\ServiceInterface\Operation\CrudIndexOperationInterface: '@App\Cruding\Service\Operation\CrudIndexOperation'
     App\Cruding\ServiceInterface\Operation\CrudShowOperationInterface: '@App\Cruding\Service\Operation\CrudShowOperation'
     App\Cruding\ServiceInterface\Operation\CrudPageOperationInterface: '@App\Cruding\Service\Operation\CrudPageOperation'
+    App\Cruding\ServiceInterface\Operation\CrudBulkOperationInterface: '@App\Cruding\Service\Operation\CrudBulkOperation'
     App\Cruding\ServiceInterface\Operation\CrudCreateOperationInterface: '@App\Cruding\Service\Operation\CrudCreateOperation'
     App\Cruding\ServiceInterface\Operation\CrudEditOperationInterface: '@App\Cruding\Service\Operation\CrudEditOperation'
     App\Cruding\ServiceInterface\Operation\CrudDeleteOperationInterface: '@App\Cruding\Service\Operation\CrudDeleteOperation'

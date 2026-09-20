@@ -45,10 +45,11 @@ final class CrudRouteMapMatcherTest extends TestCase
 
     public function testScansSiblingComponentRouteMaps(): void
     {
-        $projectDir = sys_get_temp_dir().'/cruding-route-map-host-'.bin2hex(random_bytes(4));
+        $baseDir = sys_get_temp_dir().'/cruding-route-map-host-'.bin2hex(random_bytes(4));
+        $projectDir = $baseDir.'/Host';
         self::assertTrue(mkdir($projectDir.'/config/platform/routes', 0777, true));
 
-        $vendoringDirectory = dirname($projectDir).'/Vendoring/config/platform/routes/crud';
+        $vendoringDirectory = $baseDir.'/Vendoring/config/platform/routes/crud';
         self::assertTrue(is_dir($vendoringDirectory) || mkdir($vendoringDirectory, 0777, true));
         file_put_contents($vendoringDirectory.'/vendor.yaml', "vendor.index: { path: /vendor/index, service: App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService }\n");
 
@@ -60,10 +61,43 @@ final class CrudRouteMapMatcherTest extends TestCase
         self::assertSame('App\\Vendoring\\Service\\Http\\Vendor\\VendorIndexService', $entry->service);
     }
 
+    public function testLoaderIgnoresMalformedEntriesAndPreservesNestedInlineValues(): void
+    {
+        $projectDir = $this->createProjectDir([
+            '',
+            '# comment',
+            'missing-colon',
+            'missing_brace: path: /ignored',
+            'bad name: { path: /ignored }',
+            'missing.path: { parser: ignored }',
+            'nested.route: { path: /nested/{id}, service: App\\Nested\\Service, metadata: [one,two], options: (alpha,beta) }',
+        ]);
+        file_put_contents($projectDir.'/config/platform/routes/ecommerce/ignored.txt', 'ignored: { path: /ignored }'.PHP_EOL);
+
+        $entries = (new CrudRouteMapLoader($projectDir))->entries();
+
+        self::assertCount(1, $entries);
+        self::assertSame('nested.route', $entries[0]->nameEntity);
+        self::assertSame('/nested/{id}', $entries[0]->path);
+        self::assertSame('App\\Nested\\Service', $entries[0]->service);
+        self::assertSame('[one,two]', $entries[0]->extra['metadata'] ?? null);
+        self::assertSame('(alpha,beta)', $entries[0]->extra['options'] ?? null);
+    }
+
+    public function testLoaderReturnsEmptyListWhenRouteDirectoryIsMissing(): void
+    {
+        $baseDir = sys_get_temp_dir().'/cruding-route-map-empty-'.bin2hex(random_bytes(4));
+        $projectDir = $baseDir.'/Host';
+        self::assertTrue(mkdir($projectDir, 0777, true));
+
+        self::assertSame([], (new CrudRouteMapLoader($projectDir))->entries());
+    }
+
     /** @param list<string> $lines */
     private function createProjectDir(array $lines): string
     {
-        $projectDir = sys_get_temp_dir().'/cruding-route-map-'.bin2hex(random_bytes(4));
+        $baseDir = sys_get_temp_dir().'/cruding-route-map-'.bin2hex(random_bytes(4));
+        $projectDir = $baseDir.'/Host';
         $directory = $projectDir.'/config/platform/routes/ecommerce';
         self::assertTrue(mkdir($directory, 0777, true));
         file_put_contents($directory.'/alpha.yaml', implode("\n", $lines)."\n");
