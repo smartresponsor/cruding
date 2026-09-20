@@ -61,6 +61,12 @@ For resource-view routes, Cruding owns route tokens and payload production only.
 
 See `docs/cruding/cruding-resource-view-routes.md`.
 
+== Bulk mutation contract
+
+The generic `bulk` operation has its own mutation boundary and never aliases `create`. Hosts provide named `CrudBulkMutationHandlerInterface` services; Cruding resolves exactly one handler, enforces its backend permission, resolves the requested `selected`, `filtered`, or `currentPage` data scope through Tabling and Collectioning, and checks per-object mutation access before invoking the handler.
+
+Each object mutation runs through the existing mutation lifecycle. Handlers explicitly choose whether processing may continue after an object-level failure. Partial-failure responses expose only stable Cruding error codes and batch positions; arbitrary exception messages and internal PHP class names are not part of the client contract.
+
 == Contracts and extension points
 
 * Service contracts live in `ServiceInterface/`; implementation/contract feature branches mirror each other where a true implementation contract exists.

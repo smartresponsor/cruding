@@ -14,6 +14,8 @@ All notable Cruding changes are recorded here. The repository currently develops
 - Updated dependency-injection configuration, routes, tests, smoke guards, and component documentation for the canonical tree.
 
 ### Added
+- Explicit bulk mutation execution through host-provided handlers, canonical Collectioning/Tabling data scopes, backend permission checks, per-object authorization, and mutation lifecycle dispatch.
+- Stable bulk partial-failure responses that avoid exposing arbitrary exception messages or internal PHP class names.
 - Machine-enforced DTO suffix and service-layout guards.
 - Machine-enforced PHPDoc coverage for named source types and public behavior methods.
 - Repository manifest and product-packaging documentation.
