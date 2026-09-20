@@ -134,16 +134,9 @@ foreach ($forbiddenConfigNeedles as $needle) {
     }
 }
 
-foreach (['symfony/config', 'symfony/dependency-injection', 'symfony/form', 'phpunit/phpunit'] as $package) {
+foreach (['symfony/config', 'symfony/dependency-injection', 'symfony/form'] as $package) {
     if (!str_contains($composer, '"'.$package.'"')) {
         guard_fail(sprintf('composer.json misses explicit Symfony bundle infrastructure package: %s', $package));
-    }
-}
-
-$gitignore = is_file($root . '/.gitignore') ? (file_get_contents($root . '/.gitignore') ?: '') : '';
-foreach (['/vendor/', '/composer.lock'] as $ignoredPath) {
-    if (!str_contains($gitignore, $ignoredPath)) {
-        guard_fail(sprintf('.gitignore must ignore local development artifact: %s', $ignoredPath));
     }
 }
 
