@@ -37,24 +37,12 @@
   },
   "repositories": [
     {
-      "type": "path",
-      "url": "../Collectioning",
-      "options": {
-        "symlink": true,
-        "versions": {
-          "collectioning/collection": "dev-master"
-        }
-      }
+      "type": "vcs",
+      "url": "git@github.com:smartresponsor/collectioning.git"
     },
     {
-      "type": "path",
-      "url": "../Tabling",
-      "options": {
-        "symlink": true,
-        "versions": {
-          "tabling/table": "dev-master"
-        }
-      }
+      "type": "vcs",
+      "url": "git@github.com:smartresponsor/tabling-.git"
     }
   ],
   "extra": {
