@@ -38,21 +38,18 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@github.com:smartresponsor/collectioning.git"
+      "url": "git@github.com:smartresponsor/collectioning.git",
+      "no-api": true
     },
     {
       "type": "vcs",
-      "url": "git@github.com:smartresponsor/tabling-.git"
+      "url": "git@github.com:smartresponsor/tabling-.git",
+      "no-api": true
     },
     {
-      "type": "path",
-      "url": "../Gating",
-      "options": {
-        "symlink": true,
-        "versions": {
-          "gating/gate": "dev-master"
-        }
-      }
+      "type": "vcs",
+      "url": "https://github.com/smartresponsor/gating.git",
+      "no-api": true
     }
   ],
   "extra": {
@@ -76,7 +73,6 @@
       "@php -r \"if (!is_dir('var/coverage')) { mkdir('var/coverage', 0777, true); }\"",
       "@php -d xdebug.mode=coverage vendor/bin/phpunit --path-coverage --coverage-text=var/coverage/summary.txt"
     ],
-    "validate:prod": "composer validate --strict --no-check-all composer.prod.json",
     "cs:check": "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
     "cs:fix": "@php vendor/bin/php-cs-fixer fix",
     "phpstan": "@php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G",

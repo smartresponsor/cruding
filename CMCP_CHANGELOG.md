@@ -379,3 +379,28 @@ This wave confirms that targeting callable contract behavior is materially more 
 
 This wave delivered the largest recent line-coverage gain while still improving method coverage, confirming that large public runtime providers are the highest-value next targets. Remaining `HIGH_TEST_DEBT` is still driven by repository-wide line and method coverage; the next wave should prioritize `CrudRuntimeDecisionGuard`, `CrudObjectFinder`, `CrudApiExceptionSubscriber`, and other public runtime classes with meaningful uncovered behavior.
 
+## 2026-09-26 — engine-20260926085959-cruding-498a23
+
+### Reconnaissance and RC selection
+
+- Read the authoritative execution specification, Cruding repository contracts/documentation, current Composer manifests, Git state, mandatory Objecting/Viewing/Interfacing package contracts, Gating package contract, and Canonization normative text.
+- Market baseline: mature Symfony CRUD systems such as EasyAdmin expose explicit CRUD/batch actions, deterministic routing, authorization boundaries, functional tests, and extension points. Cruding's competitive responsibility remains generic application CRUD grammar/dispatch and neutral payload production; final rendering/navigation/business workflows remain outside this component.
+- Canonization rules consulted directly: Canon001, Canon021, Canon022, Canon023, Canon024, Canon033, Canon043, Canon045, and Canon052.
+- Target mapping: Cruding is a Symfony bundle without `bin/console` or `config/bundles.php`, so Canon022's standalone-app baseline is not applicable. Adding direct `viewing/view` or `interfacing/interface` dependencies would create circular package ownership because both consume Cruding; no such dependency was invented. Objecting/Viewing/Interfacing were still read as required application-contour contracts.
+- Current branch: `cruding-rc-bulk-mutation-v2`, HEAD `1a9131ce3075fb939c73d4654f26302111ac8df8`, upstream present, ahead by three commits. Pre-existing dirty state was classified rather than reset: `composer.json` contains Gating integration/license edits, `composer.prod.json` is an untracked production manifest, and `.gating/README.md` had been replaced by the owner-package README.
+- RC-critical workstream: make the current Gating/production-manifest integration deterministic and boundary-correct, without changing CRUD runtime semantics. Growth workstream remains broader Canon040 method/line coverage and richer host diagnostics.
+- Baseline verification exposed two factual blockers: `composer validate --strict --check-lock` reports the local lock is stale versus the edited development manifest; `composer gate` cannot run because `vendor/bin/gating` is not installed yet.
+
+### Material implementation
+
+- Restored `.gating/README.md` to the Canon052 consumer-artifact contract instead of embedding Gating owner policy/executable documentation inside the consumer repository.
+- Added the deterministic `validate:prod` Composer script for `composer.prod.json`, matching the production-manifest verification pattern used by sibling platform components.
+- Preserved the pre-existing `composer.json` Gating path dependency and the untracked path-independent `composer.prod.json`; no destructive cleanup, reset, stash, or unrelated-file overwrite was performed.
+- Attempted the required `gating/gate` package synchronization through Console MCP. The managed repository worker refused to start the heavy Composer update because runtime capacity was in `RESOURCE_PRESSURE_WARN / STABILITY_DEGRADED / ENGINE_BACKLOG_HIGH` state. This is an execution-capacity blocker, not a green gate.
+
+### Что имеем? Что осталось?
+
+The earlier capacity blocker was cleared through the synchronous bounded Composer path. `composer update gating/gate --with-all-dependencies` installed `gating/gate` as a junction from `../Gating` and synchronized the local lock/vendor state. The first real Gating run then exposed two repository defects: Canon055 consumer identity leakage in the `AGENTS.md` title and a broad `Remove-Item -Recurse -Force` cache deletion in the host route smoke verifier. Both were repaired: agent-facing platform naming is neutral, and the smoke verifier is genuinely read-only with the cache-purge switch/deletion removed.
+
+Final acceptance on the resulting tree is GREEN: `composer validate --strict --check-lock`; `composer validate:prod`; Gating with 0 failed / 0 warning; `composer check:cruding` with 83 tests / 404 assertions; PHPStan with 0 errors across 231 files; and PHP-CS-Fixer dry-run with 0/231 fixable files. No browser/mobile UI behavior changed, so visual evidence is not applicable. The remaining tail is Git integration while preserving the pre-existing unrelated license edit in `composer.json` without silently folding it into the RC commit.
+

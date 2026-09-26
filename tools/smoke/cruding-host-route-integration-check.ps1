@@ -17,8 +17,7 @@ param(
     [string] $ResourcePath = 'alpha',
     [string] $NestedResourcePath = 'alpha/attachment/media',
     [string] $Slug = 'sample-entry',
-    [string] $Id = '123',
-    [switch] $SkipCachePurge
+    [string] $Id = '123'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -62,11 +61,6 @@ function Assert-NotContains([string] $Label, [string] $Text, [string] $Needle) {
 
 if (-not (Test-Path $Console)) {
     Fail "Symfony console was not found at '$Console'. Run from the host application root or pass -Console."
-}
-
-if (-not $SkipCachePurge) {
-    Remove-Item -Recurse -Force '.\var\cache\dev' -ErrorAction SilentlyContinue
-    Remove-Item -Recurse -Force '.\var\cache\test' -ErrorAction SilentlyContinue
 }
 
 $warmup = Run-Console @('cache:warmup', '-vvv')
