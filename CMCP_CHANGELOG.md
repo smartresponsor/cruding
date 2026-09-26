@@ -404,3 +404,13 @@ The earlier capacity blocker was cleared through the synchronous bounded Compose
 
 Final acceptance on the resulting tree is GREEN: `composer validate --strict --check-lock`; `composer validate:prod`; Gating with 0 failed / 0 warning; `composer check:cruding` with 83 tests / 404 assertions; PHPStan with 0 errors across 231 files; and PHP-CS-Fixer dry-run with 0/231 fixable files. No browser/mobile UI behavior changed, so visual evidence is not applicable. The remaining tail is Git integration while preserving the pre-existing unrelated license edit in `composer.json` without silently folding it into the RC commit.
 
+### Integration acceptance
+
+- Created signed commit `9a40de3` (`chore(cruding): harden gating integration`) containing the bounded Gating/production-manifest hardening, Canon055 remediation, read-only smoke-script repair, and this orchestration journal.
+- Published `cruding-rc-bulk-mutation-v2` successfully to `origin`; post-push branch state is synchronized at `9a40de3634b302bb36869cde08230692dfe38b66` with ahead 0 / behind 0.
+- Restored the pre-existing unrelated `composer.json` license edit after the bounded commit. It remains as the sole dirty path and was not silently absorbed into the RC integration commit.
+
+### Что имеем? Что осталось?
+
+The original bounded RC objective is factually complete: package/Gating integration is deterministic, repository gates are green, the two Gating-discovered defects are repaired, and the verified commit is published. No authorized in-scope RC tail remains. The sole dirty license edit is preserved unrelated work, not an integration blocker.
+
