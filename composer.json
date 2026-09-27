@@ -2,7 +2,7 @@
   "name": "cruding/crud",
   "description": "Universal CRUD route processor bundle for Symfony host applications.",
   "type": "symfony-bundle",
-  "license": "proprietary",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
