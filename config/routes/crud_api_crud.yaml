@@ -2,25 +2,28 @@
 # Explicit component API routes must be imported before these generic routes.
 
 cruding_api_read:
-    path: /api/{crudPath}
+    path: /api/{apiVersion}/{crudPath}
     controller: App\Cruding\Controller\Api\CrudApiController
     methods: [GET]
     defaults: { _crud_view: public }
     requirements:
+        apiVersion: 'v[1-9][0-9]?'
         crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'
 
 cruding_api_create:
-    path: /api/{crudPath}
+    path: /api/{apiVersion}/{crudPath}
     controller: App\Cruding\Controller\Api\CrudApiController
     methods: [POST]
     defaults: { _crud_view: public }
     requirements:
+        apiVersion: 'v[1-9][0-9]?'
         crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'
 
 cruding_api_member_mutation:
-    path: /api/{crudPath}
+    path: /api/{apiVersion}/{crudPath}
     controller: App\Cruding\Controller\Api\CrudApiController
     methods: [PUT, PATCH, DELETE]
     defaults: { _crud_view: public }
     requirements:
+        apiVersion: 'v[1-9][0-9]?'
         crudPath: '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'

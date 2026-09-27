@@ -63,9 +63,10 @@ final class CrudRouteManifest extends Loader
     {
         $routes = new RouteCollection();
 
-        $this->addRoute($routes, 'cruding_api_read', '/api/{crudPath}', self::API_CONTROLLER, ['GET'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'], ['_crud_view' => 'public']);
-        $this->addRoute($routes, 'cruding_api_create', '/api/{crudPath}', self::API_CONTROLLER, ['POST'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'], ['_crud_view' => 'public']);
-        $this->addRoute($routes, 'cruding_api_member_mutation', '/api/{crudPath}', self::API_CONTROLLER, ['PUT', 'PATCH', 'DELETE'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'], ['_crud_view' => 'public']);
+        $apiVersion = 'v[1-9][0-9]?';
+        $this->addRoute($routes, 'cruding_api_read', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['GET'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'], ['_crud_view' => 'public']);
+        $this->addRoute($routes, 'cruding_api_create', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['POST'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'], ['_crud_view' => 'public']);
+        $this->addRoute($routes, 'cruding_api_member_mutation', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['PUT', 'PATCH', 'DELETE'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'], ['_crud_view' => 'public']);
         $this->addRoute($routes, 'cruding_tokenized_catch_all', '/{crudPath}', self::CRUD_CONTROLLER, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], ['crudPath' => '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk|show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'], ['_crud_view' => 'public']);
 
         $resource = '[a-z][a-z0-9_-]*';

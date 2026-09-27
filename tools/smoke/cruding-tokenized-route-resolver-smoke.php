@@ -34,6 +34,9 @@ assert(str_contains($apiRoutes, 'cruding_api_member_mutation:'), 'Missing member
 assert(str_contains($apiRoutes, 'methods: [GET]'), 'GET API route must be method-specific.');
 assert(str_contains($apiRoutes, 'methods: [POST]'), 'POST API route must be method-specific.');
 assert(str_contains($apiRoutes, 'methods: [PUT, PATCH, DELETE]'), 'Mutation API route must be member-only.');
+assert(str_contains($apiRoutes, 'path: /api/{apiVersion}/{crudPath}'), 'API CRUD routes must strip /api/vN before Cruding receives crudPath.');
+assert(str_contains($apiRoutes, "apiVersion: 'v[1-9][0-9]?'"), 'API CRUD route version token must be v1 through v99 immediately after /api.');
+assert(!str_contains($apiRoutes, 'path: /api/{crudPath}'), 'API CRUD routes must not let the version token enter crudPath grammar.');
 assert(str_contains($apiRoutes, '[a-z0-9][a-z0-9_-]{17,}'), 'API identity grammar must enforce minimum slug length.');
 assert(!str_contains($apiRoutes, "crudPath: '.+'"), 'API route must not expose an unbounded global catch-all.');
 assert(!str_contains($apiRoutes, 'resourcePath:'), 'API route YAML must not contain semantic resourcePath requirements.');
@@ -41,6 +44,8 @@ assert(str_contains($routeIndex, 'type: cruding'), 'Route index must delegate CR
 assert(!str_contains($routeIndex, 'cruding_api_crud:'), 'Route index must not import generated API CRUD route YAML directly.');
 assert(!str_contains($routeIndex, 'cruding_crud:'), 'Route index must not import generated browser CRUD route YAML directly.');
 assert(!str_contains($routeIndex, 'cruding_resource:'), 'Route index must not import legacy resource fallback YAML directly.');
+
+assert(!str_contains($resolver, 'apiVersion'), 'API version stripping belongs to route delivery; resolver must not treat vN as CRUD grammar.');
 
 foreach (['resolveWeb', 'resolveApi', 'resolveTokens', 'operationTokens', 'isIdentityToken', 'identifierField', 'viewFor'] as $needle) {
     assert(str_contains($resolver, $needle), sprintf('Tokenized resolver must expose %s.', $needle));
