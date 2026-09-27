@@ -22,8 +22,14 @@ final readonly class CrudApiProblemResponseFactory
         array $extra = [],
         string $type = 'about:blank',
     ): JsonResponse {
+        $code = is_string($extra['code'] ?? null) && '' !== trim($extra['code'])
+            ? trim($extra['code'])
+            : 'crud_http_'.$status;
+        $problemType = 'about:blank' === $type ? 'urn:cruding:problem:'.$code : $type;
+
         return new JsonResponse([
-            'type' => $type,
+            'type' => $problemType,
+            'code' => $code,
             'title' => $title,
             'status' => $status,
             'detail' => $detail,
@@ -37,6 +43,8 @@ final readonly class CrudApiProblemResponseFactory
      */
     public function badRequest(string $detail, array $extra = []): JsonResponse
     {
+        $extra['code'] ??= 'crud_bad_request';
+
         return $this->create(Response::HTTP_BAD_REQUEST, 'Bad Request', $detail, $extra);
     }
 
@@ -45,6 +53,8 @@ final readonly class CrudApiProblemResponseFactory
      */
     public function forbidden(string $detail = 'Access denied.', array $extra = []): JsonResponse
     {
+        $extra['code'] ??= 'crud_forbidden';
+
         return $this->create(Response::HTTP_FORBIDDEN, 'Forbidden', $detail, $extra);
     }
 
@@ -53,6 +63,8 @@ final readonly class CrudApiProblemResponseFactory
      */
     public function notFound(string $detail = 'Resource not found.', array $extra = []): JsonResponse
     {
+        $extra['code'] ??= 'crud_not_found';
+
         return $this->create(Response::HTTP_NOT_FOUND, 'Not Found', $detail, $extra);
     }
 
@@ -63,6 +75,7 @@ final readonly class CrudApiProblemResponseFactory
     public function unprocessable(string $detail, array $errors = [], array $extra = []): JsonResponse
     {
         $extra['errors'] = $errors;
+        $extra['code'] ??= 'crud_validation_failed';
 
         return $this->create(Response::HTTP_UNPROCESSABLE_ENTITY, 'Validation Failed', $detail, $extra);
     }

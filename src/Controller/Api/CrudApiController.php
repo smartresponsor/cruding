@@ -43,11 +43,16 @@ final class CrudApiController extends AbstractController
     {
         $intent = $this->intentResolver->resolveApi($request);
         if (null === $intent || '' === $intent->resourcePath) {
-            return $this->problemResponseFactory->notFound('crud_route_intent_not_found', ['path' => $request->getPathInfo()]);
+            return $this->problemResponseFactory->notFound('CRUD route intent could not be resolved.', [
+                'code' => 'crud_route_intent_not_found',
+            ]);
         }
 
         if (!$this->runtimeRouteGuard->allowsResourcePath($intent->resourcePath)) {
-            return $this->problemResponseFactory->notFound('crud_runtime_resource_not_allowed', ['intent' => $intent->diagnostics()]);
+            return $this->problemResponseFactory->notFound('CRUD resource is not available in the active runtime.', [
+                'code' => 'crud_runtime_resource_not_allowed',
+                'resourcePath' => $intent->resourcePath,
+            ]);
         }
 
         $this->applyIntent($request, $intent);
@@ -59,8 +64,9 @@ final class CrudApiController extends AbstractController
             'create' => $this->createOperation->handle($request),
             'update' => $this->updateOperation->handle($request),
             'delete' => $this->deleteOperation->handle($request),
-            default => $this->problemResponseFactory->create(404, 'Not Found', 'crud_api_operation_not_supported', [
-                'intent' => $intent->diagnostics(),
+            default => $this->problemResponseFactory->create(404, 'Not Found', 'CRUD API operation is not supported.', [
+                'code' => 'crud_api_operation_not_supported',
+                'resourcePath' => $intent->resourcePath,
             ]),
         };
     }

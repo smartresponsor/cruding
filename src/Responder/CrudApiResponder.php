@@ -78,7 +78,10 @@ final readonly class CrudApiResponder implements CrudApiResponderInterface
         return $this->problemResponseFactory->unprocessable(
             'Validation failed for API CRUD request.',
             $errors,
-            ['resourcePath' => $context->resourcePath],
+            [
+                'code' => 'crud_validation_failed',
+                'resourcePath' => $context->resourcePath,
+            ],
         );
     }
 

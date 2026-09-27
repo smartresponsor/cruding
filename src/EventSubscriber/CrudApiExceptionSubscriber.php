@@ -55,7 +55,10 @@ final readonly class CrudApiExceptionSubscriber implements EventSubscriberInterf
                 $exception->getMessage() ?: 'HTTP error.',
                 $extra,
             ),
-            default => $this->problemResponseFactory->create(500, 'Internal Server Error', 'Unexpected API error.', $extra),
+            default => $this->problemResponseFactory->create(500, 'Internal Server Error', 'Unexpected API error.', [
+                ...$extra,
+                'code' => 'crud_internal_error',
+            ]),
         };
 
         $event->setResponse($response);

@@ -19,6 +19,8 @@ final class CrudApiProblemResponseFactoryTest extends TestCase
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
         self::assertSame('application/problem+json', $response->headers->get('Content-Type'));
+        self::assertSame('urn:cruding:problem:crud_validation_failed', $payload['type']);
+        self::assertSame('crud_validation_failed', $payload['code']);
         self::assertSame('Validation Failed', $payload['title']);
         self::assertSame('product', $payload['resourcePath']);
         self::assertSame([['field' => 'slug']], $payload['errors']);
