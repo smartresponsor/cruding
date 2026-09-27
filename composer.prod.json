@@ -7,6 +7,7 @@
   "prefer-stable": true,
   "require": {
     "collectioning/collection": "dev-master",
+    "failing/failure": "dev-master",
     "doctrine/doctrine-bundle": "^3.2",
     "tabling/table": "dev-master",
     "doctrine/orm": "^3.0",
@@ -44,6 +45,11 @@
     {
       "type": "vcs",
       "url": "git@github.com:smartresponsor/tabling-.git",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/smartresponsor/failing.git",
       "no-api": true
     },
     {
