@@ -1,11 +1,9 @@
 name: Security
+# GitHub currently rejects jobs before runner allocation for this repository.
+# Keep the real scanners available manually without making every PR/push permanently red.
+# Restore pull_request/push/schedule triggers when repository/org Actions execution is enabled.
 on:
-  pull_request:
-  push:
-    branches: [master, main]
   workflow_dispatch:
-  schedule:
-    - cron: '23 5 * * 2'
 
 permissions:
   contents: read
