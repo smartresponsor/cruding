@@ -4,37 +4,44 @@ declare(strict_types=1);
 
 namespace App\Cruding\Service\Resource;
 
-use Psr\Container\ContainerInterface;
-
 /**
  * Holds host and component service-layer entries collected at compile time.
  */
 final readonly class CrudResourceServiceLocator
 {
+    /** @var array<string, \Closure(): object> */
+    private array $serviceFactoryById;
+
     /** @var array<string, list<array{serviceId: string, candidates: list<string>}>> */
     private array $shortClassNameIndex;
 
+    /**
+     * @param iterable<string, \Closure(): object> $serviceFactories
+     * @param array<string, string>                $serviceTypes
+     */
     public function __construct(
-        private ContainerInterface $locator,
+        iterable $serviceFactories,
+        private array $serviceTypes = [],
     ) {
+        $this->serviceFactoryById = iterator_to_array($serviceFactories);
         $this->shortClassNameIndex = $this->buildShortClassNameIndex();
     }
 
     /**      * Executes the has operation.      */
     public function has(string $serviceClass): bool
     {
-        return $this->locator->has($serviceClass);
+        return isset($this->serviceFactoryById[$serviceClass]);
     }
 
     /**      * Executes the get operation.      */
     public function get(string $serviceClass): object
     {
-        $service = $this->locator->get($serviceClass);
-        if (!is_object($service)) {
-            throw new \RuntimeException(sprintf('Resolved view service "%s" is not an object.', $serviceClass));
+        $factory = $this->serviceFactoryById[$serviceClass] ?? null;
+        if (null === $factory) {
+            throw new \RuntimeException(sprintf('View service "%s" is not registered.', $serviceClass));
         }
 
-        return $service;
+        return $factory();
     }
 
     /**
@@ -42,13 +49,7 @@ final readonly class CrudResourceServiceLocator
      */
     public function serviceIds(): array
     {
-        if (!method_exists($this->locator, 'getProvidedServices')) {
-            return [];
-        }
-
-        /** @var array<string, string> $provided */
-        $provided = $this->locator->getProvidedServices();
-        $ids = array_keys($provided);
+        $ids = array_keys($this->serviceFactoryById);
         sort($ids);
 
         return $ids;
@@ -85,7 +86,7 @@ final readonly class CrudResourceServiceLocator
     private function buildShortClassNameIndex(): array
     {
         $index = [];
-        foreach ($this->providedServices() as $serviceId => $providedService) {
+        foreach ($this->serviceTypes as $serviceId => $providedService) {
             $candidates = array_values(array_unique(array_map(
                 static fn (string $candidate): string => ltrim($candidate, '?'),
                 [(string) $serviceId, (string) $providedService],
@@ -101,21 +102,6 @@ final readonly class CrudResourceServiceLocator
         }
 
         return $index;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function providedServices(): array
-    {
-        if (!method_exists($this->locator, 'getProvidedServices')) {
-            return [];
-        }
-
-        /** @var array<string, string> $provided */
-        $provided = $this->locator->getProvidedServices();
-
-        return $provided;
     }
 
     /**

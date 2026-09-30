@@ -5,6 +5,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__, 2);
 $tokens = readFileStrict($root.'/config/crud_reserved_token.yaml');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
+$dispatcher = readFileStrict($root.'/src/Service/Operation/CrudOperationDispatcher.php');
 $classResolver = readFileStrict($root.'/src/Resolver/CrudServiceClassNameResolver.php');
 $context = readFileStrict($root.'/src/DTO/Entrypoint/CrudServiceContextDTO.php');
 $invoker = readFileStrict($root.'/src/Invoker/CrudServiceInvoker.php');
@@ -17,8 +18,12 @@ foreach (['index', 'show', 'new', 'create', 'edit', 'update', 'delete', 'bulk', 
     assert(in_array($operation, $configOperations, true), sprintf('Operation token "%s" must remain configured.', $operation));
 }
 
-foreach (['CrudServiceRunner', 'runEntrypointOnly', 'DEFAULT_OPERATION_HANDLER'] as $needle) {
+foreach (['CrudServiceRunner', 'runEntrypointOnly', 'CrudOperationDispatcher'] as $needle) {
     assert(str_contains($controller, $needle), sprintf('Tokenized controller must keep entrypoint parity via %s.', $needle));
+}
+
+foreach (['index', 'show', 'read', 'page', 'new', 'create', 'import', 'bulk', 'edit', 'update', 'archive', 'restore', 'duplicate', 'delete'] as $operation) {
+    assert(str_contains($dispatcher, sprintf("'%s' =>", $operation)), sprintf('CRUD operation dispatcher must preserve the %s alias.', $operation));
 }
 
 foreach (['httpMethod', 'isHttpMethod', 'isGet', 'isPost', 'isPut', 'isPatch', 'isDelete', 'isOperation', 'isGrounded'] as $needle) {

@@ -133,11 +133,14 @@ final class CrudBulkOperationTest extends TestCase
 
     public function testControllerDispatchesBulkToBulkOperationBoundary(): void
     {
-        $source = file_get_contents(dirname(__DIR__, 4).'/src/Controller/CrudController.php');
-        self::assertIsString($source);
-        self::assertStringContainsString("'bulk' => 'bulk'", $source);
-        self::assertStringNotContainsString("'bulk' => 'create'", $source);
-        self::assertStringContainsString('CrudBulkOperationInterface', $source);
+        $controller = file_get_contents(dirname(__DIR__, 4).'/src/Controller/CrudController.php');
+        $dispatcher = file_get_contents(dirname(__DIR__, 4).'/src/Service/Operation/CrudOperationDispatcher.php');
+        self::assertIsString($controller);
+        self::assertIsString($dispatcher);
+        self::assertStringContainsString('CrudOperationDispatcher', $controller);
+        self::assertStringContainsString("'bulk' => 'bulk'", $dispatcher);
+        self::assertStringNotContainsString("'bulk' => 'create'", $dispatcher);
+        self::assertStringContainsString('CrudBulkOperationInterface', $dispatcher);
     }
 
     public function testContinueOnFailureReportsPartialBatchResult(): void
