@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\DTO\CrudPageActionDefinitionDTO;
+use App\Tabling\Builder\TableActionMetadataBuilder;
 use App\Tabling\DTO\TableActionDTO;
-use App\Tabling\Service\TableActionMetadataBuilder;
 
 /**
  * Builds resource action builder values used by Cruding workflows.

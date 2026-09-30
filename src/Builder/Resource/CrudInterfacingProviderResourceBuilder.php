@@ -8,8 +8,8 @@ use App\Cruding\DTO\CrudPageDefinitionDTO;
 use App\Cruding\Resolver\Resource\CrudResourceOperationResolver;
 use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
 use App\Cruding\ServiceInterface\Resource\CrudInterfacingProviderResourceBuilderInterface;
-use App\Tabling\Service\TableColumnMetadataBuilder;
-use App\Tabling\Service\TableFilterMetadataBuilder;
+use App\Tabling\Builder\TableColumnMetadataBuilder;
+use App\Tabling\Builder\TableFilterMetadataBuilder;
 use Symfony\Component\Form\FormView;
 
 /**
