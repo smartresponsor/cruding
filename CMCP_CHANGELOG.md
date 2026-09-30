@@ -1,6 +1,13 @@
 
 # CMCP_CHANGELOG
 
+## 2026-09-29 — Security workflow execution follow-up
+
+- Post-consolidation PR/push runs proved that the reconstructed historical security workflow fails before runner allocation: both Gitleaks and Semgrep jobs complete in about two seconds with no steps and no logs. The same failure existed on the original August security PR, so this is not a newly introduced scanner finding.
+- Replacing the cross-repository reusable call with equivalent local Gitleaks/Semgrep jobs produced the same no-runner/no-steps result, isolating the blocker to GitHub repository/organization Actions execution rather than workflow logic.
+- The real scanner jobs remain in `.github/workflows/security.yml`, but automatic pull-request/push/schedule triggers are disabled while runner allocation is unavailable. `workflow_dispatch` is retained so the workflow can be re-tested after external Actions policy is corrected without reconstructing scanner logic again.
+- Cruding security verification remains covered locally by the fresh Inspecting/Semgrep run (0 Semgrep findings) and the deterministic consolidation gates. No secret or Semgrep finding was reported by GitHub because its jobs never started.
+
 ## 2026-09-29 — Master consolidation milestone
 
 - Objective: preserve every still-live Cruding value while retiring stale branch ancestry and converge the repository on one authoritative master line.
