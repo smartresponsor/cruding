@@ -10,16 +10,10 @@ use App\Cruding\Factory\CrudNotFoundResponseFactory;
 use App\Cruding\Resolver\CrudActorScopeContextResolver;
 use App\Cruding\Resolver\CrudTokenizedRouteIntentResolver;
 use App\Cruding\Runner\CrudServiceRunner;
+use App\Cruding\Service\Operation\CrudOperationDispatcher;
 use App\Cruding\Service\Resource\CrudRouteMapMatcher;
 use App\Cruding\Service\Runtime\CrudRuntimeRouteGuard;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
-use App\Cruding\ServiceInterface\Operation\CrudBulkOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudCreateOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudDeleteOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudEditOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudIndexOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudPageOperationInterface;
-use App\Cruding\ServiceInterface\Operation\CrudShowOperationInterface;
 use App\Cruding\ValueObject\Resource\CrudResourceContract;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,24 +26,12 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
  */
 final class CrudController extends AbstractController
 {
-    private const DEFAULT_OPERATION_HANDLER = [
-        'index' => 'index', 'show' => 'show', 'read' => 'show', 'page' => 'page', 'new' => 'create', 'create' => 'create',
-        'import' => 'create', 'bulk' => 'bulk', 'edit' => 'edit', 'update' => 'edit',
-        'archive' => 'edit', 'restore' => 'edit', 'duplicate' => 'edit', 'delete' => 'delete',
-    ];
-
     public function __construct(
         private readonly CrudTokenizedRouteIntentResolver $intentResolver,
         private readonly CrudActorScopeContextResolver $actorScopeContextResolver,
         private readonly CrudContextResolverInterface $contextResolver,
         private readonly CrudServiceRunner $entrypointRunner,
-        private readonly CrudIndexOperationInterface $indexOperation,
-        private readonly CrudShowOperationInterface $showOperation,
-        private readonly CrudPageOperationInterface $pageOperation,
-        private readonly CrudBulkOperationInterface $bulkOperation,
-        private readonly CrudCreateOperationInterface $createOperation,
-        private readonly CrudEditOperationInterface $editOperation,
-        private readonly CrudDeleteOperationInterface $deleteOperation,
+        private readonly CrudOperationDispatcher $operationDispatcher,
         private readonly CrudNotFoundResponseFactory $notFoundResponseFactory,
         private readonly CrudRuntimeRouteGuard $runtimeRouteGuard,
         private readonly ?CrudRouteMapMatcher $routeMapMatcher = null,
@@ -70,18 +52,9 @@ final class CrudController extends AbstractController
 
         $this->applyRouteMapEntry($request);
         $this->applyIntent($request, $intent);
-        $handler = self::DEFAULT_OPERATION_HANDLER[$intent->operation] ?? null;
 
-        if (null !== $handler) {
-            return match ($handler) {
-                'index' => $this->indexOperation->handle($request),
-                'show' => $this->showOperation->handle($request),
-                'page' => $this->pageOperation->handle($request),
-                'bulk' => $this->bulkOperation->handle($request),
-                'create' => $this->createOperation->handle($request),
-                'edit' => $this->editOperation->handle($request),
-                'delete' => $this->deleteOperation->handle($request),
-            };
+        if ($this->operationDispatcher->supports($intent->operation)) {
+            return $this->operationDispatcher->handle($intent->operation, $request);
         }
 
         return $this->runEntrypointOnly($request, $intent);

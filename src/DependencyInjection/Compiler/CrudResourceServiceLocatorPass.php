@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Cruding\DependencyInjection\Compiler;
 
 use App\Cruding\Service\Resource\CrudResourceServiceLocator;
-use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
+use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -23,6 +24,7 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $references = [];
+        $serviceTypes = [];
 
         foreach ($container->getDefinitions() as $id => $definition) {
             if ($definition->isAbstract() || $definition->isSynthetic()) {
@@ -34,6 +36,7 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
             }
 
             $references[$id] = new Reference($id);
+            $serviceTypes[$id] = $definition->getClass() ?: $id;
         }
 
         foreach ($container->findTaggedServiceIds(self::RESOURCE_SERVICE_TAG) as $id => $_tags) {
@@ -43,6 +46,7 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
             }
 
             $references[$id] = new Reference($id);
+            $serviceTypes[$id] = $definition->getClass() ?: $id;
         }
 
         foreach ($container->getAliases() as $id => $alias) {
@@ -53,16 +57,24 @@ final class CrudResourceServiceLocatorPass implements CompilerPassInterface
             }
 
             $references[$id] = new Reference($id);
+            $serviceTypes[$id] = $target;
         }
 
         ksort($references);
+        ksort($serviceTypes);
 
         if (!$container->hasDefinition(CrudResourceServiceLocator::class)) {
             $container->setDefinition(CrudResourceServiceLocator::class, new Definition(CrudResourceServiceLocator::class));
         }
 
+        $factories = [];
+        foreach ($references as $id => $reference) {
+            $factories[$id] = new ServiceClosureArgument($reference);
+        }
+
         $container->getDefinition(CrudResourceServiceLocator::class)
-            ->setArgument(0, new ServiceLocatorArgument($references));
+            ->setArgument(0, new IteratorArgument($factories))
+            ->setArgument(1, $serviceTypes);
     }
 
     private function isHttpEntrypointService(string $id, Definition $definition): bool

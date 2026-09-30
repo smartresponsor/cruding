@@ -8,6 +8,7 @@ $apiRoutes = readFileStrict($root.'/config/routes/crud_api_crud.yaml');
 $routeIndex = readFileStrict($root.'/config/routes.yaml');
 $resolver = readFileStrict($root.'/src/Resolver/CrudTokenizedRouteIntentResolver.php');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
+$dispatcher = readFileStrict($root.'/src/Service/Operation/CrudOperationDispatcher.php');
 $apiController = readFileStrict($root.'/src/Controller/Api/CrudApiController.php');
 $tokenNormalizer = readFileStrict($root.'/src/Normalizer/CrudRouteTokenNormalizer.php');
 $intent = readFileStrict($root.'/src/DTO/CrudTokenizedRouteIntentDTO.php');
@@ -58,8 +59,12 @@ foreach ([
 
 assert(!str_contains($resolver, "\$identity = \$last;\n        \$resourceTokens = array_slice(\$tokens, 0, -1);"), 'Resolver must not infer show from an unmarked trailing identity token.');
 
-foreach (['CrudIndexOperationInterface', 'CrudShowOperationInterface', 'CrudCreateOperationInterface', 'CrudEditOperationInterface', 'CrudDeleteOperationInterface', 'runEntrypointOnly', 'applyIntent'] as $needle) {
+foreach (['CrudOperationDispatcher', 'runEntrypointOnly', 'applyIntent'] as $needle) {
     assert(str_contains($controller, $needle), sprintf('Tokenized controller must contain %s.', $needle));
+}
+
+foreach (['CrudIndexOperationInterface', 'CrudShowOperationInterface', 'CrudCreateOperationInterface', 'CrudEditOperationInterface', 'CrudDeleteOperationInterface'] as $needle) {
+    assert(str_contains($dispatcher, $needle), sprintf('Typed CRUD dispatcher must contain %s.', $needle));
 }
 
 foreach (['CrudApiIndexOperationInterface', 'CrudApiShowOperationInterface', 'CrudApiCreateOperationInterface', 'CrudApiUpdateOperationInterface', 'CrudApiDeleteOperationInterface', 'resolveApi'] as $needle) {

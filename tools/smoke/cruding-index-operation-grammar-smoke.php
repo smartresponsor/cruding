@@ -7,6 +7,7 @@ $resolver = readFileStrict($root.'/src/Resolver/CrudTokenizedRouteIntentResolver
 $routes = readFileStrict($root.'/config/routes/crud_crud.yaml');
 $operation = readFileStrict($root.'/src/Service/Operation/CrudIndexOperation.php');
 $controller = readFileStrict($root.'/src/Controller/CrudController.php');
+$dispatcher = readFileStrict($root.'/src/Service/Operation/CrudOperationDispatcher.php');
 
 assert(!str_contains($routes, 'cruding_index_named:'), 'Static /{resourcePath}/index route must be removed; index is resolved from tokens.');
 assert(str_contains($routes, 'cruding_tokenized_catch_all:'), 'Tokenized catch-all must replace index-specific routes.');
@@ -17,7 +18,8 @@ assert(str_contains($operation, '$this->contextResolver->tryResolve($request)'),
 assert(!str_contains($operation, "entityClass: ''"), 'Index operation must not manufacture an unresolved CRUD context.');
 assert(!str_contains($operation, 'tryExplicitRouteEntrypoint'), 'Index operation must not maintain a parallel explicit-route shortcut.');
 assert(str_contains($operation, '$this->entrypointDispatcher->tryRun($request, $context)'), 'Index entrypoint dispatch must use the resolved CRUD context.');
-assert(str_contains($controller, "'index' => \$this->indexOperation->handle(\$request)"), 'Tokenized and legacy controllers must share CrudIndexOperation dispatch.');
+assert(str_contains($controller, 'CrudOperationDispatcher'), 'Tokenized controller must delegate generic CRUD operation dispatch.');
+assert(str_contains($dispatcher, "'index' => \$this->indexOperation->handle(\$request)"), 'Typed dispatcher must preserve CrudIndexOperation dispatch.');
 
 foreach (['alpha', 'beta-item', 'gamma-entry'] as $resourcePath) {
     assert('index' !== $resourcePath, 'Generated resourcePath fixture must not be index.');

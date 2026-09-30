@@ -1,6 +1,27 @@
 
 # CMCP_CHANGELOG
 
+## 2026-09-29 — Master consolidation milestone
+
+- Objective: preserve every still-live Cruding value while retiring stale branch ancestry and converge the repository on one authoritative master line.
+- Preservation: the pre-existing dirty OpenAPI/capability layer was captured in signed commit `537ddc9edfde29a2dbff8a206f3ce4ea54cf61a9` and local checkpoint branch `checkpoint/cruding-20260929-openapi-capability` before reconstruction. No stash-drop, reset-hard, branch deletion, or other destructive operation was used.
+- Integration base: `cruding-master-consolidation-20260929` was created directly from `origin/master` at `4d6699a570582523f761ffb8554723adb482940f`; stale RC ancestry was not merged.
+- Wave A: signed commit `d8bf3db` reconstructs the verified typed operation dispatcher, edit responder, and compile-time lazy service closure remediation from `faaf9596` without importing old squash ancestry.
+- Wave B: signed commit `e9bb795` adds the versioned CRUD API surface, machine-readable capability endpoint, canonical OpenAPI 3.1 source, Nelmio producer dependency, typed capability DTO/provider, and regression tests.
+- Wave C: signed commit `aed5505` aligns the live route manifest with versioned YAML/capability routing, corrects canonical `App\\Cruding\\...` controller FQCNs, and restores independent mutation-lifecycle transaction-boundary regression coverage.
+- Security: signed commit `efe7192` reconstructs the only unique value from stale `security/gitleaks-semgrep`: the shared reusable Gitleaks/Semgrep GitHub Actions workflow.
+- Branch archaeology: merged Collectioning/Tabling/role-first/W47/RC branches were classified as represented or superseded by existing master history. `cruding-canon-quality-integration`, `gating-canon-debt-wave`, `feature/http-api-crud-classification`, and `engine-20260912084701-cruding-11db25` contain older overlapping role-first/API/canon lineages; whole-branch merge would reintroduce obsolete states, so no such merge was performed.
+- Deliberately preserved but not adopted: `composer.prod.json` and `CrudFailureProvider` from the checkpoint depend on the newer Failing/Gating integration contour that current master does not declare; importing them alone would invent dependencies. `.gating/README.md` is preserved only as source evidence because Cruding's `.gating/` is a consumer artifact surface, not normative Gating source.
+- Local dependency verification was reset to the master-based Composer contract. The ignored local lock/vendor graph was regenerated; old Failing/Gating path packages were removed because they are not current master requirements, while Collectioning/Tabling were refreshed.
+- Final deterministic acceptance on the consolidation branch: Composer validation passed; `composer check:cruding` passed with 90 tests / 446 assertions; PHPStan passed with 0 errors; PHP-CS-Fixer passed with 0 fixable files.
+- Fresh Inspecting report: 27 findings, all medium structural/design/complexity observations; 0 high findings, PHPStan 0, Semgrep 0. These remain growth backlog rather than RC blockers.
+- Console RC validation reports `rc_diagnostic_green` with 0 blockers and 0 warnings. Four pre-existing TODO/FIXME marker warnings remain informational canon debt and are not promoted to release blockers.
+- UI/visual applicability: this consolidation changes backend routing/API/contracts/DI and CI only; no browser/mobile UI, navigation, forms, or user-visible presentation flow changed, so screenshot evidence is not applicable.
+
+### Что имеем? Что осталось?
+
+Имеем чистую master-based consolidation branch with all verified unique values reconstructed as small semantic commits, stale branch ancestry excluded, deterministic gates green, and preservation evidence retained. Осталось опубликовать branch, провести один squash PR в master, затем повторить короткий acceptance уже на master и закрыть superseded open PRs without deleting preserved branches.
+
 ## 2026-09-20 — Cruding RC completion pass
 
 - Reconnaissance read the current Cruding `AGENTS.md`, `README.md`, `README.adoc`, `composer.json`, `MANIFEST.json`, source/service wiring, tests, scripts, staged/unstaged Git state, and the current bulk-mutation implementation. Mandatory helper contracts were reviewed from Objecting, Viewing, Interfacing, Gating, and Canonization; Collectioning and Tabling runtime contracts were additionally inspected because the bulk implementation imports them directly.

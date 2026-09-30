@@ -19,9 +19,10 @@ final class CrudRouteManifest extends Loader
 {
     public const GRAMMAR_VERSION = 'cruding-route-manifest-v1';
 
-    private const API_CONTROLLER = 'App\\Controller\\Api\\Crud\\CrudApiController';
-    private const CRUD_CONTROLLER = 'App\\Controller\\Crud\\CrudController';
-    private const RESOURCE_CONTROLLER = 'App\\Controller\\Crud\\CrudResourceController';
+    private const API_CONTROLLER = 'App\\Cruding\\Controller\\Api\\CrudApiController';
+    private const API_CAPABILITY_CONTROLLER = 'App\\Cruding\\Controller\\Api\\CrudApiCapabilityController';
+    private const CRUD_CONTROLLER = 'App\\Cruding\\Controller\\CrudController';
+    private const RESOURCE_CONTROLLER = 'App\\Cruding\\Controller\\CrudResourceController';
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
@@ -63,9 +64,11 @@ final class CrudRouteManifest extends Loader
     {
         $routes = new RouteCollection();
 
-        $this->addRoute($routes, 'cruding_api_read', '/api/{crudPath}', self::API_CONTROLLER, ['GET'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'], ['_crud_view' => 'public']);
-        $this->addRoute($routes, 'cruding_api_create', '/api/{crudPath}', self::API_CONTROLLER, ['POST'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'], ['_crud_view' => 'public']);
-        $this->addRoute($routes, 'cruding_api_member_mutation', '/api/{crudPath}', self::API_CONTROLLER, ['PUT', 'PATCH', 'DELETE'], ['crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'], ['_crud_view' => 'public']);
+        $apiVersion = 'v[1-9][0-9]?';
+        $this->addRoute($routes, 'cruding_api_capabilities', '/api/{apiVersion}/_crud/{resourcePath}/capabilities', self::API_CAPABILITY_CONTROLLER, ['GET'], ['apiVersion' => $apiVersion], ['_crud_view' => 'public']);
+        $this->addRoute($routes, 'cruding_api_read', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['GET'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?(?:/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))?'], ['_crud_view' => 'public']);
+        $this->addRoute($routes, 'cruding_api_create', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['POST'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?'], ['_crud_view' => 'public']);
+        $this->addRoute($routes, 'cruding_api_member_mutation', '/api/{apiVersion}/{crudPath}', self::API_CONTROLLER, ['PUT', 'PATCH', 'DELETE'], ['apiVersion' => $apiVersion, 'crudPath' => '[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,})'], ['_crud_view' => 'public']);
         $this->addRoute($routes, 'cruding_tokenized_catch_all', '/{crudPath}', self::CRUD_CONTROLLER, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], ['crudPath' => '(?:[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:index|new|create|import|bulk|show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)|[a-z][a-z0-9_-]*(?:/[a-z][a-z0-9_-]*)?/(?:show|read|page|edit|update|archive|restore|duplicate|delete|verify|pay)/(?:[1-9][0-9]*|[a-z0-9][a-z0-9_-]{17,}))'], ['_crud_view' => 'public']);
 
         $resource = '[a-z][a-z0-9_-]*';
