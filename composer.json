@@ -10,6 +10,7 @@
     "doctrine/doctrine-bundle": "^3.2",
     "tabling/table": "dev-master",
     "doctrine/orm": "^3.0",
+    "nelmio/api-doc-bundle": "^5.0",
     "php": "^8.4",
     "symfony/config": "^8.1",
     "symfony/dependency-injection": "^8.1",

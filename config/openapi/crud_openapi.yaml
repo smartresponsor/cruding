@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: Cruding external API
+  version: 1.0.0
+paths:
+  /api/{apiVersion}/_crud/{resourcePath}/capabilities:
+    get:
+      operationId: crudingApiCapabilities
+      parameters:
+        - in: path
+          name: apiVersion
+          required: true
+          schema:
+            type: string
+            pattern: '^v[1-9][0-9]?$'
+        - in: path
+          name: resourcePath
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource CRUD capability metadata.
+        '404':
+          description: CRUD resource is not available in the active runtime.
+  /api/{apiVersion}/{crudPath}:
+    parameters:
+      - in: path
+        name: apiVersion
+        required: true
+        schema:
+          type: string
+          pattern: '^v[1-9][0-9]?$'
+      - in: path
+        name: crudPath
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: crudingApiRead
+      responses:
+        '200':
+          description: CRUD collection or member response.
+    post:
+      operationId: crudingApiCreate
+      responses:
+        '200':
+          description: CRUD create response.
+        '201':
+          description: CRUD resource created.
+    put:
+      operationId: crudingApiReplace
+      responses:
+        '200':
+          description: CRUD member replacement response.
+    patch:
+      operationId: crudingApiUpdate
+      responses:
+        '200':
+          description: CRUD member update response.
+    delete:
+      operationId: crudingApiDelete
+      responses:
+        '200':
+          description: CRUD member deletion response.
