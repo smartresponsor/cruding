@@ -22,7 +22,7 @@ use App\Cruding\Service\Operation\CrudBulkOperation;
 use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudBulkMutationHandlerInterface;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
-use App\Tabling\Service\TableDataScopeResolver;
+use App\Tabling\Resolver\TableDataScopeResolver;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use PHPUnit\Framework\TestCase;

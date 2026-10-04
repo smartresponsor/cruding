@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Cruding\Builder\Resource;
 
 use App\Cruding\Service\Resource\CrudResourceLabelFormatter;
-use App\Tabling\Service\TableColumnMetadataBuilder;
+use App\Tabling\Builder\TableColumnMetadataBuilder;
 
 /**
  * Builds resource column builder values used by Cruding workflows.

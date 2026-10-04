@@ -126,10 +126,6 @@ services:
         arguments:
             $binderList: !tagged_iterator cruding.create_owner_binder
 
-    App\Cruding\Resolver\CrudBulkMutationHandlerResolver:
-        arguments:
-            $handlers: !tagged_iterator cruding.bulk_mutation_handler
-
     App\Cruding\Policy\CrudReservedRouteTokenPolicy:
         arguments:
             $viewTokens: '%cruding.runtime_view_tokens%'
@@ -158,6 +154,10 @@ services:
 
     App\Cruding\Resolver\:
         resource: '../src/Resolver/'
+
+    App\Cruding\Resolver\CrudBulkMutationHandlerResolver:
+        arguments:
+            $handlers: !tagged_iterator cruding.bulk_mutation_handler
 
     App\Cruding\Service\Runtime\CrudRuntimeScopeReader:
         arguments:

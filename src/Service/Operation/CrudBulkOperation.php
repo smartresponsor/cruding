@@ -17,7 +17,7 @@ use App\Cruding\ServiceInterface\CrudAccessContextBuilderInterface;
 use App\Cruding\ServiceInterface\CrudContextResolverInterface;
 use App\Cruding\ServiceInterface\Operation\CrudBulkOperationInterface;
 use App\Tabling\DTO\TableDefinitionDTO;
-use App\Tabling\Service\TableDataScopeResolver;
+use App\Tabling\Resolver\TableDataScopeResolver;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
